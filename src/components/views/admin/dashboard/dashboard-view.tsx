@@ -1,3 +1,4 @@
+
 "use client";
 import {
   Shield,
@@ -291,6 +292,5 @@ export default function AdminDashboard() {
           ))}
         </div>
       </div>
-    </div>
   );
 }
