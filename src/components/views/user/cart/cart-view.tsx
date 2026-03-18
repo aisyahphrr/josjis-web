@@ -43,7 +43,10 @@ export default function CartPage() {
     sellerName: string;
   }>;
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
   const total = subtotal;
 
   return (

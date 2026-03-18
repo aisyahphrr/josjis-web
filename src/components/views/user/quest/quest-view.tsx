@@ -15,21 +15,17 @@ import {
   Trophy,
   Star,
   Zap,
-  Gift,
   CheckCircle,
   Clock,
   ShoppingBag,
-  MessageSquare,
   Share2,
   Eye,
-  Heart,
   Sparkles,
   Medal,
   Crown,
   Target,
 } from "lucide-react";
 
-// Mock quests data
 const dailyQuests = [
   {
     id: 1,
