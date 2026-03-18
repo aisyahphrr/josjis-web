@@ -10,6 +10,7 @@ import {
   BookOpen,
   MessageSquare,
   User,
+  ShoppingBagIcon,
 } from "lucide-react";
 import type { MenuItem, RoleConfig } from "@/src/interface/dashboard";
 
@@ -29,6 +30,7 @@ export const userMenuItems: MenuItem[] = [
 
 export const umkmMenuItems: MenuItem[] = [
   { icon: Home, label: "Dashboard", href: "/dashboard-umkm" },
+  { icon: ShoppingBagIcon, label: "Buat Toko", href: "/register-umkm" },
 ];
 
 export const adminMenuItems: MenuItem[] = [
