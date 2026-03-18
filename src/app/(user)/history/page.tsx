@@ -1,5 +1,5 @@
-import HistoryView from "@/src/components/views/dashboard/user/history-view";
+import HistoryPage from "@/src/components/views/user/history/history-view";
 
 export default function DashboardUserHistoryPage() {
-  return <HistoryView />;
+  return <HistoryPage />;
 }

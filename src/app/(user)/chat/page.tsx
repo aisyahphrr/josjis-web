@@ -1,5 +1,5 @@
-import ChatView from "@/src/components/views/dashboard/user/chat-view";
+import ChatPage from "@/src/components/views/user/chat/chat-view";
 
 export default function DashboardUserChatPage() {
-  return <ChatView />;
+  return <ChatPage />;
 }

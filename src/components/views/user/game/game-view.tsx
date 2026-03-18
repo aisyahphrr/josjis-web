@@ -1,7 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
 import { Progress } from "@/src/components/ui/progress";
 import { Badge } from "@/src/components/ui/badge";
@@ -132,9 +137,9 @@ export default function GamePage() {
   const [selectedTool, setSelectedTool] = React.useState<Tool>("seed");
   const [seedDialogOpen, setSeedDialogOpen] = React.useState(false);
   const [targetPlotId, setTargetPlotId] = React.useState<number | null>(null);
-  const [harvestPulsePlotId, setHarvestPulsePlotId] = React.useState<number | null>(
-    null,
-  );
+  const [harvestPulsePlotId, setHarvestPulsePlotId] = React.useState<
+    number | null
+  >(null);
 
   React.useEffect(() => {
     claimDailyBonus();
@@ -166,7 +171,10 @@ export default function GamePage() {
           const nextStatus: PlotStatus =
             nextGrowth >= seed.growMs ? "ready_to_harvest" : "growing";
 
-          if (nextStatus === "ready_to_harvest" && plot.status !== "ready_to_harvest") {
+          if (
+            nextStatus === "ready_to_harvest" &&
+            plot.status !== "ready_to_harvest"
+          ) {
             setHarvestPulsePlotId(plot.id);
             toast({
               title: "Siap dipanen",
@@ -224,7 +232,10 @@ export default function GamePage() {
         return;
       }
       if (plot.watered) {
-        toast({ title: "Sudah disiram", description: "Tunggu sampai siap dipanen." });
+        toast({
+          title: "Sudah disiram",
+          description: "Tunggu sampai siap dipanen.",
+        });
         return;
       }
       if (!spendEnergy(1)) return;
@@ -246,7 +257,10 @@ export default function GamePage() {
     }
 
     if (plot.status !== "ready_to_harvest" || !plot.seedId) {
-      toast({ title: "Belum siap", description: "Tanaman ini belum siap dipanen." });
+      toast({
+        title: "Belum siap",
+        description: "Tanaman ini belum siap dipanen.",
+      });
       return;
     }
 
@@ -302,13 +316,19 @@ export default function GamePage() {
     );
     setSeedDialogOpen(false);
     setTargetPlotId(null);
-    toast({ title: "Tanaman berhasil ditanam", description: `${seed.name} ditanam.` });
+    toast({
+      title: "Tanaman berhasil ditanam",
+      description: `${seed.name} ditanam.`,
+    });
   };
 
-  const totalHarvestReady = plots.filter((p) => p.status === "ready_to_harvest").length;
+  const totalHarvestReady = plots.filter(
+    (p) => p.status === "ready_to_harvest",
+  ).length;
 
   return (
-    <div className="space-y-8">
+    <>
+      <div className="space-y-8">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#64762C]/30 via-[#424F17]/20 to-[#F99912]/20 p-6 border border-[#64762C]/30">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#64762C]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
@@ -328,7 +348,9 @@ export default function GamePage() {
                     <Coins className="w-5 h-5 text-[#F99912]" />
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground">Koin Asli Bogor</p>
+                    <p className="text-xs text-muted-foreground">
+                      Koin Asli Bogor
+                    </p>
                     <p className="text-xl font-bold text-[#F99912]">
                       {coins.toLocaleString()}
                     </p>
@@ -372,9 +394,11 @@ export default function GamePage() {
             <div className="grid grid-cols-3 gap-4">
               {plots.map((plot) => {
                 const seed = plot.seedId
-                  ? SEEDS.find((s) => s.id === plot.seedId) ?? null
+                  ? (SEEDS.find((s) => s.id === plot.seedId) ?? null)
                   : null;
-                const pct = seed ? Math.round((plot.growthMs / seed.growMs) * 100) : 0;
+                const pct = seed
+                  ? Math.round((plot.growthMs / seed.growMs) * 100)
+                  : 0;
                 const showReady = plot.status === "ready_to_harvest";
 
                 return (
@@ -386,7 +410,8 @@ export default function GamePage() {
                       "bg-gradient-to-b from-[#181612]/10 to-[#181612]/0",
                       "border-[#64762C]/25 hover:border-[#64762C]/50",
                       "focus:outline-none focus:ring-2 focus:ring-[#F99912]/60",
-                      showReady && "ring-2 ring-[#F99912] ring-offset-2 ring-offset-background",
+                      showReady &&
+                        "ring-2 ring-[#F99912] ring-offset-2 ring-offset-background",
                       harvestPulsePlotId === plot.id && "animate-pulse",
                     )}
                     aria-label={`Plot ${plot.id}`}
@@ -399,7 +424,9 @@ export default function GamePage() {
                     <div className="relative z-10 space-y-2">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground">Petak #{plot.id}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Petak #{plot.id}
+                          </p>
                           <p className="text-sm font-semibold text-foreground truncate">
                             {seed?.name ?? "Tanah kosong"}
                           </p>
@@ -426,7 +453,9 @@ export default function GamePage() {
                       <div
                         className={cn(
                           "h-16 rounded-xl border border-white/5 flex items-end justify-center overflow-hidden",
-                          seed ? `bg-gradient-to-br ${seed.color}` : "bg-muted/30",
+                          seed
+                            ? `bg-gradient-to-br ${seed.color}`
+                            : "bg-muted/30",
                         )}
                       >
                         {plot.status === "empty" ? (
@@ -457,7 +486,9 @@ export default function GamePage() {
                                   ? "Tumbuh..."
                                   : "Butuh air"}
                           </span>
-                          <span className="text-foreground/80">{seed ? `${pct}%` : ""}</span>
+                          <span className="text-foreground/80">
+                            {seed ? `${pct}%` : ""}
+                          </span>
                         </div>
                         <Progress value={seed ? pct : 0} className="h-1.5" />
                       </div>
@@ -483,7 +514,9 @@ export default function GamePage() {
                         : "Panen"}
                   </span>
                 </Badge>
-                <Badge className="bg-[#F99912]/15 text-[#F99912]">Biaya: 1 energi</Badge>
+                <Badge className="bg-[#F99912]/15 text-[#F99912]">
+                  Biaya: 1 energi
+                </Badge>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -544,7 +577,9 @@ export default function GamePage() {
               </div>
               <div className="flex items-start gap-2">
                 <Coins className="w-4 h-4 text-[#F99912] mt-0.5 flex-shrink-0" />
-                <span>Pilih Panen → hasil masuk ke keranjang + dapat koin.</span>
+                <span>
+                  Pilih Panen → hasil masuk ke keranjang + dapat koin.
+                </span>
               </div>
             </div>
           </CardContent>
@@ -556,7 +591,8 @@ export default function GamePage() {
           <DialogHeader>
             <DialogTitle>Pilih Tanaman</DialogTitle>
             <DialogDescription>
-              Pertumbuhan berjalan setelah disiram (timer). Stok bibit dari bonus harian.
+              Pertumbuhan berjalan setelah disiram (timer). Stok bibit dari
+              bonus harian.
             </DialogDescription>
           </DialogHeader>
 
@@ -567,10 +603,18 @@ export default function GamePage() {
                 onClick={() => plantOnTarget(s.id)}
                 className="rounded-2xl border border-[#F99912]/10 hover:border-[#F99912]/30 bg-muted/20 hover:bg-muted/30 transition-all p-3 text-left"
               >
-                <div className={cn("h-12 rounded-xl bg-gradient-to-br", s.color)} />
-                <p className="mt-2 text-sm font-semibold text-foreground">{s.name}</p>
-                <p className="text-xs text-muted-foreground">Stok: {seeds[s.id] ?? 0}</p>
-                <p className="text-xs text-muted-foreground">Reward: +{s.coinsReward} koin</p>
+                <div
+                  className={cn("h-12 rounded-xl bg-gradient-to-br", s.color)}
+                />
+                <p className="mt-2 text-sm font-semibold text-foreground">
+                  {s.name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Stok: {seeds[s.id] ?? 0}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Reward: +{s.coinsReward} koin
+                </p>
               </button>
             ))}
           </div>
@@ -586,6 +630,6 @@ export default function GamePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

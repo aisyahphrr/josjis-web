@@ -93,6 +93,7 @@ export function HarvestBogorSection() {
             <Link href="/game/harvest">
               <Button
                 size="lg"
+                suppressHydrationWarning
                 className="bg-gradient-to-r from-[#64762C] to-[#424F17] hover:from-[#64762C]/90 hover:to-[#424F17]/90 text-foreground font-semibold shadow-[0_0_30px_rgba(100,118,44,0.3)] hover:shadow-[0_0_40px_rgba(100,118,44,0.5)] transition-all duration-300 group"
               >
                 <Leaf className="mr-2 w-5 h-5" />
