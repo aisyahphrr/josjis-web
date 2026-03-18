@@ -6,7 +6,7 @@ import { BogorQuestSection } from "@/src/components/LandingPage/bogor-quest-sect
 import { GeminiAISection } from "@/src/components/LandingPage/gemini-ai-section";
 import { AcademySection } from "@/src/components/LandingPage/academy-section";
 import { FooterSection } from "@/src/components/LandingPage/footer-section";
-import { Navbar } from "@/src/components/LandingPage/navbar";
+import { Navbar } from "@/src/components/layouts/navbar";
 
 export default function LandingPage() {
   return (
