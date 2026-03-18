@@ -81,18 +81,50 @@ const roleConfigs = {
 interface DashboardLayoutProps {
   children: ReactNode
   role?: "user" | "umkm" | "admin" | "driver"
+  /**
+   * Backward-compat props (some pages still pass these).
+   * If provided, `menuItems` overrides role-based menu config.
+   */
+  title?: string
+  menuItems?: MenuItem[]
 }
 
 export function DashboardLayout({ 
   children, 
-  role = "user",
+  role,
+  menuItems: menuItemsOverride,
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+
+  const roleFromPath: DashboardLayoutProps["role"] =
+    pathname.startsWith("/dashboard/admin") || pathname.startsWith("/admin")
+      ? "admin"
+      : pathname.startsWith("/dashboard/umkm") || pathname.startsWith("/umkm")
+        ? "umkm"
+        : pathname.startsWith("/dashboard/driver") || pathname.startsWith("/driver")
+          ? "driver"
+          : pathname.startsWith("/dashboard/user")
+            ? "user"
+            : undefined
+
+  const roleFromStorage: DashboardLayoutProps["role"] = (() => {
+    try {
+      const raw = localStorage.getItem("josjis_user")
+      if (!raw) return undefined
+      const parsed = JSON.parse(raw) as { role?: DashboardLayoutProps["role"] }
+      return parsed?.role
+    } catch {
+      return undefined
+    }
+  })()
+
+  const resolvedRole: NonNullable<DashboardLayoutProps["role"]> =
+    role ?? roleFromPath ?? roleFromStorage ?? "user"
   
-  const config = roleConfigs[role]
-  const menuItems = config.menuItems
+  const config = roleConfigs[resolvedRole]
+  const menuItems = menuItemsOverride ?? config.menuItems
 
   const handleLogout = () => {
     localStorage.removeItem("josjis_user")
@@ -101,7 +133,7 @@ export function DashboardLayout({
 
   // Get role display info
   const getRoleInfo = () => {
-    switch(role) {
+    switch(resolvedRole) {
       case "user": return { name: "User", email: "user@josjis.com", initial: "U" }
       case "umkm": return { name: "UMKM Seller", email: "umkm@josjis.com", initial: "S" }
       case "admin": return { name: "Administrator", email: "admin@josjis.com", initial: "A" }
