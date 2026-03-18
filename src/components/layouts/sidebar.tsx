@@ -12,7 +12,7 @@ interface DashboardSidebarProps {
   onLogout: () => void;
 }
 
-export function DashboardSidebar({
+export function Sidebar({
   sidebarOpen,
   setSidebarOpen,
   config,
