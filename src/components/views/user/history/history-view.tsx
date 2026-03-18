@@ -1,7 +1,4 @@
 "use client";
-
-import { useState } from "react";
-import { DashboardLayout } from "@/src/components/Dashboard/dashboard-layout";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
@@ -74,8 +71,7 @@ export default function HistoryPage() {
     : null;
 
   return (
-    <DashboardLayout role="user">
-      <div className="space-y-6">
+    <div className="space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-foreground">
@@ -446,6 +442,6 @@ export default function HistoryPage() {
           </DialogContent>
         </Dialog>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

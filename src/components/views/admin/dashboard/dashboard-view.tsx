@@ -1,6 +1,4 @@
 "use client";
-
-import { DashboardLayout } from "@/src/components/Dashboard/dashboard-layout";
 import {
   Shield,
   Store,
@@ -25,8 +23,7 @@ import {
 
 export default function AdminDashboard() {
   return (
-    <DashboardLayout role="admin">
-      <div className="space-y-8">
+    <div className="space-y-8">
         {/* Admin Banner */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#F99912]/10 via-[#64762C]/20 to-[#424F17]/10 border border-[#F99912]/20 p-6 lg:p-8">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#F99912]/10 rounded-full blur-3xl" />
@@ -294,6 +291,6 @@ export default function AdminDashboard() {
           ))}
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

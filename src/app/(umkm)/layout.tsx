@@ -3,59 +3,37 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, Bell, Search, ChevronDown } from "lucide-react";
-import type {
-  DashboardLayoutProps,
-  MenuItem,
-  RoleInfo,
-} from "@/src/interface/dashboard";
-import { roleConfigs } from "@/src/lib/constants/dashboard/menu-items";
-import { DashboardSidebar } from "@/src/components/layouts/sidebar";
+import { Sidebar } from "@/src/components/layouts/sidebar";
+import { roleConfigs } from "@/src/lib/constants/layouts/menu-items";
 
-export function DashboardLayout({
+export default function UmkmLayout({
   children,
-  role = "user",
-  menuItems: menuItemsOverride,
-}: DashboardLayoutProps & { menuItems?: MenuItem[] }) {
+}: {
+  children: React.ReactNode;
+}) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
-  const config = roleConfigs[role];
-  const menuItems = menuItemsOverride ?? config.menuItems;
+  const config = roleConfigs.umkm;
+  const roleInfo = {
+    name: "UMKM Seller",
+    email: "umkm@josjis.com",
+    initial: "S",
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("josjis_user");
     router.push("/login");
   };
 
-  const getRoleInfo = (): RoleInfo => {
-    switch (role) {
-      case "user":
-        return { name: "User", email: "user@josjis.com", initial: "U" };
-      case "umkm":
-        return { name: "UMKM Seller", email: "umkm@josjis.com", initial: "S" };
-      case "admin":
-        return {
-          name: "Administrator",
-          email: "admin@josjis.com",
-          initial: "A",
-        };
-      case "driver":
-        return { name: "Driver", email: "driver@josjis.com", initial: "D" };
-      default:
-        return { name: "User", email: "user@josjis.com", initial: "U" };
-    }
-  };
-
-  const roleInfo = getRoleInfo();
-
   return (
     <div className="min-h-screen bg-background">
-      <DashboardSidebar
+      <Sidebar
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         config={config}
-        menuItems={menuItems}
+        menuItems={config.menuItems}
         pathname={pathname}
         onLogout={handleLogout}
       />
@@ -83,7 +61,7 @@ export function DashboardLayout({
 
             <button className="relative p-2 rounded-xl hover:bg-muted/50 transition-colors">
               <Bell className="w-5 h-5 text-muted-foreground" />
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#F99912]" />
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#64762C]" />
             </button>
 
             <div className="flex items-center gap-3 pl-4 border-l border-border">

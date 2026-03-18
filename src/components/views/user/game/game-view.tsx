@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { DashboardLayout } from "@/src/components/Dashboard/dashboard-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
 import { Progress } from "@/src/components/ui/progress";
@@ -309,8 +308,7 @@ export default function GamePage() {
   const totalHarvestReady = plots.filter((p) => p.status === "ready_to_harvest").length;
 
   return (
-    <DashboardLayout role="user">
-      <div className="space-y-6">
+    <div className="space-y-8">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#64762C]/30 via-[#424F17]/20 to-[#F99912]/20 p-6 border border-[#64762C]/30">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#64762C]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
@@ -588,6 +586,6 @@ export default function GamePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </DashboardLayout>
+    </div>
   );
 }
