@@ -22,57 +22,19 @@ import {
   RotateCcw,
   MessageSquare,
 } from "lucide-react";
-
-// Mock order history
-const orders = [
-  {
-    id: "ORD-2026-001",
-    date: "10 Mar 2026",
-    status: "delivered",
-    total: 275000,
-    items: [
-      { name: "Lapis Talas Bogor Sangkuriang", qty: 2, price: 85000 },
-      { name: "Roti Unyil Venus Original", qty: 3, price: 35000 },
-    ],
-  },
-  {
-    id: "ORD-2026-002",
-    date: "8 Mar 2026",
-    status: "shipping",
-    total: 180000,
-    items: [
-      { name: "Kopi Bogor Arabika Premium", qty: 2, price: 75000 },
-      { name: "Makaroni Ngehe Level 5", qty: 2, price: 15000 },
-    ],
-  },
-  {
-    id: "ORD-2026-003",
-    date: "5 Mar 2026",
-    status: "processing",
-    total: 120000,
-    items: [
-      { name: "Dodol Talas Bogor", qty: 1, price: 55000 },
-      { name: "Brownies Talas Amanda", qty: 1, price: 65000 },
-    ],
-  },
-  {
-    id: "ORD-2026-004",
-    date: "1 Mar 2026",
-    status: "delivered",
-    total: 95000,
-    items: [
-      { name: "Keripik Talas Premium", qty: 1, price: 45000 },
-      { name: "Asinan Bogor Gedung Dalam", qty: 2, price: 25000 },
-    ],
-  },
-  {
-    id: "ORD-2026-005",
-    date: "25 Feb 2026",
-    status: "cancelled",
-    total: 85000,
-    items: [{ name: "Lapis Talas Bogor Sangkuriang", qty: 1, price: 85000 }],
-  },
-];
+import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/src/components/ui/dialog";
+import { Textarea } from "@/src/components/ui/textarea";
+import { Label } from "@/src/components/ui/label";
+import { useUserStore } from "@/src/store/user-store";
+import { getProductById } from "@/src/lib/products";
 
 const statusConfig = {
   processing: {
@@ -90,20 +52,26 @@ const statusConfig = {
     icon: CheckCircle,
     color: "bg-green-500/20 text-green-500",
   },
-  cancelled: {
-    label: "Dibatalkan",
-    icon: RotateCcw,
-    color: "bg-red-500/20 text-red-500",
-  },
 };
 
 export default function HistoryPage() {
+  const { orders, addReview } = useUserStore();
   const [activeTab, setActiveTab] = useState("all");
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [ratingOpen, setRatingOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [rating, setRating] = useState<1 | 2 | 3 | 4 | 5>(5);
+  const [comment, setComment] = useState("");
 
   const filteredOrders =
     activeTab === "all"
       ? orders
       : orders.filter((order) => order.status === activeTab);
+
+  const selectedOrder = selectedOrderId
+    ? orders.find((o) => o.id === selectedOrderId) ?? null
+    : null;
 
   return (
     <DashboardLayout role="user">
@@ -179,21 +147,24 @@ export default function HistoryPage() {
 
                       {/* Order Items */}
                       <div className="space-y-3 mb-4">
-                        {order.items.map((item, idx) => (
+                        {order.items.map((item, idx) => {
+                          const p = getProductById(item.productId);
+                          return (
                           <div key={idx} className="flex items-center gap-4">
                             <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#F99912]/20 to-[#64762C]/20 flex items-center justify-center flex-shrink-0">
                               <ShoppingBag className="w-6 h-6 text-[#F99912]/50" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <h3 className="font-medium text-foreground truncate">
-                                {item.name}
+                                {p?.name ?? `Produk #${item.productId}`}
                               </h3>
                               <p className="text-sm text-muted-foreground">
-                                {item.qty}x Rp {item.price.toLocaleString()}
+                                {item.quantity}x Rp {item.price.toLocaleString()}
                               </p>
                             </div>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
 
                       {/* Order Footer */}
@@ -211,6 +182,10 @@ export default function HistoryPage() {
                             variant="outline"
                             size="sm"
                             className="border-[#F99912]/30 hover:bg-[#F99912]/10"
+                            onClick={() => {
+                              setSelectedOrderId(order.id);
+                              setDetailOpen(true);
+                            }}
                           >
                             <Eye className="w-4 h-4 mr-1" />
                             Detail
@@ -221,17 +196,26 @@ export default function HistoryPage() {
                                 variant="outline"
                                 size="sm"
                                 className="border-[#F99912]/30 hover:bg-[#F99912]/10"
+                                onClick={() => {
+                                  setSelectedOrderId(order.id);
+                                  setSelectedProductId(order.items[0]?.productId ?? null);
+                                  setRating(5);
+                                  setComment("");
+                                  setRatingOpen(true);
+                                }}
                               >
                                 <Star className="w-4 h-4 mr-1" />
                                 Beri Rating
                               </Button>
-                              <Button
-                                size="sm"
-                                className="bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612]"
-                              >
-                                <RotateCcw className="w-4 h-4 mr-1" />
-                                Beli Lagi
-                              </Button>
+                              <Link href="/dashboard-user/marketplace">
+                                <Button
+                                  size="sm"
+                                  className="bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612]"
+                                >
+                                  <RotateCcw className="w-4 h-4 mr-1" />
+                                  Beli Lagi
+                                </Button>
+                              </Link>
                             </>
                           )}
                           {order.status === "shipping" && (
@@ -275,6 +259,192 @@ export default function HistoryPage() {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Detail Dialog */}
+        <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
+          <DialogContent className="sm:max-w-xl">
+            <DialogHeader>
+              <DialogTitle>Detail Pesanan</DialogTitle>
+              <DialogDescription>
+                Informasi lengkap pesanan dan daftar produk.
+              </DialogDescription>
+            </DialogHeader>
+            {selectedOrder ? (
+              <div className="space-y-4">
+                <div className="rounded-xl bg-muted/30 p-4 border border-[#F99912]/10">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Order ID</p>
+                      <p className="font-semibold">{selectedOrder.id}</p>
+                    </div>
+                    <Badge
+                      className={
+                        statusConfig[selectedOrder.status].color +
+                        " whitespace-nowrap"
+                      }
+                    >
+                      <span className="inline-flex items-center">
+                        {statusConfig[selectedOrder.status].label}
+                      </span>
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Tanggal: {new Date(selectedOrder.createdAtISO).toLocaleString()}
+                  </p>
+                </div>
+
+                <div className="rounded-xl bg-muted/30 p-4 border border-[#F99912]/10 space-y-2">
+                  <p className="text-sm font-medium text-foreground">List Produk</p>
+                  {selectedOrder.items.map((it) => {
+                    const p = getProductById(it.productId);
+                    return (
+                      <div
+                        key={`${selectedOrder.id}-${it.productId}`}
+                        className="flex items-center justify-between text-sm"
+                      >
+                        <span className="truncate">
+                          {p?.name ?? `Produk #${it.productId}`}{" "}
+                          <span className="text-muted-foreground">
+                            x{it.quantity}
+                          </span>
+                        </span>
+                        <span className="font-medium">
+                          Rp {(it.price * it.quantity).toLocaleString()}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="rounded-xl bg-muted/30 p-4 border border-[#F99912]/10">
+                  <p className="text-sm text-muted-foreground">Alamat pengiriman</p>
+                  <p className="text-sm">
+                    {selectedOrder.shippingAddress ?? "Alamat belum diinput."}
+                  </p>
+                </div>
+
+                <div className="rounded-xl bg-muted/30 p-4 border border-[#F99912]/10 flex items-center justify-between">
+                  <span className="font-medium">Total harga</span>
+                  <span className="text-lg font-bold text-[#F99912]">
+                    Rp {selectedOrder.total.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Pesanan tidak ditemukan.</p>
+            )}
+            <DialogFooter>
+              <Button
+                variant="outline"
+                className="border-[#F99912]/30 hover:bg-[#F99912]/10"
+                onClick={() => setDetailOpen(false)}
+              >
+                Tutup
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Rating Dialog */}
+        <Dialog open={ratingOpen} onOpenChange={setRatingOpen}>
+          <DialogContent className="sm:max-w-xl">
+            <DialogHeader>
+              <DialogTitle>Beri Rating & Ulasan</DialogTitle>
+              <DialogDescription>
+                Rating akan tampil di halaman produk secara permanen.
+              </DialogDescription>
+            </DialogHeader>
+            {selectedOrder ? (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Pilih Produk</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedOrder.items.map((it) => {
+                      const p = getProductById(it.productId);
+                      const active = selectedProductId === it.productId;
+                      return (
+                        <Button
+                          key={it.productId}
+                          type="button"
+                          size="sm"
+                          variant={active ? "default" : "outline"}
+                          className={
+                            active
+                              ? "bg-[#F99912] text-[#181612] hover:bg-[#F99912]/90"
+                              : "border-[#F99912]/30 hover:bg-[#F99912]/10"
+                          }
+                          onClick={() => setSelectedProductId(it.productId)}
+                        >
+                          {p?.name ?? `Produk #${it.productId}`}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Rating</Label>
+                  <div className="flex items-center gap-2">
+                    {([1, 2, 3, 4, 5] as const).map((v) => (
+                      <button
+                        key={v}
+                        className="p-1"
+                        onClick={() => setRating(v)}
+                        aria-label={`Beri ${v} bintang`}
+                      >
+                        <Star
+                          className={
+                            v <= rating
+                              ? "w-6 h-6 fill-[#F99912] text-[#F99912]"
+                              : "w-6 h-6 text-muted-foreground"
+                          }
+                        />
+                      </button>
+                    ))}
+                    <span className="text-sm text-muted-foreground">{rating}/5</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="review">Ulasan</Label>
+                  <Textarea
+                    id="review"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Tulis pengalaman kamu..."
+                    className="bg-muted/50 border-[#F99912]/10 focus:border-[#F99912]/50 min-h-[120px]"
+                  />
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Pesanan tidak ditemukan.</p>
+            )}
+            <DialogFooter>
+              <Button
+                variant="outline"
+                className="border-[#F99912]/30 hover:bg-[#F99912]/10"
+                onClick={() => setRatingOpen(false)}
+              >
+                Batal
+              </Button>
+              <Button
+                className="bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612]"
+                onClick={() => {
+                  if (!selectedOrder || !selectedProductId) return;
+                  addReview({
+                    orderId: selectedOrder.id,
+                    productId: selectedProductId,
+                    rating,
+                    comment: comment.trim() || "Produk bagus!",
+                  });
+                  setRatingOpen(false);
+                }}
+              >
+                Submit
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );
