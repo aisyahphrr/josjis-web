@@ -1,5 +1,4 @@
-import GameView from "@/src/components/views/dashboard/user/game-view";
-
+import GamePage from "@/src/components/views/user/game/game-view";
 export default function DashboardUserGamePage() {
-  return <GameView />;
+  return <GamePage />;
 }

@@ -1,5 +1,4 @@
-import ProfileView from "@/src/components/views/dashboard/user/profile-view";
-
+import ProfilePage from "@/src/components/views/user/profile/profile-view";
 export default function DashboardUserProfilePage() {
-  return <ProfileView />;
+  return <ProfilePage />;
 }

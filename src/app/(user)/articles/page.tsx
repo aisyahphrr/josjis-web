@@ -1,5 +1,4 @@
-import ArticlesView from "@/src/components/views/dashboard/user/articles-view";
-
+import ArticlesPage from "@/src/components/views/user/articles/articles-view";
 export default function DashboardUserArticlesPage() {
-  return <ArticlesView />;
+  return <ArticlesPage />;
 }

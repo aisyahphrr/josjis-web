@@ -1,5 +1,4 @@
-import MysteryBoxView from "@/src/components/views/dashboard/user/mystery-box-view";
-
+import MysteryBoxPage from "@/src/components/views/user/mystery-box/mystery-box-view";
 export default function DashboardUserMysteryBoxPage() {
-  return <MysteryBoxView />;
+  return <MysteryBoxPage />;
 }

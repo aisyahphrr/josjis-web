@@ -1,5 +1,4 @@
-import QuestView from "@/src/components/views/dashboard/user/quest-view";
-
+import QuestPage from "@/src/components/views/user/quest/quest-view";
 export default function DashboardUserQuestPage() {
-  return <QuestView />;
+  return <QuestPage />;
 }
