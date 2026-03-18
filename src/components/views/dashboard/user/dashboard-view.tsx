@@ -22,6 +22,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
+import { getFeaturedProducts } from "@/src/lib/products";
 
 // Mock data
 const stats = [
@@ -76,26 +77,7 @@ const recentOrders = [
   },
 ];
 
-const featuredProducts = [
-  {
-    name: "Lapis Talas Bogor",
-    price: 85000,
-    rating: 4.9,
-    image: "/placeholder.svg",
-  },
-  {
-    name: "Roti Unyil Venus",
-    price: 35000,
-    rating: 4.8,
-    image: "/placeholder.svg",
-  },
-  {
-    name: "Tauge Goreng",
-    price: 25000,
-    rating: 4.7,
-    image: "/placeholder.svg",
-  },
-];
+const featuredProducts = getFeaturedProducts();
 
 export default function UserDashboardPage() {
   return (
@@ -168,7 +150,7 @@ export default function UserDashboardPage() {
           <Card className="lg:col-span-2 bg-card/50 backdrop-blur border-[#F99912]/10">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg">Pesanan Terbaru</CardTitle>
-              <Link href="/dashboard-user/history">
+              <Link href="/orders">
                 <Button variant="ghost" size="sm" className="text-[#F99912]">
                   Lihat Semua <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -290,9 +272,10 @@ export default function UserDashboardPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {featuredProducts.map((product) => (
-                <div
-                  key={product.name}
-                  className="group p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all duration-300 hover:shadow-lg cursor-pointer"
+                <Link
+                  key={product.id}
+                  href={`/product/${product.id}`}
+                  className="group p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all duration-300 hover:shadow-lg"
                 >
                   <div className="aspect-square rounded-xl bg-gradient-to-br from-[#F99912]/20 to-[#64762C]/20 mb-3 flex items-center justify-center">
                     <ShoppingBag className="w-12 h-12 text-[#F99912]/50" />
@@ -311,7 +294,7 @@ export default function UserDashboardPage() {
                       </span>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </CardContent>

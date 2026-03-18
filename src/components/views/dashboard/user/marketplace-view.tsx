@@ -16,154 +16,9 @@ import {
   List,
   ChevronDown,
 } from "lucide-react";
-
-// Mock products data
-const products = [
-  {
-    id: 1,
-    name: "Lapis Talas Bogor Sangkuriang",
-    price: 85000,
-    originalPrice: 95000,
-    rating: 4.9,
-    reviews: 234,
-    category: "Kue",
-    seller: "Toko Lapis Bogor",
-    image: "/placeholder.svg",
-    badge: "Best Seller",
-  },
-  {
-    id: 2,
-    name: "Roti Unyil Venus Original",
-    price: 35000,
-    originalPrice: null,
-    rating: 4.8,
-    reviews: 189,
-    category: "Roti",
-    seller: "Venus Bakery",
-    image: "/placeholder.svg",
-    badge: null,
-  },
-  {
-    id: 3,
-    name: "Asinan Bogor Gedung Dalam",
-    price: 25000,
-    originalPrice: 30000,
-    rating: 4.7,
-    reviews: 156,
-    category: "Makanan",
-    seller: "Asinan Pak Maman",
-    image: "/placeholder.svg",
-    badge: "Promo",
-  },
-  {
-    id: 4,
-    name: "Tauge Goreng Pak Amin",
-    price: 28000,
-    originalPrice: null,
-    rating: 4.6,
-    reviews: 98,
-    category: "Makanan",
-    seller: "RM Pak Amin",
-    image: "/placeholder.svg",
-    badge: null,
-  },
-  {
-    id: 5,
-    name: "Keripik Talas Premium",
-    price: 45000,
-    originalPrice: null,
-    rating: 4.5,
-    reviews: 76,
-    category: "Snack",
-    seller: "Bogor Chips",
-    image: "/placeholder.svg",
-    badge: "New",
-  },
-  {
-    id: 6,
-    name: "Makaroni Ngehe Level 5",
-    price: 15000,
-    originalPrice: null,
-    rating: 4.4,
-    reviews: 312,
-    category: "Snack",
-    seller: "Makaroni Ngehe",
-    image: "/placeholder.svg",
-    badge: null,
-  },
-  {
-    id: 7,
-    name: "Dodol Talas Bogor",
-    price: 55000,
-    originalPrice: 65000,
-    rating: 4.8,
-    reviews: 145,
-    category: "Kue",
-    seller: "Dodol Picnic",
-    image: "/placeholder.svg",
-    badge: "Promo",
-  },
-  {
-    id: 8,
-    name: "Soto Mie Bogor Pak Kadir",
-    price: 32000,
-    originalPrice: null,
-    rating: 4.7,
-    reviews: 89,
-    category: "Makanan",
-    seller: "Soto Mie Pak Kadir",
-    image: "/placeholder.svg",
-    badge: null,
-  },
-  {
-    id: 9,
-    name: "Pisang Molen Venus",
-    price: 28000,
-    originalPrice: null,
-    rating: 4.6,
-    reviews: 167,
-    category: "Kue",
-    seller: "Venus Bakery",
-    image: "/placeholder.svg",
-    badge: null,
-  },
-  {
-    id: 10,
-    name: "Kopi Bogor Arabika",
-    price: 75000,
-    originalPrice: null,
-    rating: 4.9,
-    reviews: 234,
-    category: "Minuman",
-    seller: "Kopi Gunung Salak",
-    image: "/placeholder.svg",
-    badge: "Premium",
-  },
-  {
-    id: 11,
-    name: "Brownies Talas Amanda",
-    price: 65000,
-    originalPrice: null,
-    rating: 4.7,
-    reviews: 198,
-    category: "Kue",
-    seller: "Amanda Brownies",
-    image: "/placeholder.svg",
-    badge: null,
-  },
-  {
-    id: 12,
-    name: "Emping Melinjo Bogor",
-    price: 48000,
-    originalPrice: 55000,
-    rating: 4.5,
-    reviews: 67,
-    category: "Snack",
-    seller: "Emping Mbah Siti",
-    image: "/placeholder.svg",
-    badge: "Promo",
-  },
-];
+import Link from "next/link";
+import { products } from "@/src/lib/products";
+import { useUserStore } from "@/src/store/user-store";
 
 const categories = ["Semua", "Makanan", "Kue", "Snack", "Minuman"];
 
@@ -171,7 +26,7 @@ export default function MarketplacePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Semua");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [wishlist, setWishlist] = useState<number[]>([]);
+  const { wishlist, toggleWishlist, addToCart, reviews } = useUserStore();
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name
@@ -181,12 +36,6 @@ export default function MarketplacePage() {
       selectedCategory === "Semua" || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
-
-  const toggleWishlist = (id: number) => {
-    setWishlist((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id],
-    );
-  };
 
   return (
     <DashboardLayout role="user">
@@ -282,10 +131,10 @@ export default function MarketplacePage() {
                 viewMode === "list" ? "flex flex-row" : ""
               }`}
             >
-              <div
-                className={`relative ${viewMode === "list" ? "w-48 h-48" : "aspect-square"}`}
+              <Link
+                href={`/product/${product.id}`}
+                className={`relative ${viewMode === "list" ? "w-48 h-48" : "aspect-square"} block`}
               >
-                {/* Product Image */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#F99912]/20 to-[#64762C]/20 flex items-center justify-center">
                   <ShoppingCart className="w-12 h-12 text-[#F99912]/30" />
                 </div>
@@ -309,24 +158,31 @@ export default function MarketplacePage() {
 
                 {/* Wishlist Button */}
                 <button
-                  onClick={() => toggleWishlist(product.id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleWishlist(product.id);
+                  }}
                   className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-background transition-colors"
+                  aria-label="Toggle wishlist"
                 >
                   <Heart
                     className={`w-4 h-4 ${wishlist.includes(product.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`}
                   />
                 </button>
-              </div>
+              </Link>
 
               <CardContent
                 className={`p-4 ${viewMode === "list" ? "flex-1 flex flex-col justify-center" : ""}`}
               >
                 <p className="text-xs text-muted-foreground mb-1">
-                  {product.seller}
+                  {product.sellerName}
                 </p>
-                <h3 className="font-medium text-foreground group-hover:text-[#F99912] transition-colors line-clamp-2 mb-2">
-                  {product.name}
-                </h3>
+                <Link href={`/product/${product.id}`}>
+                  <h3 className="font-medium text-foreground group-hover:text-[#F99912] transition-colors line-clamp-2 mb-2">
+                    {product.name}
+                  </h3>
+                </Link>
 
                 {/* Rating */}
                 <div className="flex items-center gap-1 mb-2">
@@ -335,7 +191,10 @@ export default function MarketplacePage() {
                     {product.rating}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    ({product.reviews})
+                    (
+                    {reviews.filter((r) => r.productId === product.id).length ||
+                      product.reviewsCount}
+                    )
                   </span>
                 </div>
 
@@ -355,6 +214,11 @@ export default function MarketplacePage() {
                 <Button
                   className="w-full bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612] hover:shadow-[0_0_20px_rgba(249,153,18,0.3)]"
                   size="sm"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addToCart(product.id, 1);
+                  }}
                 >
                   <ShoppingCart className="w-4 h-4 mr-2" />
                   Tambah Keranjang

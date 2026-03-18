@@ -1,70 +1,29 @@
 "use client";
 
-import { useState } from "react";
 import { DashboardLayout } from "@/src/components/Dashboard/dashboard-layout";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
 import { Heart, ShoppingCart, Trash2, Star, ShoppingBag } from "lucide-react";
 import Link from "next/link";
-
-// Mock wishlist data
-const initialWishlist = [
-  {
-    id: 1,
-    name: "Lapis Talas Bogor Sangkuriang",
-    price: 85000,
-    rating: 4.9,
-    reviews: 234,
-    seller: "Toko Lapis Bogor",
-  },
-  {
-    id: 2,
-    name: "Kopi Bogor Arabika Premium",
-    price: 75000,
-    rating: 4.8,
-    reviews: 189,
-    seller: "Kopi Gunung Salak",
-  },
-  {
-    id: 3,
-    name: "Dodol Talas Bogor",
-    price: 55000,
-    rating: 4.7,
-    reviews: 156,
-    seller: "Dodol Picnic",
-  },
-  {
-    id: 4,
-    name: "Brownies Talas Amanda",
-    price: 65000,
-    rating: 4.6,
-    reviews: 98,
-    seller: "Amanda Brownies",
-  },
-  {
-    id: 5,
-    name: "Keripik Talas Premium",
-    price: 45000,
-    rating: 4.5,
-    reviews: 76,
-    seller: "Bogor Chips",
-  },
-  {
-    id: 6,
-    name: "Makaroni Ngehe Level 5",
-    price: 15000,
-    rating: 4.8,
-    reviews: 312,
-    seller: "Makaroni Ngehe",
-  },
-];
+import { useUserStore } from "@/src/store/user-store";
+import { getProductById } from "@/src/lib/products";
 
 export default function WishlistPage() {
-  const [wishlist, setWishlist] = useState(initialWishlist);
+  const { wishlist, removeFromWishlist, moveWishlistToCart, reviews } =
+    useUserStore();
 
-  const removeFromWishlist = (id: number) => {
-    setWishlist((items) => items.filter((item) => item.id !== id));
-  };
+  const wishlistItems = wishlist
+    .map((id) => getProductById(id))
+    .filter(Boolean)
+    .map((p) => ({
+      id: p!.id,
+      name: p!.name,
+      price: p!.price,
+      rating: p!.rating,
+      reviewsCount:
+        reviews.filter((r) => r.productId === p!.id).length || p!.reviewsCount,
+      seller: p!.sellerName,
+    }));
 
   return (
     <DashboardLayout role="user">
@@ -74,15 +33,15 @@ export default function WishlistPage() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Wishlist</h1>
             <p className="text-muted-foreground">
-              {wishlist.length} produk tersimpan
+              {wishlistItems.length} produk tersimpan
             </p>
           </div>
         </div>
 
         {/* Wishlist Grid */}
-        {wishlist.length > 0 ? (
+        {wishlistItems.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {wishlist.map((item) => (
+            {wishlistItems.map((item) => (
               <Card
                 key={item.id}
                 className="group bg-card/50 backdrop-blur border-[#F99912]/10 hover:border-[#F99912]/30 transition-all duration-300 hover:shadow-[0_0_30px_rgba(249,153,18,0.1)] overflow-hidden"
@@ -113,7 +72,7 @@ export default function WishlistPage() {
                       {item.rating}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      ({item.reviews})
+                      ({item.reviewsCount})
                     </span>
                   </div>
 
@@ -125,6 +84,7 @@ export default function WishlistPage() {
                     <Button
                       className="flex-1 bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612] hover:shadow-[0_0_20px_rgba(249,153,18,0.3)]"
                       size="sm"
+                      onClick={() => moveWishlistToCart(item.id)}
                     >
                       <ShoppingCart className="w-4 h-4 mr-1" />
                       Keranjang
