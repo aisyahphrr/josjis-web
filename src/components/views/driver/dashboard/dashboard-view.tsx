@@ -1,6 +1,4 @@
 "use client";
-
-import { DashboardLayout } from "@/src/components/Dashboard/dashboard-layout";
 import {
   Truck,
   Package,
@@ -12,25 +10,9 @@ import {
   Phone,
   CheckCircle,
   Star,
-  User,
-  History,
-  Home,
-  Settings,
-  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import Link from "next/link";
-
-const driverMenuItems = [
-  { icon: Home, label: "Dashboard", href: "/driver" },
-  { icon: Package, label: "Pesanan Aktif", href: "/driver/orders" },
-  { icon: MapPin, label: "Tracking", href: "/driver/tracking" },
-  { icon: History, label: "Riwayat", href: "/driver/history" },
-  { icon: Star, label: "Rating", href: "/driver/rating" },
-  { icon: MessageSquare, label: "Chat", href: "/driver/chat" },
-  { icon: User, label: "Profil", href: "/driver/profile" },
-  { icon: Settings, label: "Pengaturan", href: "/driver/settings" },
-];
 
 const stats = [
   {
@@ -122,8 +104,7 @@ const deliveryHistory = [
 
 export default function DriverDashboard() {
   return (
-    <DashboardLayout menuItems={driverMenuItems} role="driver">
-      <div className="space-y-8">
+    <div className="space-y-8">
         {/* Driver Banner */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#64762C]/20 via-[#F99912]/10 to-[#424F17]/20 border border-[#64762C]/20 p-6 lg:p-8">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#64762C]/10 rounded-full blur-3xl" />
@@ -411,6 +392,6 @@ export default function DriverDashboard() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

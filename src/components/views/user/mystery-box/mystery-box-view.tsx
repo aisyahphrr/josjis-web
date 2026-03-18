@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { DashboardLayout } from "@/src/components/Dashboard/dashboard-layout";
 import {
   Card,
   CardContent,
@@ -121,8 +120,7 @@ export default function MysteryBoxPage() {
   };
 
   return (
-    <DashboardLayout role="user">
-      <div className="space-y-6">
+    <div className="space-y-8">
         {/* Header */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#F99912]/30 via-purple-500/20 to-cyan-500/20 p-6 border border-[#F99912]/20">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#F99912]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 animate-pulse" />
@@ -344,6 +342,6 @@ export default function MysteryBoxPage() {
           </CardContent>
         </Card>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

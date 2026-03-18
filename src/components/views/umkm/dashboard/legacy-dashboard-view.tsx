@@ -1,150 +1,31 @@
 "use client";
-
-import { DashboardLayout } from "@/src/components/Dashboard/dashboard-layout";
 import {
   Store,
-  Package,
-  ShoppingCart,
   Star,
   TrendingUp,
   ArrowRight,
   Plus,
-  BarChart3,
   Bot,
-  GraduationCap,
-  FileCheck,
   Eye,
-  Edit,
-  Trash2,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import Link from "next/link";
 import {
-  Home,
-  Package as PackageIcon,
-  ClipboardList,
-  MessageSquare,
-  BookOpen,
-  User,
-  Settings,
-} from "lucide-react";
-
-const umkmMenuItems = [
-  { icon: Home, label: "Dashboard", href: "/umkm" },
-  { icon: BarChart3, label: "Statistik", href: "/umkm/statistics" },
-  { icon: PackageIcon, label: "Produk", href: "/umkm/products" },
-  { icon: ClipboardList, label: "Pesanan", href: "/umkm/orders" },
-  { icon: Star, label: "Review", href: "/umkm/reviews" },
-  { icon: Bot, label: "AI Generator", href: "/umkm/ai-generator" },
-  { icon: GraduationCap, label: "Academy", href: "/umkm/academy" },
-  { icon: FileCheck, label: "Status Pendaftaran", href: "/umkm/status" },
-  { icon: MessageSquare, label: "Chat", href: "/umkm/chat" },
-  { icon: User, label: "Profil", href: "/umkm/profile" },
-  { icon: Settings, label: "Pengaturan", href: "/umkm/settings" },
-];
-
-const stats = [
-  {
-    icon: ShoppingCart,
-    label: "Total Penjualan",
-    value: "Rp 15.2M",
-    trend: "+23%",
-    color: "from-[#F99912] to-[#C9C9C3]",
-  },
-  {
-    icon: Package,
-    label: "Total Produk",
-    value: "48",
-    trend: "+5",
-    color: "from-[#64762C] to-[#424F17]",
-  },
-  {
-    icon: ClipboardList,
-    label: "Pesanan Baru",
-    value: "12",
-    trend: "+8",
-    color: "from-[#F99912] to-[#64762C]",
-  },
-  {
-    icon: Star,
-    label: "Rating Toko",
-    value: "4.8",
-    trend: "+0.2",
-    color: "from-[#C9C9C3] to-[#F99912]",
-  },
-];
-
-const recentOrders = [
-  {
-    id: "ORD-101",
-    customer: "Sarah W.",
-    product: "Lapis Talas Premium",
-    status: "pending",
-    date: "10 menit lalu",
-    price: "Rp 85.000",
-  },
-  {
-    id: "ORD-102",
-    customer: "Budi A.",
-    product: "Roti Unyil Venus x3",
-    status: "processing",
-    date: "1 jam lalu",
-    price: "Rp 135.000",
-  },
-  {
-    id: "ORD-103",
-    customer: "Citra N.",
-    product: "Keripik Talas Spicy",
-    status: "shipped",
-    date: "3 jam lalu",
-    price: "Rp 28.000",
-  },
-  {
-    id: "ORD-104",
-    customer: "Dewi M.",
-    product: "Dodol Talas Premium",
-    status: "delivered",
-    date: "1 hari lalu",
-    price: "Rp 55.000",
-  },
-];
-
-const topProducts = [
-  {
-    name: "Lapis Talas Premium",
-    sales: 156,
-    revenue: "Rp 13.2M",
-    rating: 4.9,
-    image:
-      "https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=100&h=100&fit=crop",
-  },
-  {
-    name: "Roti Unyil Venus",
-    sales: 234,
-    revenue: "Rp 10.5M",
-    rating: 4.8,
-    image:
-      "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100&h=100&fit=crop",
-  },
-  {
-    name: "Keripik Talas Spicy",
-    sales: 89,
-    revenue: "Rp 2.5M",
-    rating: 4.7,
-    image:
-      "https://images.unsplash.com/photo-1621447504864-d8686e12698c?w=100&h=100&fit=crop",
-  },
-];
+  umkmLegacyMenuItems,
+  umkmLegacyStats,
+  umkmLegacyRecentOrders,
+  umkmLegacyTopProducts,
+  umkmLegacyQuickActions,
+} from "@/src/lib/constants/umkm/dashboard/legacy-dashboard";
 
 export default function UMKMDashboard() {
   return (
-    <DashboardLayout menuItems={umkmMenuItems} role="umkm">
-      <div className="space-y-8">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#64762C]/20 via-[#F99912]/10 to-[#424F17]/20 border border-[#64762C]/20 p-6 lg:p-8">
+    <div className="space-y-8">
+        <div className="relative overflow-hidden rounded-2xl bg-linear-to-r from-[#64762C]/20 via-[#F99912]/10 to-[#424F17]/20 border border-[#64762C]/20 p-6 lg:p-8">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#64762C]/10 rounded-full blur-3xl" />
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#F99912] to-[#64762C] p-0.5">
+              <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-[#F99912] to-[#64762C] p-0.5">
                 <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
                   <Store className="w-8 h-8 text-[#F99912]" />
                 </div>
@@ -166,7 +47,7 @@ export default function UMKMDashboard() {
             </div>
             <div className="flex gap-3">
               <Link href="/umkm/products/new">
-                <Button className="bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612] font-semibold">
+                <Button className="bg-linear-to-r from-[#F99912] to-[#64762C] text-[#181612] font-semibold">
                   <Plus className="mr-2 w-4 h-4" />
                   Tambah Produk
                 </Button>
@@ -186,13 +67,13 @@ export default function UMKMDashboard() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat, index) => (
+          {umkmLegacyStats.map((stat, index) => (
             <div
               key={index}
               className="relative overflow-hidden backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-5 hover:border-[#F99912]/30 transition-all duration-300"
             >
               <div
-                className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} p-0.5 mb-4`}
+                className={`w-12 h-12 rounded-xl bg-linear-to-br ${stat.color} p-0.5 mb-4`}
               >
                 <div className="w-full h-full rounded-xl bg-background flex items-center justify-center">
                   <stat.icon className="w-6 h-6 text-[#F99912]" />
@@ -231,7 +112,7 @@ export default function UMKMDashboard() {
               </Link>
             </div>
             <div className="space-y-3">
-              {recentOrders.map((order) => (
+              {umkmLegacyRecentOrders.map((order) => (
                 <div
                   key={order.id}
                   className="flex items-center gap-4 p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
@@ -300,7 +181,7 @@ export default function UMKMDashboard() {
               </Link>
             </div>
             <div className="space-y-4">
-              {topProducts.map((product, index) => (
+              {umkmLegacyTopProducts.map((product, index) => (
                 <div
                   key={index}
                   className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
@@ -335,36 +216,11 @@ export default function UMKMDashboard() {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            {
-              icon: Plus,
-              label: "Tambah Produk",
-              href: "/umkm/products/new",
-              color: "from-[#F99912] to-[#64762C]",
-            },
-            {
-              icon: Bot,
-              label: "AI Generator",
-              href: "/umkm/ai-generator",
-              color: "from-[#64762C] to-[#424F17]",
-            },
-            {
-              icon: GraduationCap,
-              label: "Academy",
-              href: "/umkm/academy",
-              color: "from-[#C9C9C3] to-[#F99912]",
-            },
-            {
-              icon: BarChart3,
-              label: "Statistik",
-              href: "/umkm/statistics",
-              color: "from-[#F99912] to-[#C9C9C3]",
-            },
-          ].map((action, index) => (
+          {umkmLegacyQuickActions.map((action, index) => (
             <Link key={index} href={action.href}>
-              <div className="group backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-5 hover:border-[#F99912]/30 transition-all duration-300 hover:translate-y-[-2px] cursor-pointer">
+              <div className="group backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-5 hover:border-[#F99912]/30 transition-all duration-300 hover:-translate-y-0.5 cursor-pointer">
                 <div
-                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} p-0.5 mb-3 group-hover:shadow-[0_0_20px_rgba(249,153,18,0.3)] transition-shadow`}
+                  className={`w-12 h-12 rounded-xl bg-linear-to-br ${action.color} p-0.5 mb-3 group-hover:shadow-[0_0_20px_rgba(249,153,18,0.3)] transition-shadow`}
                 >
                   <div className="w-full h-full rounded-xl bg-background flex items-center justify-center">
                     <action.icon className="w-6 h-6 text-[#F99912]" />
@@ -378,6 +234,6 @@ export default function UMKMDashboard() {
           ))}
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

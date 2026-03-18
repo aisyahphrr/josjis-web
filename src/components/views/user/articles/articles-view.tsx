@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { DashboardLayout } from "@/src/components/Dashboard/dashboard-layout";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
@@ -119,8 +118,7 @@ export default function ArticlesPage() {
   const regularArticles = filteredArticles.filter((a) => !a.featured);
 
   return (
-    <DashboardLayout role="user">
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Artikel</h1>
           <p className="text-muted-foreground">
@@ -290,6 +288,6 @@ export default function ArticlesPage() {
           </Card>
         )}
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
