@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useUserStore } from "@/src/store/user-store";
-import { getProductById } from "@/src/lib/products";
+import { getProductById } from "@/src/lib/constants/user/marketplace/products";
 
 const paymentMethods = [
   {

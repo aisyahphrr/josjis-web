@@ -17,7 +17,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
-import { products } from "@/src/lib/products";
+import { products } from "@/src/lib/constants/user/marketplace/products";
 import { useUserStore } from "@/src/store/user-store";
 
 const categories = ["Semua", "Makanan", "Kue", "Snack", "Minuman"];

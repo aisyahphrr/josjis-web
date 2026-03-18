@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { DashboardLayout } from "@/src/components/Dashboard/dashboard-layout";
-import { getProductById } from "@/src/lib/products";
+import { getProductById } from "@/src/lib/constants/user/marketplace/products";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
