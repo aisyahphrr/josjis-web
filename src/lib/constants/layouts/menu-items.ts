@@ -10,7 +10,9 @@ import {
   BookOpen,
   MessageSquare,
   User,
-  ShoppingBagIcon,
+  Store,
+  Package,
+  BarChart3,
 } from "lucide-react";
 import type { MenuItem, RoleConfig } from "@/src/interface/dashboard";
 
@@ -30,7 +32,10 @@ export const userMenuItems: MenuItem[] = [
 
 export const umkmMenuItems: MenuItem[] = [
   { icon: Home, label: "Dashboard", href: "/dashboard-umkm" },
-  { icon: ShoppingBagIcon, label: "Buat Toko", href: "/register-umkm" },
+  { icon: Store, label: "Pendaftaran Toko", href: "/register-umkm" },
+  { icon: Package, label: "Manajemen Produk", href: "/products-management" },
+  { icon: ShoppingCart, label: "Manajemen Pesanan", href: "/orders-management" },
+  { icon: BarChart3, label: "Analisis Feedback", href: "/analysis-feedback" },
 ];
 
 export const adminMenuItems: MenuItem[] = [
