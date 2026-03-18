@@ -13,13 +13,10 @@ import { Progress } from "@/src/components/ui/progress";
 import {
   Package,
   ShoppingCart,
-  TrendingUp,
   Star,
   Coins,
-  Eye,
   ArrowRight,
   BarChart3,
-  Clock,
   CheckCircle,
 } from "lucide-react";
 import Link from "next/link";

@@ -1,4 +1,4 @@
-import ProductDetailView from "@/src/components/views/product/product-detail-view";
+import ProductDetailView from "@/src/components/views/user/product/product-detail-view";
 
 export default async function ProductDetailPage({
   params,
@@ -8,4 +8,3 @@ export default async function ProductDetailPage({
   const { id } = await params;
   return <ProductDetailView productId={Number(id)} />;
 }
-
