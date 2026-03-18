@@ -22,7 +22,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
-import { getFeaturedProducts } from "@/src/lib/products";
+import { getFeaturedProducts } from "@/src/lib/constants/user/marketplace/products";
 
 // Mock data
 const stats = [

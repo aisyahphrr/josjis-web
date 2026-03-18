@@ -34,7 +34,7 @@ import {
 import { Textarea } from "@/src/components/ui/textarea";
 import { Label } from "@/src/components/ui/label";
 import { useUserStore } from "@/src/store/user-store";
-import { getProductById } from "@/src/lib/products";
+import { getProductById } from "@/src/lib/constants/user/marketplace/products";
 
 const statusConfig = {
   processing: {

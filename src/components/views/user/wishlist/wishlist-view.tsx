@@ -6,7 +6,7 @@ import { Button } from "@/src/components/ui/button";
 import { Heart, ShoppingCart, Trash2, Star, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useUserStore } from "@/src/store/user-store";
-import { getProductById } from "@/src/lib/products";
+import { getProductById } from "@/src/lib/constants/user/marketplace/products";
 
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist, moveWishlistToCart, reviews } =

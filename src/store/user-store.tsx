@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { toast } from "@/src/hooks/use-toast";
-import { getProductById } from "@/src/lib/products";
+import { getProductById } from "@/src/lib/constants/user/marketplace/products";
 
 export type PaymentMethod = "bank" | "ewallet" | "va";
 

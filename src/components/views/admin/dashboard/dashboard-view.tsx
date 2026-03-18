@@ -21,7 +21,7 @@ import {
   pendingUMKM,
   recentComplaints,
   systemStats,
-} from "@/src/lib/constants/admin";
+} from "@/src/lib/constants/admin/dashboard/dashboard";
 
 export default function AdminDashboard() {
   return (
