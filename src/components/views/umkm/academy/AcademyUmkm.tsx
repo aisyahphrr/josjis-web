@@ -19,169 +19,32 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/src/components/ui/dialog";
-import Link from "next/link";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/src/components/ui/alert-dialog";
 import { useState } from "react";
+import { Course, Workshop } from "@/src/interface/umkm";
+import {
+  academyCourses,
+  academyWorkshops,
+} from "@/src/lib/constants/umkm/academy";
 
-interface Course {
-  id: number;
-  title: string;
-  description: string;
-  instructor: string;
-  duration: string;
-  level: "beginner" | "intermediate" | "advanced";
-  progress?: number;
-  isCompleted?: boolean;
-  icon: React.ReactNode;
-}
-
-interface Workshop {
-  id: number;
-  title: string;
-  description: string;
-  instructor: string;
-  date: string;
-  time: string;
-  zoomLink: string;
-  capacity: number;
-  registered: number;
-  status: "upcoming" | "ongoing" | "finished";
-  topics: string[];
-}
-
-const academyWorkshops: Workshop[] = [
-  {
-    id: 1,
-    title: "Workshop: Strategi Pemasaran TikTok untuk UMKM",
-    description:
-      "Pelajari cara memanfaatkan TikTok untuk meningkatkan brand awareness dan penjualan produk Anda secara viral",
-    instructor: "Dina Wijaya",
-    date: "2026-03-22",
-    time: "19:00 - 21:00",
-    zoomLink: "https://zoom.us/j/123456789",
-    capacity: 500,
-    registered: 342,
-    status: "upcoming",
-    topics: [
-      "Konten viral",
-      "Strategi hashtag",
-      "Kolaborasi influencer",
-      "Analitik TikTok",
-    ],
-  },
-  {
-    id: 2,
-    title: "Workshop: Packaging Design yang Menarik Konsumen",
-    description:
-      "Desain kemasan yang tepat dapat meningkatkan nilai jual produk Anda hingga 300%",
-    instructor: "Reza Handoko",
-    date: "2026-03-25",
-    time: "15:00 - 17:00",
-    zoomLink: "https://zoom.us/j/987654321",
-    capacity: 300,
-    registered: 156,
-    status: "upcoming",
-    topics: [
-      "Psikologi warna",
-      "Typography",
-      "Material packaging",
-      "Branding visual",
-    ],
-  },
-  {
-    id: 3,
-    title: "Workshop: Ekspor Internasional untuk Pemula",
-    description:
-      "Langkah-langkah praktis untuk memulai bisnis ekspor ke pasar internasional",
-    instructor: "Bambang Rianto",
-    date: "2026-03-28",
-    time: "10:00 - 12:00",
-    zoomLink: "https://zoom.us/j/456789123",
-    capacity: 250,
-    registered: 89,
-    status: "upcoming",
-    topics: ["Regulasi ekspor", "Dokumentasi", "Logistik", "Payment gateway"],
-  },
-  {
-    id: 4,
-    title: "Workshop: Finansial Management untuk Bisnis Online",
-    description:
-      "Kelola keuangan bisnis Anda dengan lebih efisien dan menguntungkan",
-    instructor: "Hendra Kusuma",
-    date: "2026-03-20",
-    time: "20:00 - 21:30",
-    zoomLink: "https://zoom.us/j/789123456",
-    capacity: 400,
-    registered: 287,
-    status: "ongoing",
-    topics: ["Laporan keuangan", "Margin keuntungan", "Cashflow", "Pajak UMKM"],
-  },
-];
-
-const academyCourses: Course[] = [
-  {
-    id: 1,
-    title: "Dasar-Dasar E-Commerce",
-    description:
-      "Pelajari fundamental dalam memulai bisnis online dengan platform JOSJIS",
-    instructor: "Budi Santoso",
-    duration: "2 minggu",
-    level: "beginner",
-    progress: 100,
-    isCompleted: true,
-    icon: <BookOpen className="w-6 h-6" />,
-  },
-  {
-    id: 2,
-    title: "Strategi Marketing Digital",
-    description:
-      "Tingkatkan penjualan dengan strategi marketing yang efektif di era digital",
-    instructor: "Sita Dewi",
-    duration: "3 minggu",
-    level: "intermediate",
-    progress: 65,
-    icon: <Video className="w-6 h-6" />,
-  },
-  {
-    id: 3,
-    title: "Optimasi Produk & SEO",
-    description: "Buat produk Anda mudah ditemukan dengan teknik SEO terbaik",
-    instructor: "Ahmad Rizki",
-    duration: "2.5 minggu",
-    level: "intermediate",
-    progress: 40,
-    icon: <BookOpen className="w-6 h-6" />,
-  },
-  {
-    id: 4,
-    title: "Manajemen Customer Relationship",
-    description:
-      "Kelola hubungan dengan pelanggan untuk meningkatkan loyalitas dan repeat order",
-    instructor: "Rini Kusuma",
-    duration: "2 minggu",
-    level: "beginner",
-    icon: <Video className="w-6 h-6" />,
-  },
-  {
-    id: 5,
-    title: "Analitik & Data Driven Decision",
-    description:
-      "Manfaatkan data untuk membuat keputusan bisnis yang lebih baik",
-    instructor: "Bambang Hermanto",
-    duration: "3 minggu",
-    level: "advanced",
-    icon: <BookOpen className="w-6 h-6" />,
-  },
-  {
-    id: 6,
-    title: "Packaging & Branding",
-    description:
-      "Ciptakan brand identity yang kuat melalui packaging yang menarik",
-    instructor: "Tia Wijaya",
-    duration: "2.5 minggu",
-    level: "intermediate",
-    icon: <Video className="w-6 h-6" />,
-  },
-];
+const getIconComponent = (iconName: string) => {
+  switch (iconName) {
+    case "BookOpen":
+      return <BookOpen className="w-6 h-6" />;
+    case "Video":
+      return <Video className="w-6 h-6" />;
+    default:
+      return <BookOpen className="w-6 h-6" />;
+  }
+};
 
 const getLevelBadge = (level: string) => {
   switch (level) {
@@ -225,6 +88,7 @@ export default function AcademyUmkm() {
   const [userRegistered, setUserRegistered] = useState<{
     [key: number]: boolean;
   }>({});
+  const [workshopToCancel, setWorkshopToCancel] = useState<number | null>(null);
 
   const handleContinueCourse = (courseId: number) => {
     setCourses((prevCourses) =>
@@ -256,7 +120,6 @@ export default function AcademyUmkm() {
       }),
     );
 
-    // Update stats jika ada course yang sebelumnya belum completed
     const course = courses.find((c) => c.id === courseId);
     if (course && !course.isCompleted) {
       setStats((prevStats) => ({
@@ -280,7 +143,6 @@ export default function AcademyUmkm() {
       }),
     );
 
-    // Update stats
     const course = courses.find((c) => c.id === courseId);
     if (course && course.progress === undefined) {
       setStats((prevStats) => ({
@@ -291,9 +153,32 @@ export default function AcademyUmkm() {
   };
 
   const handleRegisterWorkshop = (workshopId: number) => {
+    if (userRegistered[workshopId]) {
+      setWorkshopToCancel(workshopId);
+    } else {
+      setUserRegistered((prev) => ({
+        ...prev,
+        [workshopId]: true,
+      }));
+
+      setWorkshops((prevWorkshops) =>
+        prevWorkshops.map((workshop) => {
+          if (workshop.id === workshopId) {
+            return {
+              ...workshop,
+              registered: workshop.registered + 1,
+            };
+          }
+          return workshop;
+        }),
+      );
+    }
+  };
+
+  const handleConfirmCancel = (workshopId: number) => {
     setUserRegistered((prev) => ({
       ...prev,
-      [workshopId]: !prev[workshopId],
+      [workshopId]: false,
     }));
 
     setWorkshops((prevWorkshops) =>
@@ -301,14 +186,14 @@ export default function AcademyUmkm() {
         if (workshop.id === workshopId) {
           return {
             ...workshop,
-            registered: userRegistered[workshopId]
-              ? workshop.registered - 1
-              : workshop.registered + 1,
+            registered: Math.max(0, workshop.registered - 1),
           };
         }
         return workshop;
       }),
     );
+
+    setWorkshopToCancel(null);
   };
 
   return (
@@ -368,7 +253,7 @@ export default function AcademyUmkm() {
             >
               {/* Icon */}
               <div className="w-12 h-12 rounded-xl bg-linear-to-br from-[#F99912] to-[#64762C] p-0.5 mb-4 flex items-center justify-center text-foreground">
-                {course.icon}
+                {getIconComponent(course.icon)}
               </div>
 
               {/* Title & Description */}
@@ -660,16 +545,16 @@ export default function AcademyUmkm() {
                   e.stopPropagation();
                   handleRegisterWorkshop(workshop.id);
                 }}
-                className={`w-full px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+                className={`w-full cursor-pointer px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
                   userRegistered[workshop.id]
-                    ? "bg-[#64762C] text-foreground hover:bg-[#64762C]/90"
+                    ? "bg-red-500/20 text-red-500 hover:bg-red-500/30 border border-red-500/30"
                     : "bg-[#F99912] text-[#181612] hover:bg-[#F99912]/90 cursor-pointer"
                 }`}
               >
                 {userRegistered[workshop.id] ? (
                   <>
-                    <Check className="w-4 h-4" />
-                    Terdaftar
+                    <X className="w-4 h-4" />
+                    Batal Pendaftaran
                   </>
                 ) : (
                   <>
@@ -803,16 +688,16 @@ export default function AcademyUmkm() {
                 onClick={() => {
                   handleRegisterWorkshop(selectedWorkshop.id);
                 }}
-                className={`w-full px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
+                className={`w-full px-4 py-3 rounded-lg cursor-pointer font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
                   userRegistered[selectedWorkshop.id]
-                    ? "bg-[#64762C] text-foreground hover:bg-[#64762C]/90"
+                    ? "bg-red-500/20 text-red-500 hover:bg-red-500/30 border border-red-500/30"
                     : "bg-[#F99912] text-[#181612] hover:bg-[#F99912]/90 cursor-pointer"
                 }`}
               >
                 {userRegistered[selectedWorkshop.id] ? (
                   <>
-                    <Check className="w-5 h-5" />
-                    Pendaftaran Dibatalkan
+                    <X className="w-5 h-5" />
+                    Batal Pendaftaran
                   </>
                 ) : (
                   <>
@@ -825,6 +710,39 @@ export default function AcademyUmkm() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Cancel Registration Confirmation Dialog */}
+      <AlertDialog
+        open={workshopToCancel !== null}
+        onOpenChange={(open) => {
+          if (!open) setWorkshopToCancel(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Batal Pendaftaran Workshop?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin membatalkan pendaftaran workshop ini? Anda
+              dapat mendaftar kembali kapan saja.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-3">
+            <AlertDialogCancel className="cursor-pointer">
+              Tidak
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (workshopToCancel !== null) {
+                  handleConfirmCancel(workshopToCancel);
+                }
+              }}
+              className="bg-red-500 hover:bg-red-600 cursor-pointer"
+            >
+              Ya, Batalkan
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -74,3 +74,29 @@ export interface Notification {
   createdAt: string;
   isRead: boolean;
 }
+
+export interface Course {
+  id: number;
+  title: string;
+  description: string;
+  instructor: string;
+  duration: string;
+  level: "beginner" | "intermediate" | "advanced";
+  progress?: number;
+  isCompleted?: boolean;
+  icon: string;
+}
+
+export interface Workshop {
+  id: number;
+  title: string;
+  description: string;
+  instructor: string;
+  date: string;
+  time: string;
+  zoomLink: string;
+  capacity: number;
+  registered: number;
+  status: "upcoming" | "ongoing" | "finished";
+  topics: string[];
+}
