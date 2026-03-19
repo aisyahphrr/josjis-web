@@ -21,124 +21,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select";
-import { Notification } from "@/src/interface/umkm";
-
-interface Order {
-  id: string;
-  orderNumber: string;
-  customer: string;
-  product: string;
-  quantity: number;
-  price: number;
-  date: string;
-  status: "diproses" | "dikirim" | "selesai";
-  notes?: string;
-}
-
-const dummyOrders: Order[] = [
-  {
-    id: "1",
-    orderNumber: "ORD-2026-001",
-    customer: "Budi Santoso",
-    product: "Dodol Kacang Bogor",
-    quantity: 5,
-    price: 225000,
-    date: "2026-03-18",
-    status: "diproses",
-    notes: "Segera dikirim sebelum jam 5 sore",
-  },
-  {
-    id: "2",
-    orderNumber: "ORD-2026-002",
-    customer: "Siti Nurhaliza",
-    product: "Kue Lapis Sumedang",
-    quantity: 10,
-    price: 350000,
-    date: "2026-03-17",
-    status: "dikirim",
-    notes: "Gunakan packaging premium",
-  },
-  {
-    id: "3",
-    orderNumber: "ORD-2026-003",
-    customer: "Ahmad Wijaya",
-    product: "Manisan Jambu",
-    quantity: 3,
-    price: 75000,
-    date: "2026-03-16",
-    status: "selesai",
-  },
-  {
-    id: "4",
-    orderNumber: "ORD-2026-004",
-    customer: "Dewi Lestari",
-    product: "Cookies Almond Premium",
-    quantity: 2,
-    price: 110000,
-    date: "2026-03-18",
-    status: "diproses",
-    notes: "Tambahan catatan: Bisa ada diskon?",
-  },
-  {
-    id: "5",
-    orderNumber: "ORD-2026-005",
-    customer: "Rudi Hermawan",
-    product: "Tahu Goreng Crispy",
-    quantity: 20,
-    price: 300000,
-    date: "2026-03-15",
-    status: "dikirim",
-  },
-  {
-    id: "6",
-    orderNumber: "ORD-2026-006",
-    customer: "Ani Wijaya",
-    product: "Teh Herbal Bogor",
-    quantity: 15,
-    price: 450000,
-    date: "2026-03-14",
-    status: "selesai",
-  },
-  {
-    id: "7",
-    orderNumber: "ORD-2026-007",
-    customer: "Hendra Kusuma",
-    product: "Dodol Kacang Bogor",
-    quantity: 8,
-    price: 360000,
-    date: "2026-03-18",
-    status: "diproses",
-  },
-  {
-    id: "8",
-    orderNumber: "ORD-2026-008",
-    customer: "Ratna Putri",
-    product: "Manisan Jambu",
-    quantity: 6,
-    price: 150000,
-    date: "2026-03-17",
-    status: "dikirim",
-    notes: "COD - Bayar di tempat",
-  },
-];
-
-const statusConfig = {
-  diproses: {
-    label: "Diproses",
-    color: "bg-blue-500/20 text-blue-400",
-    icon: Clock,
-  },
-  dikirim: {
-    label: "Dikirim",
-    color: "bg-[#F99912]/20 text-[#F99912]",
-    icon: Truck,
-  },
-  selesai: {
-    label: "Selesai",
-    color: "bg-[#64762C]/20 text-[#64762C]",
-    icon: Check,
-  },
-};
+import { Notification, Order } from "@/src/interface/umkm";
+import { dummyOrders, statusConfig } from "@/src/lib/constants/umkm/orders";
+import DriverTrackingMap from "./driver-tracking-map";
 
 export default function OrdersManagement() {
   const [orders, setOrders] = useState<Order[]>(dummyOrders);
@@ -358,7 +243,7 @@ export default function OrdersManagement() {
                     <p className="text-sm text-muted-foreground mb-1">Status</p>
                     <Select
                       value={order.status}
-                      onValueChange={(value) =>
+                      onValueChange={(value: string) =>
                         handleStatusChange(order.id, value)
                       }
                     >
@@ -470,6 +355,21 @@ export default function OrdersManagement() {
             </div>
 
             <div className="space-y-6">
+              {/* Driver Tracking Map - Show when status is "dikirim" */}
+              {selectedOrderDetail.status === "dikirim" &&
+                selectedOrderDetail.driverName && (
+                  <div className="border-b border-[#F99912]/10 pb-6">
+                    <h3 className="font-semibold text-foreground mb-4">
+                      Tracking Real-Time Driver
+                    </h3>
+                    <DriverTrackingMap
+                      orderId={selectedOrderDetail.id}
+                      driverName={selectedOrderDetail.driverName}
+                      customerLocation={selectedOrderDetail.customerLocation}
+                    />
+                  </div>
+                )}
+
               {/* Order Header */}
               <div className="space-y-3 border-b border-[#F99912]/10 pb-6">
                 <div className="flex items-center justify-between gap-4">
@@ -568,6 +468,35 @@ export default function OrdersManagement() {
                   </div>
                 </div>
               </div>
+
+              {/* Driver Information - Show when status is "dikirim" or "diproses" with driver assigned */}
+              {(selectedOrderDetail.status === "dikirim" ||
+                selectedOrderDetail.status === "diproses") &&
+                selectedOrderDetail.driverName && (
+                  <div className="space-y-3 border-b border-[#F99912]/10 pb-6">
+                    <h3 className="font-semibold text-foreground">
+                      Detail Driver
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="bg-gradient-to-br from-[#F99912]/20 to-[#F99912]/5 border border-[#F99912]/30 rounded-lg p-4">
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Nama Driver
+                        </p>
+                        <p className="font-semibold text-foreground">
+                          {selectedOrderDetail.driverName}
+                        </p>
+                      </div>
+                      <div className="bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-500/30 rounded-lg p-4">
+                        <p className="text-sm text-muted-foreground mb-1">
+                          Nomor Telepon Driver
+                        </p>
+                        <p className="font-semibold text-foreground">
+                          {selectedOrderDetail.driverPhone}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
               {/* Total Price */}
               <div className="bg-linear-to-r from-[#F99912]/20 to-[#64762C]/10 rounded-lg p-4 border border-[#F99912]/20">

@@ -60,6 +60,24 @@ export interface ProductFormData {
   image: string;
 }
 
+export interface Order {
+  id: string;
+  orderNumber: string;
+  customer: string;
+  product: string;
+  quantity: number;
+  price: number;
+  date: string;
+  status: "diproses" | "dikirim" | "selesai";
+  notes?: string;
+  driverName?: string;
+  driverPhone?: string;
+  customerLocation?: {
+    lat: number;
+    lng: number;
+  };
+}
+
 export interface Notification {
   id: string;
   type: "order" | "status_update" | "delivery";
