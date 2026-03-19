@@ -23,3 +23,39 @@ export interface TopProduct {
   sales: number;
   revenue: number;
 }
+
+export interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  stock: number;
+  rating: number;
+  category:
+    | "makanan"
+    | "minuman"
+    | "cemilan"
+    | "baju"
+    | "celana"
+    | "aksesoris"
+    | "elektronik"
+    | "jasa";
+}
+
+export interface ProductFormData {
+  name: string;
+  description: string;
+  price: string;
+  stock: string;
+  category:
+    | "makanan"
+    | "minuman"
+    | "cemilan"
+    | "baju"
+    | "celana"
+    | "aksesoris"
+    | "elektronik"
+    | "jasa";
+  image: string;
+}
