@@ -48,6 +48,12 @@ interface UMKMQuickActionItem {
   color: string;
 }
 
+interface ChartDataPoint {
+  date: string;
+  penjualan: number;
+  pembelian: number;
+}
+
 export const umkmLegacyMenuItems: MenuItem[] = [
   { icon: Home, label: "Dashboard", href: "/umkm" },
   { icon: BarChart3, label: "Statistik", href: "/umkm/statistics" },
@@ -159,25 +165,51 @@ export const umkmLegacyQuickActions: UMKMQuickActionItem[] = [
   {
     icon: Plus,
     label: "Tambah Produk",
-    href: "/umkm/products/new",
+    href: "/products-management",
     color: "from-[#F99912] to-[#64762C]",
-  },
-  {
-    icon: Bot,
-    label: "AI Generator",
-    href: "/umkm/ai-generator",
-    color: "from-[#64762C] to-[#424F17]",
-  },
-  {
-    icon: GraduationCap,
-    label: "Academy",
-    href: "/umkm/academy",
-    color: "from-[#C9C9C3] to-[#F99912]",
   },
   {
     icon: BarChart3,
     label: "Statistik",
     href: "/umkm/statistics",
     color: "from-[#F99912] to-[#C9C9C3]",
+  },
+];
+
+export const umkmChartData: ChartDataPoint[] = [
+  {
+    date: "1 Jan",
+    penjualan: 2400000,
+    pembelian: 1200000,
+  },
+  {
+    date: "5 Jan",
+    penjualan: 3200000,
+    pembelian: 1500000,
+  },
+  {
+    date: "10 Jan",
+    penjualan: 2800000,
+    pembelian: 1800000,
+  },
+  {
+    date: "15 Jan",
+    penjualan: 3900000,
+    pembelian: 2100000,
+  },
+  {
+    date: "20 Jan",
+    penjualan: 4200000,
+    pembelian: 2400000,
+  },
+  {
+    date: "25 Jan",
+    penjualan: 3800000,
+    pembelian: 2000000,
+  },
+  {
+    date: "Mar 2026",
+    penjualan: 5200000,
+    pembelian: 2800000,
   },
 ];
