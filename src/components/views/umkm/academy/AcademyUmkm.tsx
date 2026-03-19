@@ -6,6 +6,11 @@ import {
   Award,
   ArrowRight,
   X,
+  Calendar,
+  Clock,
+  Users,
+  Link as LinkIcon,
+  Check,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import {
@@ -28,6 +33,89 @@ interface Course {
   isCompleted?: boolean;
   icon: React.ReactNode;
 }
+
+interface Workshop {
+  id: number;
+  title: string;
+  description: string;
+  instructor: string;
+  date: string;
+  time: string;
+  zoomLink: string;
+  capacity: number;
+  registered: number;
+  status: "upcoming" | "ongoing" | "finished";
+  topics: string[];
+}
+
+const academyWorkshops: Workshop[] = [
+  {
+    id: 1,
+    title: "Workshop: Strategi Pemasaran TikTok untuk UMKM",
+    description:
+      "Pelajari cara memanfaatkan TikTok untuk meningkatkan brand awareness dan penjualan produk Anda secara viral",
+    instructor: "Dina Wijaya",
+    date: "2026-03-22",
+    time: "19:00 - 21:00",
+    zoomLink: "https://zoom.us/j/123456789",
+    capacity: 500,
+    registered: 342,
+    status: "upcoming",
+    topics: [
+      "Konten viral",
+      "Strategi hashtag",
+      "Kolaborasi influencer",
+      "Analitik TikTok",
+    ],
+  },
+  {
+    id: 2,
+    title: "Workshop: Packaging Design yang Menarik Konsumen",
+    description:
+      "Desain kemasan yang tepat dapat meningkatkan nilai jual produk Anda hingga 300%",
+    instructor: "Reza Handoko",
+    date: "2026-03-25",
+    time: "15:00 - 17:00",
+    zoomLink: "https://zoom.us/j/987654321",
+    capacity: 300,
+    registered: 156,
+    status: "upcoming",
+    topics: [
+      "Psikologi warna",
+      "Typography",
+      "Material packaging",
+      "Branding visual",
+    ],
+  },
+  {
+    id: 3,
+    title: "Workshop: Ekspor Internasional untuk Pemula",
+    description:
+      "Langkah-langkah praktis untuk memulai bisnis ekspor ke pasar internasional",
+    instructor: "Bambang Rianto",
+    date: "2026-03-28",
+    time: "10:00 - 12:00",
+    zoomLink: "https://zoom.us/j/456789123",
+    capacity: 250,
+    registered: 89,
+    status: "upcoming",
+    topics: ["Regulasi ekspor", "Dokumentasi", "Logistik", "Payment gateway"],
+  },
+  {
+    id: 4,
+    title: "Workshop: Finansial Management untuk Bisnis Online",
+    description:
+      "Kelola keuangan bisnis Anda dengan lebih efisien dan menguntungkan",
+    instructor: "Hendra Kusuma",
+    date: "2026-03-20",
+    time: "20:00 - 21:30",
+    zoomLink: "https://zoom.us/j/789123456",
+    capacity: 400,
+    registered: 287,
+    status: "ongoing",
+    topics: ["Laporan keuangan", "Margin keuntungan", "Cashflow", "Pajak UMKM"],
+  },
+];
 
 const academyCourses: Course[] = [
   {
@@ -122,13 +210,21 @@ const getLevelBadge = (level: string) => {
 
 export default function AcademyUmkm() {
   const [courses, setCourses] = useState(academyCourses);
+  const [workshops, setWorkshops] = useState(academyWorkshops);
   const [stats, setStats] = useState({
     taken: 3,
     completed: 1,
     certificates: 1,
   });
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [selectedWorkshop, setSelectedWorkshop] = useState<Workshop | null>(
+    null,
+  );
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [showWorkshopModal, setShowWorkshopModal] = useState(false);
+  const [userRegistered, setUserRegistered] = useState<{
+    [key: number]: boolean;
+  }>({});
 
   const handleContinueCourse = (courseId: number) => {
     setCourses((prevCourses) =>
@@ -192,6 +288,27 @@ export default function AcademyUmkm() {
         taken: prevStats.taken + 1,
       }));
     }
+  };
+
+  const handleRegisterWorkshop = (workshopId: number) => {
+    setUserRegistered((prev) => ({
+      ...prev,
+      [workshopId]: !prev[workshopId],
+    }));
+
+    setWorkshops((prevWorkshops) =>
+      prevWorkshops.map((workshop) => {
+        if (workshop.id === workshopId) {
+          return {
+            ...workshop,
+            registered: userRegistered[workshopId]
+              ? workshop.registered - 1
+              : workshop.registered + 1,
+          };
+        }
+        return workshop;
+      }),
+    );
   };
 
   return (
@@ -455,6 +572,255 @@ export default function AcademyUmkm() {
                   )}
                 </button>
               </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Workshops Section */}
+      <div>
+        <h2 className="text-2xl font-bold text-foreground mb-6">
+          Workshop & Webinar
+        </h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {workshops.map((workshop) => (
+            <div
+              key={workshop.id}
+              onClick={() => {
+                setSelectedWorkshop(workshop);
+                setShowWorkshopModal(true);
+              }}
+              className="group backdrop-blur-xl bg-card/60 border cursor-pointer border-[#F99912]/10 rounded-2xl p-6 hover:border-[#F99912]/30 transition-all duration-300"
+            >
+              {/* Status Badge */}
+              <div className="mb-4">
+                <span
+                  className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                    workshop.status === "upcoming"
+                      ? "bg-yellow-500/20 text-yellow-700"
+                      : workshop.status === "ongoing"
+                        ? "bg-blue-500/20 text-blue-700"
+                        : "bg-green-500/20 text-green-700"
+                  }`}
+                >
+                  {workshop.status === "upcoming"
+                    ? "Akan Datang"
+                    : workshop.status === "ongoing"
+                      ? "Sedang Berlangsung"
+                      : "Selesai"}
+                </span>
+              </div>
+
+              {/* Title */}
+              <h3 className="text-lg font-semibold text-foreground mb-2 line-clamp-2">
+                {workshop.title}
+              </h3>
+
+              {/* Instructor */}
+              <p className="text-sm text-muted-foreground mb-4">
+                {workshop.instructor}
+              </p>
+
+              {/* Workshop Info */}
+              <div className="space-y-2 mb-4 text-sm">
+                <p className="text-muted-foreground flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-[#F99912]" />
+                  {new Date(workshop.date).toLocaleDateString("id-ID")}
+                </p>
+                <p className="text-muted-foreground flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-[#F99912]" />
+                  {workshop.time}
+                </p>
+                <p className="text-muted-foreground flex items-center gap-2">
+                  <Users className="w-4 h-4 text-[#F99912]" />
+                  {workshop.registered}/{workshop.capacity}
+                </p>
+              </div>
+
+              {/* Topics */}
+              <div className="mb-4 flex flex-wrap gap-2">
+                {workshop.topics.slice(0, 2).map((topic, idx) => (
+                  <span
+                    key={idx}
+                    className="text-xs px-2 py-1 rounded-full bg-[#F99912]/10 text-[#F99912]"
+                  >
+                    {topic}
+                  </span>
+                ))}
+                {workshop.topics.length > 2 && (
+                  <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                    +{workshop.topics.length - 2}
+                  </span>
+                )}
+              </div>
+
+              {/* Register Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRegisterWorkshop(workshop.id);
+                }}
+                className={`w-full px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+                  userRegistered[workshop.id]
+                    ? "bg-[#64762C] text-foreground hover:bg-[#64762C]/90"
+                    : "bg-[#F99912] text-[#181612] hover:bg-[#F99912]/90 cursor-pointer"
+                }`}
+              >
+                {userRegistered[workshop.id] ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Terdaftar
+                  </>
+                ) : (
+                  <>
+                    <Users className="w-4 h-4" />
+                    Daftar
+                  </>
+                )}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Workshop Detail Modal */}
+      <Dialog open={showWorkshopModal} onOpenChange={setShowWorkshopModal}>
+        <DialogContent className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          {selectedWorkshop && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-2xl font-bold text-foreground">
+                  {selectedWorkshop.title}
+                </DialogTitle>
+              </DialogHeader>
+
+              {/* Workshop Info Grid */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-lg p-4">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Instruktur
+                  </p>
+                  <p className="font-semibold text-foreground">
+                    {selectedWorkshop.instructor}
+                  </p>
+                </div>
+                <div className="backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-lg p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Status</p>
+                  <span
+                    className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                      selectedWorkshop.status === "upcoming"
+                        ? "bg-yellow-500/20 text-yellow-700"
+                        : selectedWorkshop.status === "ongoing"
+                          ? "bg-blue-500/20 text-blue-700"
+                          : "bg-green-500/20 text-green-700"
+                    }`}
+                  >
+                    {selectedWorkshop.status === "upcoming"
+                      ? "Akan Datang"
+                      : selectedWorkshop.status === "ongoing"
+                        ? "Sedang Berlangsung"
+                        : "Selesai"}
+                  </span>
+                </div>
+                <div className="backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-lg p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Tanggal</p>
+                  <p className="font-semibold text-foreground text-sm">
+                    {new Date(selectedWorkshop.date).toLocaleDateString(
+                      "id-ID",
+                    )}
+                  </p>
+                </div>
+                <div className="backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-lg p-4">
+                  <p className="text-xs text-muted-foreground mb-1">Waktu</p>
+                  <p className="font-semibold text-foreground text-sm">
+                    {selectedWorkshop.time}
+                  </p>
+                </div>
+              </div>
+
+              {/* Peserta */}
+              <div className="backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-lg p-4 mb-6">
+                <p className="text-sm text-muted-foreground mb-2">
+                  Peserta Terdaftar
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 bg-muted/30 rounded-full h-2">
+                    <div
+                      className="bg-linear-to-r from-[#F99912] to-[#64762C] h-2 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${(selectedWorkshop.registered / selectedWorkshop.capacity) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <span className="font-semibold text-foreground text-sm whitespace-nowrap">
+                    {selectedWorkshop.registered}/{selectedWorkshop.capacity}
+                  </span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  Deskripsi
+                </h3>
+                <p className="text-muted-foreground">
+                  {selectedWorkshop.description}
+                </p>
+              </div>
+
+              {/* Topics */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-foreground mb-3">
+                  Topik yang Dibahas
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {selectedWorkshop.topics.map((topic, idx) => (
+                    <span
+                      key={idx}
+                      className="px-3 py-2 rounded-lg bg-[#F99912]/10 text-[#F99912] font-medium text-sm"
+                    >
+                      {topic}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Zoom Link */}
+              {selectedWorkshop.status !== "upcoming" && (
+                <a
+                  href={selectedWorkshop.zoomLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full px-4 py-3 bg-linear-to-r from-[#F99912] to-[#64762C] text-[#181612] rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-90 mb-4 cursor-pointer"
+                >
+                  <LinkIcon className="w-5 h-5" />
+                  Bergabung ke Workshop via Zoom
+                </a>
+              )}
+
+              {/* Register Button */}
+              <button
+                onClick={() => {
+                  handleRegisterWorkshop(selectedWorkshop.id);
+                }}
+                className={`w-full px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
+                  userRegistered[selectedWorkshop.id]
+                    ? "bg-[#64762C] text-foreground hover:bg-[#64762C]/90"
+                    : "bg-[#F99912] text-[#181612] hover:bg-[#F99912]/90 cursor-pointer"
+                }`}
+              >
+                {userRegistered[selectedWorkshop.id] ? (
+                  <>
+                    <Check className="w-5 h-5" />
+                    Pendaftaran Dibatalkan
+                  </>
+                ) : (
+                  <>
+                    <Users className="w-5 h-5" />
+                    Daftar ke Workshop
+                  </>
+                )}
+              </button>
             </>
           )}
         </DialogContent>
