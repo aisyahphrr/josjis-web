@@ -1,23 +1,35 @@
 "use client";
-import {
-  Store,
-  Star,
-  TrendingUp,
-  ArrowRight,
-  Plus,
-  Bot,
-  Eye,
-} from "lucide-react";
+import { useState } from "react";
+import { Store, Star, TrendingUp, Plus, Eye, ArrowRight } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/src/components/ui/dialog";
 import Link from "next/link";
 import {
   umkmLegacyStats,
+  umkmLegacyQuickActions,
+  umkmChartData,
   umkmLegacyRecentOrders,
   umkmLegacyTopProducts,
-  umkmLegacyQuickActions,
 } from "@/src/lib/constants/umkm/dashboard/legacy-dashboard";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 
 export default function UMKMDashboard() {
+  const [showChartModal, setShowChartModal] = useState(false);
+
   return (
     <div className="space-y-8">
       <div className="relative overflow-hidden rounded-2xl bg-linear-to-r from-[#64762C]/20 via-[#F99912]/10 to-[#424F17]/20 border border-[#64762C]/20 p-6 lg:p-8">
@@ -43,23 +55,6 @@ export default function UMKMDashboard() {
                 </span>
               </div>
             </div>
-          </div>
-          <div className="flex gap-3">
-            <Link href="/umkm/products/new">
-              <Button className="bg-linear-to-r from-[#F99912] to-[#64762C] text-[#181612] font-semibold">
-                <Plus className="mr-2 w-4 h-4" />
-                Tambah Produk
-              </Button>
-            </Link>
-            <Link href="/umkm/ai-generator">
-              <Button
-                variant="outline"
-                className="border-[#F99912]/30 hover:bg-[#F99912]/10"
-              >
-                <Bot className="mr-2 w-4 h-4" />
-                AI Generator
-              </Button>
-            </Link>
           </div>
         </div>
       </div>
@@ -90,6 +85,49 @@ export default function UMKMDashboard() {
         ))}
       </div>
 
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {umkmLegacyQuickActions.map((action, index) => (
+          <div key={index}>
+            {action.label === "Statistik" ? (
+              <button
+                onClick={() => setShowChartModal(true)}
+                className="w-full"
+              >
+                <div className="group backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-5 hover:border-[#F99912]/30 transition-all duration-300 hover:-translate-y-0.5 cursor-pointer flex items-center justify-center gap-5">
+                  <div
+                    className={`w-12 h-12 rounded-xl bg-linear-to-br ${action.color} p-0.5 mb-3 group-hover:shadow-[0_0_20px_rgba(249,153,18,0.3)] transition-shadow`}
+                  >
+                    <div className="w-full h-full rounded-xl bg-background flex items-center justify-center">
+                      <action.icon className="w-6 h-6 text-[#F99912]" />
+                    </div>
+                  </div>
+                  <p className="font-medium text-foreground group-hover:text-[#F99912] transition-colors">
+                    {action.label}
+                  </p>
+                </div>
+              </button>
+            ) : (
+              <Link href={action.href}>
+                <div className="group backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-5 hover:border-[#F99912]/30 transition-all duration-300 hover:-translate-y-0.5 cursor-pointer flex items-center justify-center gap-5">
+                  <div
+                    className={`w-12 h-12 rounded-xl bg-linear-to-br ${action.color} p-0.5 mb-3 group-hover:shadow-[0_0_20px_rgba(249,153,18,0.3)] transition-shadow`}
+                  >
+                    <div className="w-full h-full rounded-xl bg-background flex items-center justify-center">
+                      <action.icon className="w-6 h-6 text-[#F99912]" />
+                    </div>
+                  </div>
+                  <p className="font-medium text-foreground group-hover:text-[#F99912] transition-colors">
+                    {action.label}
+                  </p>
+                </div>
+              </Link>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Recent Orders and Top Products */}
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Recent Orders */}
         <div className="lg:col-span-2 backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-6">
@@ -211,25 +249,79 @@ export default function UMKMDashboard() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {umkmLegacyQuickActions.map((action, index) => (
-          <Link key={index} href={action.href}>
-            <div className="group backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-5 hover:border-[#F99912]/30 transition-all duration-300 hover:-translate-y-0.5 cursor-pointer">
-              <div
-                className={`w-12 h-12 rounded-xl bg-linear-to-br ${action.color} p-0.5 mb-3 group-hover:shadow-[0_0_20px_rgba(249,153,18,0.3)] transition-shadow`}
+      {/* Statistics Chart Modal */}
+      <Dialog open={showChartModal} onOpenChange={setShowChartModal}>
+        <DialogContent className="max-w-175 w-175 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-foreground">
+              Statistik Penjualan & Pembelian
+            </DialogTitle>
+          </DialogHeader>
+          <div className="w-full h-[500px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={umkmChartData}
+                margin={{ top: 5, right: 30, left: 0, bottom: 5 }}
               >
-                <div className="w-full h-full rounded-xl bg-background flex items-center justify-center">
-                  <action.icon className="w-6 h-6 text-[#F99912]" />
-                </div>
-              </div>
-              <p className="font-medium text-foreground group-hover:text-[#F99912] transition-colors">
-                {action.label}
-              </p>
-            </div>
-          </Link>
-        ))}
-      </div>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(249, 153, 18, 0.2)"
+                />
+                <XAxis
+                  dataKey="date"
+                  stroke="rgba(168, 168, 163, 0.5)"
+                  style={{ fontSize: "12px" }}
+                />
+                <YAxis
+                  stroke="rgba(168, 168, 163, 0.5)"
+                  style={{ fontSize: "12px" }}
+                  tickFormatter={(value) =>
+                    `Rp ${(value / 1000000).toFixed(1)}M`
+                  }
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "rgba(24, 22, 18, 0.9)",
+                    border: "1px solid rgba(249, 153, 18, 0.3)",
+                    borderRadius: "8px",
+                  }}
+                  formatter={(value: number) =>
+                    `Rp ${(value / 1000000).toFixed(1)}M`
+                  }
+                />
+                <Legend
+                  wrapperStyle={{ paddingTop: "20px" }}
+                  formatter={(value) =>
+                    value === "penjualan"
+                      ? "Penjualan"
+                      : value === "pembelian"
+                        ? "Pembelian"
+                        : value
+                  }
+                />
+                <Line
+                  type="monotone"
+                  dataKey="penjualan"
+                  stroke="#F99912"
+                  strokeWidth={3}
+                  dot={{ fill: "#F99912", r: 4 }}
+                  activeDot={{ r: 6 }}
+                  name="Penjualan"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="pembelian"
+                  stroke="#64762C"
+                  strokeWidth={3}
+                  dot={{ fill: "#64762C", r: 4 }}
+                  activeDot={{ r: 6 }}
+                  name="Pembelian"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
