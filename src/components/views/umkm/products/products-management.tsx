@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Bot, Trash2, Edit2, X } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
@@ -13,7 +14,7 @@ import {
   dummyAIDescription,
 } from "@/src/lib/constants/umkm/products";
 
-interface FormData extends ProductFormData {}
+type FormData = ProductFormData;
 
 export default function ProductsManagement() {
   const [products, setProducts] = useState<Product[]>(dummyProducts);
@@ -99,13 +100,14 @@ export default function ProductsManagement() {
       });
       setShowAddForm(false);
       setIsSubmitting(false);
-      alert("Produk berhasil ditambahkan!");
+      toast.success("Produk berhasil ditambahkan!");
     }, 1500);
   };
 
   const handleDeleteProduct = (id: number) => {
     setProducts((prev) => prev.filter((product) => product.id !== id));
     setDeleteConfirm(null);
+    toast.success("Produk berhasil dihapus!");
   };
 
   const handleOpenEdit = (product: Product) => {
@@ -151,7 +153,7 @@ export default function ProductsManagement() {
         image: "",
       });
       setIsSubmitting(false);
-      alert("Produk berhasil diperbarui!");
+      toast.success("Produk berhasil diperbarui!");
     }, 1500);
   };
 
