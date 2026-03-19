@@ -32,9 +32,13 @@ export const userMenuItems: MenuItem[] = [
 
 export const umkmMenuItems: MenuItem[] = [
   { icon: Home, label: "Dashboard", href: "/dashboard-umkm" },
-  { icon: Store, label: "Pendaftaran Toko", href: "/register-umkm" },
+  { icon: BookOpen, label: "Akademi UMKM", href: "/academy" },
   { icon: Package, label: "Manajemen Produk", href: "/products-management" },
-  { icon: ShoppingCart, label: "Manajemen Pesanan", href: "/orders-management" },
+  {
+    icon: ShoppingCart,
+    label: "Manajemen Pesanan",
+    href: "/orders-management",
+  },
   { icon: BarChart3, label: "Analisis Feedback", href: "/analysis-feedback" },
 ];
 
