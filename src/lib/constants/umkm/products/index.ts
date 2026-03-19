@@ -1,14 +1,14 @@
 import { Product } from "@/src/interface/umkm";
 
 export const CATEGORIES = [
-  { id: "makanan", label: "🍜 Makanan" },
-  { id: "minuman", label: "🥤 Minuman" },
-  { id: "cemilan", label: "🍪 Cemilan" },
-  { id: "baju", label: "👕 Baju" },
-  { id: "celana", label: "👖 Celana" },
-  { id: "aksesoris", label: "⌚ Aksesoris" },
-  { id: "elektronik", label: "📱 Elektronik" },
-  { id: "jasa", label: "🛠️ Jasa" },
+  { id: "makanan", label: "Makanan" },
+  { id: "minuman", label: "Minuman" },
+  { id: "cemilan", label: "Cemilan" },
+  { id: "baju", label: "Baju" },
+  { id: "celana", label: "Celana" },
+  { id: "aksesoris", label: "Aksesoris" },
+  { id: "elektronik", label: "Elektronik" },
+  { id: "jasa", label: "Jasa" },
 ];
 
 export const dummyProducts: Product[] = [
