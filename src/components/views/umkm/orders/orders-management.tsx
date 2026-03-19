@@ -9,6 +9,8 @@ import {
   Eye,
   Filter,
   Search,
+  Bell,
+  X,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
@@ -19,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select";
+import { Notification } from "@/src/interface/umkm";
 
 interface Order {
   id: string;
@@ -141,8 +144,71 @@ export default function OrdersManagement() {
   const [orders, setOrders] = useState<Order[]>(dummyOrders);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [showNotificationToast, setShowNotificationToast] = useState(false);
+  const [lastNotification, setLastNotification] = useState<Notification | null>(
+    null,
+  );
+  const [selectedOrderDetail, setSelectedOrderDetail] = useState<Order | null>(
+    null,
+  );
+
+  const createNotification = (order: Order, newStatus: string) => {
+    const statusMessages: Record<string, { title: string; message: string }> = {
+      diproses: {
+        title: "Pesanan Diterima ✓",
+        message: `Pesanan ${order.orderNumber} berhasil diterima. Status: Diproses. Akan segera dipersiapkan untuk pengiriman.`,
+      },
+      dikirim: {
+        title: "Siap Dikirim 📦",
+        message: `Pesanan ${order.orderNumber} untuk ${order.customer} siap dikirim. Driver akan segera mengambil barang Anda.`,
+      },
+      selesai: {
+        title: "Pesanan Selesai 🎊",
+        message: `Pesanan ${order.orderNumber} telah sampai dan diterima oleh pelanggan. Terima kasih atas pembeliannya!`,
+      },
+    };
+
+    const roleMapping: Record<string, "umkm" | "driver" | "customer"> = {
+      diproses: "customer",
+      dikirim: "driver",
+      selesai: "customer",
+    };
+
+    const notification: Notification = {
+      id: `notif-${Date.now()}`,
+      type:
+        newStatus === "selesai"
+          ? "delivery"
+          : newStatus === "dikirim"
+            ? "status_update"
+            : "order",
+      title: statusMessages[newStatus].title,
+      message: statusMessages[newStatus].message,
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      customer: order.customer,
+      product: order.product,
+      status: newStatus as "diproses" | "dikirim" | "selesai",
+      fromRole: roleMapping[newStatus],
+      createdAt: new Date().toISOString(),
+      isRead: false,
+    };
+
+    setNotifications((prev) => [notification, ...prev]);
+    setLastNotification(notification);
+    setShowNotificationToast(true);
+
+    // Auto hide toast after 5 seconds
+    setTimeout(() => setShowNotificationToast(false), 5000);
+  };
 
   const handleStatusChange = (orderId: string, newStatus: string) => {
+    const order = orders.find((o) => o.id === orderId);
+    if (order) {
+      createNotification(order, newStatus);
+    }
+
     setOrders((prevOrders) =>
       prevOrders.map((order) =>
         order.id === orderId
@@ -150,8 +216,8 @@ export default function OrdersManagement() {
               ...order,
               status: newStatus as "diproses" | "dikirim" | "selesai",
             }
-          : order
-      )
+          : order,
+      ),
     );
   };
 
@@ -292,7 +358,9 @@ export default function OrdersManagement() {
                     <p className="text-sm text-muted-foreground mb-1">Status</p>
                     <Select
                       value={order.status}
-                      onValueChange={(value) => handleStatusChange(order.id, value)}
+                      onValueChange={(value) =>
+                        handleStatusChange(order.id, value)
+                      }
                     >
                       <SelectTrigger
                         className={`w-full text-sm font-medium ${
@@ -333,7 +401,9 @@ export default function OrdersManagement() {
                 {/* Order Notes */}
                 {order.notes && (
                   <div className="mt-3 pt-3 border-t border-[#F99912]/10">
-                    <p className="text-xs text-muted-foreground mb-1">Catatan:</p>
+                    <p className="text-xs text-muted-foreground mb-1">
+                      Catatan:
+                    </p>
                     <p className="text-sm text-foreground italic">
                       "{order.notes}"
                     </p>
@@ -359,9 +429,10 @@ export default function OrdersManagement() {
                 {/* Action Button */}
                 <div className="mt-3 pt-3 border-t border-[#F99912]/10 flex justify-end">
                   <Button
+                    onClick={() => setSelectedOrderDetail(order)}
                     variant="ghost"
                     size="sm"
-                    className="text-[#F99912] hover:text-[#F99912]/80 hover:bg-[#F99912]/5"
+                    className="cursor-pointer text-[#F99912] hover:text-[#F99912]/80 hover:bg-[#F99912]/5"
                   >
                     <Eye className="w-4 h-4 mr-1" />
                     Detail
@@ -372,6 +443,190 @@ export default function OrdersManagement() {
           })
         )}
       </div>
+
+      {/* Order Detail Modal */}
+      {selectedOrderDetail && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <style>{`
+            .scrollbar-hide::-webkit-scrollbar {
+              display: none;
+            }
+            .scrollbar-hide {
+              -ms-overflow-style: none;
+              scrollbar-width: none;
+            }
+          `}</style>
+          <div className="backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-hide">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-foreground">
+                Detail Pesanan
+              </h2>
+              <button
+                onClick={() => setSelectedOrderDetail(null)}
+                className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {/* Order Header */}
+              <div className="space-y-3 border-b border-[#F99912]/10 pb-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Nomor Pesanan
+                    </p>
+                    <h1 className="text-2xl font-bold text-foreground">
+                      {selectedOrderDetail.orderNumber}
+                    </h1>
+                  </div>
+                  <div>
+                    <span
+                      className={`text-sm px-4 py-2 rounded-full font-medium ${
+                        statusConfig[
+                          selectedOrderDetail.status as keyof typeof statusConfig
+                        ].color
+                      }`}
+                    >
+                      {
+                        statusConfig[
+                          selectedOrderDetail.status as keyof typeof statusConfig
+                        ].label
+                      }
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Customer Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-foreground">
+                    Informasi Pelanggan
+                  </h3>
+                  <div className="bg-muted/30 rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Nama Pelanggan
+                    </p>
+                    <p className="font-medium text-foreground">
+                      {selectedOrderDetail.customer}
+                    </p>
+                  </div>
+                  <div className="bg-muted/30 rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Tanggal Pesanan
+                    </p>
+                    <p className="font-medium text-foreground">
+                      {new Date(selectedOrderDetail.date).toLocaleDateString(
+                        "id-ID",
+                        {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        },
+                      )}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Product Information */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-foreground">
+                    Informasi Produk
+                  </h3>
+                  <div className="bg-muted/30 rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Nama Produk
+                    </p>
+                    <p className="font-medium text-foreground">
+                      {selectedOrderDetail.product}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-muted/30 rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Kuantitas
+                      </p>
+                      <p className="text-xl font-bold text-foreground">
+                        {selectedOrderDetail.quantity}
+                      </p>
+                    </div>
+                    <div className="bg-muted/30 rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground mb-1">
+                        Unit Price
+                      </p>
+                      <p className="text-sm font-medium text-[#F99912]">
+                        Rp{" "}
+                        {(
+                          selectedOrderDetail.price /
+                          selectedOrderDetail.quantity
+                        ).toLocaleString("id-ID")}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Total Price */}
+              <div className="bg-linear-to-r from-[#F99912]/20 to-[#64762C]/10 rounded-lg p-4 border border-[#F99912]/20">
+                <div className="flex items-center justify-between">
+                  <p className="text-lg font-semibold text-foreground">
+                    Total Pesanan
+                  </p>
+                  <p className="text-3xl font-bold text-[#F99912]">
+                    Rp {selectedOrderDetail.price.toLocaleString("id-ID")}
+                  </p>
+                </div>
+              </div>
+
+              {/* Notes */}
+              {selectedOrderDetail.notes && (
+                <div className="space-y-3 border-t border-[#F99912]/10 pt-6">
+                  <h3 className="font-semibold text-foreground">
+                    Catatan Pesanan
+                  </h3>
+                  <div className="bg-muted/30 rounded-lg p-4">
+                    <p className="text-foreground leading-relaxed">
+                      {selectedOrderDetail.notes}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-6 border-t border-[#F99912]/10">
+                <Button
+                  onClick={() => setSelectedOrderDetail(null)}
+                  className="flex-1 bg-linear-to-r from-[#F99912] to-[#64762C] text-[#181612] font-semibold hover:shadow-lg hover:shadow-[#F99912]/30 transition-all duration-300 cursor-pointer"
+                >
+                  Tutup
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notification Toast */}
+      {showNotificationToast && lastNotification && (
+        <div className="fixed bottom-4 right-4 z-50 max-w-sm animate-in slide-in-from-bottom-4">
+          <div className="backdrop-blur-xl bg-card/60 border border-[#F99912]/30 rounded-2xl p-4 shadow-xl shadow-[#F99912]/20">
+            <div className="flex gap-3">
+              <Bell className="w-5 h-5 text-[#F99912] shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <h4 className="font-semibold text-foreground">
+                  {lastNotification.title}
+                </h4>
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                  {lastNotification.message}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

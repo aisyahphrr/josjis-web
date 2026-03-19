@@ -59,3 +59,18 @@ export interface ProductFormData {
     | "jasa";
   image: string;
 }
+
+export interface Notification {
+  id: string;
+  type: "order" | "status_update" | "delivery";
+  title: string;
+  message: string;
+  orderId: string;
+  orderNumber: string;
+  customer?: string;
+  product?: string;
+  status?: "diproses" | "dikirim" | "selesai";
+  fromRole: "customer" | "driver" | "umkm";
+  createdAt: string;
+  isRead: boolean;
+}

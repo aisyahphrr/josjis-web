@@ -10,9 +10,9 @@ import {
   BookOpen,
   MessageSquare,
   User,
-  Store,
   Package,
   BarChart3,
+  Bell,
 } from "lucide-react";
 import type { MenuItem, RoleConfig } from "@/src/interface/dashboard";
 
@@ -39,6 +39,7 @@ export const umkmMenuItems: MenuItem[] = [
     label: "Manajemen Pesanan",
     href: "/orders-management",
   },
+  { icon: Bell, label: "Notifikasi", href: "/notifications" },
   { icon: BarChart3, label: "Analisis Feedback", href: "/analysis-feedback" },
 ];
 
