@@ -1,5 +1,7 @@
-import { HeroSection } from "@/src/components/LandingPage/hero-section";
+import { HeroSection } from "@/src/components/LandingPage/hero-section-premium";
 import { FeaturesSection } from "@/src/components/LandingPage/features-section";
+import { PangkatSection } from "@/src/components/LandingPage/pangkat-section";
+import { PhilosophySection } from "@/src/components/LandingPage/philosophy-section";
 import { MarketplacePreview } from "@/src/components/LandingPage/marketplace-preview";
 import { HarvestBogorSection } from "@/src/components/LandingPage/harvest-bogor-section";
 import { BogorQuestSection } from "@/src/components/LandingPage/bogor-quest-section";
@@ -14,6 +16,8 @@ export default function LandingPage() {
       <Navbar />
       <HeroSection />
       <FeaturesSection />
+      <PangkatSection />
+      <PhilosophySection />
       <MarketplacePreview />
       <HarvestBogorSection />
       <BogorQuestSection />

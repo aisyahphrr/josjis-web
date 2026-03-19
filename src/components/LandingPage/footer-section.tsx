@@ -54,7 +54,7 @@ export function FooterSection() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Newsletter */}
-        <div className="mb-16 p-8 rounded-3xl bg-gradient-to-r from-[#F99912]/10 via-[#64762C]/10 to-[#F99912]/10 border border-[#F99912]/20">
+        <div className="mb-16 p-8 rounded-3xl bg-gradient-to-r from-[#F99912]/10 via-[#9ACD32]/10 to-[#9370DB]/10 border border-[#F99912]/20">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="text-2xl font-bold text-foreground mb-2">
@@ -71,7 +71,7 @@ export function FooterSection() {
                 placeholder="Email Anda"
                 className="flex-1 px-4 py-3 rounded-xl bg-background border border-[#F99912]/20 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#F99912]/50 transition-colors"
               />
-              <Button className="bg-gradient-to-r from-[#F99912] to-[#64762C] hover:from-[#F99912]/90 hover:to-[#64762C]/90 text-[#181612] font-semibold px-6">
+              <Button className="bg-gradient-to-r from-[#F99912] to-[#9ACD32] hover:from-[#F99912]/90 hover:to-[#9ACD32]/90 text-[#2B3236] font-semibold px-6 shadow-none transition-all duration-300">
                 Subscribe
               </Button>
             </div>
@@ -83,13 +83,13 @@ export function FooterSection() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4 group">
-              <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#F99912] to-[#64762C] p-0.5 group-hover:shadow-[0_0_20px_rgba(249,153,18,0.5)] transition-shadow duration-300">
+              <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-[#F99912] to-[#9ACD32] p-0.5 group-hover:shadow-[0_12px_30px_rgba(40,50,56,0.10)] transition-shadow duration-300">
                 <div className="w-full h-full rounded-xl bg-background flex items-center justify-center">
                   <Sparkles className="w-5 h-5 text-[#F99912]" />
                 </div>
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-[#F99912] to-[#64762C] bg-clip-text text-transparent">
-                JOSJIS
+              <span className="text-xl font-bold bg-gradient-to-r from-[#F99912] to-[#9ACD32] bg-clip-text text-transparent">
+                SADAYA
               </span>
             </Link>
             <p className="text-sm text-muted-foreground mb-4 text-pretty">
@@ -97,11 +97,11 @@ export function FooterSection() {
             </p>
             <div className="space-y-2">
               <a
-                href="mailto:info@josjis.com"
+                href="mailto:info@sadaya.com"
                 className="flex items-center gap-2 text-sm text-muted-foreground hover:text-[#F99912] transition-colors"
               >
                 <Mail className="w-4 h-4" />
-                info@josjis.com
+                info@sadaya.com
               </a>
               <a
                 href="tel:+6281234567890"
@@ -140,7 +140,7 @@ export function FooterSection() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-[#F99912]/10 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} JOSJIS. All rights reserved.
+            &copy; {new Date().getFullYear()} SADAYA. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             {socialLinks.map((social) => (

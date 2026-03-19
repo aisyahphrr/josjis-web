@@ -23,7 +23,7 @@ const articles = [
     excerpt:
       "Talas Bogor merupakan salah satu komoditas unggulan yang menjadi identitas kuliner khas Bogor. Simak sejarah dan cara pengolahannya.",
     category: "Kuliner",
-    author: "Tim JOSJIS",
+    author: "Tim SADAYA",
     date: "10 Mar 2026",
     readTime: "5 menit",
     views: 1234,
@@ -36,7 +36,7 @@ const articles = [
     excerpt:
       "Panduan lengkap untuk pelaku UMKM yang ingin go digital. Dari strategi pemasaran hingga pengelolaan toko online.",
     category: "Bisnis",
-    author: "Admin JOSJIS",
+    author: "Admin SADAYA",
     date: "8 Mar 2026",
     readTime: "8 menit",
     views: 856,
@@ -58,11 +58,11 @@ const articles = [
   },
   {
     id: 4,
-    title: "Cara Mendapatkan Koin Asli Bogor dengan Cepat",
+    title: "Cara Mendapatkan Daya Poin Asli Bogor dengan Cepat",
     excerpt:
-      "Strategi dan tips untuk mengumpulkan Koin Asli Bogor melalui game Harvest Bogor dan quest harian.",
+      "Strategi dan tips untuk mengumpulkan Daya Poin Asli Bogor melalui game Harvest Bogor dan quest harian.",
     category: "Tips",
-    author: "Tim JOSJIS",
+    author: "Tim SADAYA",
     date: "3 Mar 2026",
     readTime: "4 menit",
     views: 3456,
@@ -86,9 +86,9 @@ const articles = [
     id: 6,
     title: "Program UMKM Academy: Tingkatkan Skill Digital Anda",
     excerpt:
-      "Ikuti program pelatihan gratis dari JOSJIS untuk mengembangkan bisnis UMKM Anda ke level selanjutnya.",
+      "Ikuti program pelatihan gratis dari SADAYA untuk mengembangkan bisnis UMKM Anda ke level selanjutnya.",
     category: "Edukasi",
-    author: "Tim JOSJIS",
+    author: "Tim SADAYA",
     date: "28 Feb 2026",
     readTime: "5 menit",
     views: 789,

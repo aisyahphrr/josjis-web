@@ -30,7 +30,7 @@ const mysteryBoxes = [
     cost: 100,
     available: 3,
     color: "from-amber-700 to-amber-900",
-    rewards: ["50-100 Koin", "Voucher 5%", "Badge Bronze"],
+    rewards: ["50-100 Daya Poin", "Voucher 5%", "Badge Bronze"],
     rarity: "Common",
   },
   {
@@ -39,7 +39,7 @@ const mysteryBoxes = [
     cost: 250,
     available: 2,
     color: "from-gray-400 to-gray-600",
-    rewards: ["100-250 Koin", "Voucher 10%", "Badge Silver"],
+    rewards: ["100-250 Daya Poin", "Voucher 10%", "Badge Silver"],
     rarity: "Rare",
   },
   {
@@ -48,7 +48,7 @@ const mysteryBoxes = [
     cost: 500,
     available: 1,
     color: "from-[#F99912] to-amber-600",
-    rewards: ["250-500 Koin", "Voucher 25%", "Badge Gold"],
+    rewards: ["250-500 Daya Poin", "Voucher 25%", "Badge Gold"],
     rarity: "Epic",
   },
   {
@@ -57,7 +57,7 @@ const mysteryBoxes = [
     cost: 1000,
     available: 0,
     color: "from-cyan-400 to-blue-600",
-    rewards: ["500-1000 Koin", "Voucher 50%", "Badge Diamond"],
+    rewards: ["500-1000 Daya Poin", "Voucher 50%", "Badge Diamond"],
     rarity: "Legendary",
   },
 ];
@@ -73,7 +73,7 @@ const rewardHistory = [
   {
     id: 2,
     box: "Silver Box",
-    reward: "150 Koin",
+    reward: "150 Daya Poin",
     date: "8 Mar 2026",
     icon: Coins,
   },
@@ -140,7 +140,9 @@ export default function MysteryBoxPage() {
                 <Coins className="w-5 h-5 text-[#F99912]" />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Koin Asli Bogor</p>
+                <p className="text-xs text-muted-foreground">
+                  Daya Poin Asli Bogor
+                </p>
                 <p className="text-xl font-bold text-[#F99912]">
                   {coins.toLocaleString()}
                 </p>
@@ -242,7 +244,9 @@ export default function MysteryBoxPage() {
                   <span className="font-semibold text-[#F99912]">
                     {box.cost}
                   </span>
-                  <span className="text-sm text-muted-foreground">Koin</span>
+                  <span className="text-sm text-muted-foreground">
+                    Daya Poin
+                  </span>
                 </div>
 
                 {/* Available Count */}
@@ -289,7 +293,7 @@ export default function MysteryBoxPage() {
                     ) : (
                       <>
                         <Lock className="w-4 h-4 mr-2" />
-                        Koin Tidak Cukup
+                        Daya Poin Tidak Cukup
                       </>
                     )
                   ) : (

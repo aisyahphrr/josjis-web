@@ -3,48 +3,48 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/src/components/ui/button";
-import { Menu, X, ShoppingCart, Sparkles } from "lucide-react";
+import { Menu, X, ShoppingCart } from "lucide-react";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/60 border-b border-[#F99912]/10">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-background/80 border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="relative w-10 h-10 rounded-xl bg-linear-to-br from-[#F99912] to-[#64762C] p-0.5 group-hover:shadow-[0_0_20px_rgba(249,153,18,0.5)] transition-shadow duration-300">
-              <div className="w-full h-full rounded-xl bg-background flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-[#F99912]" />
-              </div>
-            </div>
-            <span className="text-xl font-bold bg-linear-to-r from-[#F99912] via-[#C9C9C3] to-[#64762C] bg-clip-text text-transparent">
-              JOSJIS
+            {/* Logo Placeholder */}
+            <div
+              className="w-10 h-10 rounded-xl border border-[#F99912]/20 bg-white/70"
+              aria-hidden="true"
+            />
+            <span className="text-xl font-bold text-foreground tracking-tight">
+              SADAYA
             </span>
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
             <Link
               href="#features"
-              className="text-muted-foreground hover:text-[#F99912] transition-colors text-sm"
+              className="text-foreground hover:text-[#F99912] transition-colors text-sm font-medium"
             >
               Fitur
             </Link>
             <Link
               href="#marketplace"
-              className="text-muted-foreground hover:text-[#F99912] transition-colors text-sm"
+              className="text-foreground hover:text-[#F99912] transition-colors text-sm font-medium"
             >
               Marketplace
             </Link>
             <Link
               href="#game"
-              className="text-muted-foreground hover:text-[#F99912] transition-colors text-sm"
+              className="text-foreground hover:text-[#F99912] transition-colors text-sm font-medium"
             >
               Game
             </Link>
             <Link
               href="#academy"
-              className="text-muted-foreground hover:text-[#F99912] transition-colors text-sm"
+              className="text-foreground hover:text-[#F99912] transition-colors text-sm font-medium"
             >
               Academy
             </Link>
@@ -53,20 +53,23 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <Link href="/login">
               <Button
-                variant="ghost"
-                className="text-muted-foreground hover:text-foreground hover:bg-[#F99912]/10 cursor-pointer"
+                className="bg-[#F99912] text-[#2B3236] font-semibold shadow-none hover:bg-[#F99912]/90 hover:scale-[1.03] transition-all duration-300 cursor-pointer"
               >
-                Login
+                Masuk
               </Button>
             </Link>
             <Link href="/register">
-              <Button className="bg-linear-to-r from-[#F99912] to-[#64762C] hover:from-[#F99912]/90 hover:to-[#64762C]/90 text-[#181612] font-semibold shadow-[0_0_20px_rgba(249,153,18,0.3)] hover:shadow-[0_0_30px_rgba(249,153,18,0.5)] transition-all duration-300 cursor-pointer">
-                Daftar Sekarang
+              <Button className="bg-[#F99912] text-[#2B3236] font-semibold shadow-none hover:bg-[#F99912]/90 hover:scale-[1.03] transition-all duration-300 cursor-pointer">
+                Daftar
               </Button>
             </Link>
-            <Button variant="ghost" size="icon" className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative text-foreground hover:text-[#F99912] hover:bg-[#F99912]/10 transition-all duration-300"
+            >
               <ShoppingCart className="w-5 h-5" />
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#F99912] rounded-full text-[10px] flex items-center justify-center text-[#181612] font-bold">
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#F99912] rounded-full text-[10px] flex items-center justify-center text-[#2B3236] font-bold">
                 0
               </span>
             </Button>
@@ -83,42 +86,39 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-[#F99912]/10 p-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-background/95 backdrop-blur-md border-b border-border p-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
           <Link
             href="#features"
-            className="block text-muted-foreground hover:text-[#F99912] transition-colors py-2"
+            className="block text-foreground hover:text-[#F99912] transition-colors py-2 font-medium"
           >
             Fitur
           </Link>
           <Link
             href="#marketplace"
-            className="block text-muted-foreground hover:text-[#F99912] transition-colors py-2"
+            className="block text-foreground hover:text-[#F99912] transition-colors py-2 font-medium"
           >
             Marketplace
           </Link>
           <Link
             href="#game"
-            className="block text-muted-foreground hover:text-[#F99912] transition-colors py-2"
+            className="block text-foreground hover:text-[#F99912] transition-colors py-2 font-medium"
           >
             Game
           </Link>
           <Link
             href="#academy"
-            className="block text-muted-foreground hover:text-[#F99912] transition-colors py-2"
+            className="block text-foreground hover:text-[#F99912] transition-colors py-2 font-medium"
           >
             Academy
           </Link>
-          <div className="flex gap-3 pt-4 border-t border-[#F99912]/10">
+          <div className="flex gap-3 pt-4 border-t border-border">
             <Link href="/login" className="flex-1 ">
-              <Button
-                variant="outline"
-                className="w-full border-[#F99912]/30 hover:bg-[#F99912]/10 cursor-pointer"
-              >
-                Login
+              <Button className="w-full bg-[#F99912] text-[#2B3236] font-semibold shadow-none hover:bg-[#F99912]/90 hover:scale-[1.03] transition-all duration-300 cursor-pointer">
+                Masuk
               </Button>
             </Link>
             <Link href="/register" className="flex-1 ">
-              <Button className="w-full bg-linear-to-r from-[#F99912] to-[#64762C] text-[#181612] cursor-pointer">
+              <Button className="w-full bg-[#F99912] text-[#2B3236] font-semibold shadow-none hover:bg-[#F99912]/90 hover:scale-[1.03] transition-all duration-300 cursor-pointer">
                 Daftar
               </Button>
             </Link>

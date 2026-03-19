@@ -40,7 +40,7 @@ export default function AdminDashboard() {
                   Admin Control Panel
                 </h2>
                 <p className="text-muted-foreground">
-                  Kelola seluruh sistem JOSJIS dari sini
+                  Kelola seluruh sistem SADAYA dari sini
                 </p>
               </div>
             </div>

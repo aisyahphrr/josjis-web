@@ -83,10 +83,13 @@ function formatPrice(price: number) {
 
 export function MarketplacePreview() {
   return (
-    <section id="marketplace" className="relative py-24 overflow-hidden">
+    <section id="marketplace" className="relative z-10 py-24 overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background to-muted/30" />
-      <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#F99912]/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-[#FDF5E7] to-background" />
+      <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#F99912]/25 to-transparent" />
+      <div className="absolute -top-24 -left-24 w-[26rem] h-[26rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(249,153,18,0.22)_0%,transparent_60%)] opacity-90 pointer-events-none" />
+      <div className="absolute -bottom-28 -right-28 w-[30rem] h-[30rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(147,112,219,0.20)_0%,transparent_62%)] opacity-70 pointer-events-none" />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,rgba(154,205,50,0.12)_0%,transparent_55%),radial-gradient(ellipse_at_bottom_left,rgba(249,153,18,0.10)_0%,transparent_60%)]" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -99,7 +102,7 @@ export function MarketplacePreview() {
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-balance">
               <span className="text-foreground">Produk </span>
-              <span className="bg-gradient-to-r from-[#F99912] to-[#64762C] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#F99912] to-[#9ACD32] bg-clip-text text-transparent">
                 Populer
               </span>
             </h2>
@@ -110,7 +113,7 @@ export function MarketplacePreview() {
           <Link href="/marketplace">
             <Button
               variant="outline"
-              className="border-[#F99912]/30 hover:bg-[#F99912]/10 hover:border-[#F99912]/50 group"
+              className="border-[#F99912]/30 hover:bg-[#F99912]/10 hover:border-[#F99912]/50 group transition-all duration-300"
             >
               Lihat Semua Produk
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -123,7 +126,7 @@ export function MarketplacePreview() {
           {products.map((product) => (
             <div
               key={product.id}
-              className="group relative backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl overflow-hidden hover:border-[#F99912]/30 transition-all duration-300 hover:translate-y-[-4px] hover:shadow-[0_20px_40px_rgba(249,153,18,0.15)]"
+              className="group relative backdrop-blur bg-white/80 border border-border/70 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(40,50,56,0.10)]"
             >
               {/* Image Container */}
               <div className="relative aspect-square overflow-hidden">
@@ -135,7 +138,7 @@ export function MarketplacePreview() {
 
                 {/* Badge */}
                 {product.badge && (
-                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612] text-xs font-semibold">
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-gradient-to-r from-[#F99912] to-[#9ACD32] text-[#2B3236] text-xs font-semibold">
                     {product.badge}
                   </div>
                 )}
@@ -147,7 +150,7 @@ export function MarketplacePreview() {
 
                 {/* Quick Add */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <Button className="w-full bg-gradient-to-r from-[#F99912] to-[#64762C] hover:from-[#F99912]/90 hover:to-[#64762C]/90 text-[#181612] font-semibold">
+                  <Button className="w-full bg-gradient-to-r from-[#F99912] to-[#9ACD32] hover:from-[#F99912]/90 hover:to-[#9ACD32]/90 text-[#2B3236] font-semibold shadow-none transition-all duration-300">
                     <ShoppingCart className="mr-2 w-4 h-4" />
                     Tambah ke Keranjang
                   </Button>
@@ -175,7 +178,7 @@ export function MarketplacePreview() {
                 </div>
 
                 {/* Price */}
-                <p className="text-lg font-bold bg-gradient-to-r from-[#F99912] to-[#64762C] bg-clip-text text-transparent">
+                <p className="text-lg font-bold bg-gradient-to-r from-[#F99912] to-[#9ACD32] bg-clip-text text-transparent">
                   {formatPrice(product.price)}
                 </p>
               </div>

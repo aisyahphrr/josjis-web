@@ -31,7 +31,7 @@ export function AdminSidebar() {
             </div>
           </div>
           <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-            <div className="text-sm font-semibold leading-tight">JOSJIS</div>
+            <div className="text-sm font-semibold leading-tight">SADAYA</div>
             <div className="text-xs text-muted-foreground">Admin Console</div>
           </div>
         </Link>

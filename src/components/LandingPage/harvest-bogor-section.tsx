@@ -10,21 +10,21 @@ const plants = [
     emoji: "🌿",
     growthTime: "7 hari",
     reward: 50,
-    color: "from-[#64762C] to-[#424F17]",
+    color: "from-[#9ACD32] to-[#9370DB]",
   },
   {
     name: "Pala Premium",
     emoji: "🥜",
     growthTime: "14 hari",
     reward: 120,
-    color: "from-[#F99912] to-[#C9C9C3]",
+    color: "from-[#F99912] to-[#9ACD32]",
   },
   {
     name: "Jambu Kristal",
     emoji: "🍐",
     growthTime: "10 hari",
     reward: 80,
-    color: "from-[#C9C9C3] to-[#64762C]",
+    color: "from-[#9370DB] to-[#9ACD32]",
   },
 ];
 
@@ -32,23 +32,24 @@ export function HarvestBogorSection() {
   return (
     <section id="game" className="relative py-24 overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#424F17]/10 via-background to-[#64762C]/10" />
-      <div className="absolute top-20 left-10 w-72 h-72 bg-[#64762C]/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#F99912]/5 rounded-full blur-3xl" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-white to-background" />
+      <div className="absolute top-10 left-0 w-[34rem] h-[34rem] bg-[radial-gradient(circle_at_center,#9ACD32_0%,transparent_62%)] opacity-60 rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[40rem] h-[40rem] bg-[radial-gradient(circle_at_center,#9370DB_0%,transparent_62%)] opacity-35 rounded-full pointer-events-none" />
+      <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-[radial-gradient(circle_at_center,#F99912_0%,transparent_60%)] opacity-35 rounded-full pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
           <div>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#64762C]/10 border border-[#64762C]/20 mb-6">
-              <Sparkles className="w-4 h-4 text-[#64762C]" />
-              <span className="text-sm text-[#64762C] font-medium">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#9ACD32]/10 border border-[#9ACD32]/20 mb-6">
+              <Sparkles className="w-4 h-4 text-[#9ACD32]" />
+              <span className="text-sm text-[#9ACD32] font-medium">
                 Gamification
               </span>
             </div>
 
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-balance">
-              <span className="bg-gradient-to-r from-[#64762C] to-[#F99912] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#9ACD32] to-[#F99912] bg-clip-text text-transparent">
                 Harvest Bogor
               </span>
               <br />
@@ -59,9 +60,9 @@ export function HarvestBogorSection() {
               Tanam, rawat, dan panen tanaman khas Bogor secara virtual!
               Dapatkan{" "}
               <span className="text-[#F99912] font-semibold">
-                Koin Asli Bogor
+                Daya Poin Asli Bogor
               </span>{" "}
-              yang dapat ditukar dengan diskon belanja. 1 koin = Rp1 diskon saat
+              yang dapat ditukar dengan diskon belanja. 1 Daya Poin = Rp1 diskon saat
               checkout!
             </p>
 
@@ -79,7 +80,7 @@ export function HarvestBogorSection() {
                   <Coins className="w-6 h-6 text-[#F99912]" />
                 </div>
                 <p className="text-2xl font-bold text-foreground">250</p>
-                <p className="text-xs text-muted-foreground">Max Koin/Panen</p>
+                <p className="text-xs text-muted-foreground">Max Daya Poin/Panen</p>
               </div>
               <div className="text-center p-4 rounded-xl bg-muted/50 backdrop-blur border border-[#F99912]/10">
                 <div className="flex justify-center mb-2">
@@ -94,7 +95,7 @@ export function HarvestBogorSection() {
               <Button
                 size="lg"
                 suppressHydrationWarning
-                className="bg-gradient-to-r from-[#64762C] to-[#424F17] hover:from-[#64762C]/90 hover:to-[#424F17]/90 text-foreground font-semibold shadow-[0_0_30px_rgba(100,118,44,0.3)] hover:shadow-[0_0_40px_rgba(100,118,44,0.5)] transition-all duration-300 group"
+                className="bg-gradient-to-r from-[#F99912] to-[#9ACD32] hover:from-[#F99912]/90 hover:to-[#9ACD32]/90 text-[#2B3236] font-semibold shadow-none transition-all duration-300 group"
               >
                 <Leaf className="mr-2 w-5 h-5" />
                 Mulai Bertani
@@ -106,11 +107,11 @@ export function HarvestBogorSection() {
           {/* Game Preview */}
           <div className="relative">
             {/* Main Game Card */}
-            <div className="relative backdrop-blur-xl bg-card/60 border border-[#64762C]/20 rounded-3xl p-6 shadow-[0_20px_60px_rgba(100,118,44,0.2)]">
+            <div className="relative backdrop-blur bg-white/80 border border-border rounded-3xl p-6 shadow-[0_18px_40px_rgba(40,50,56,0.08)] transition-all duration-300 hover:shadow-[0_26px_60px_rgba(40,50,56,0.12)]">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#64762C] to-[#424F17] flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#9ACD32] to-[#9370DB] flex items-center justify-center">
                     <Leaf className="w-6 h-6 text-foreground" />
                   </div>
                   <div>
@@ -135,7 +136,7 @@ export function HarvestBogorSection() {
                 {plants.map((plant) => (
                   <div
                     key={plant.name}
-                    className="group relative aspect-square rounded-2xl bg-muted/50 border border-[#64762C]/20 p-4 flex flex-col items-center justify-center hover:border-[#64762C]/40 hover:bg-[#64762C]/5 transition-all duration-300 cursor-pointer"
+                    className="group relative aspect-square rounded-2xl bg-white/70 border border-border p-4 flex flex-col items-center justify-center hover:border-[#9ACD32]/40 hover:bg-background transition-all duration-300 cursor-pointer"
                   >
                     <span className="text-4xl mb-2 group-hover:scale-110 transition-transform">
                       {plant.emoji}
@@ -168,7 +169,7 @@ export function HarvestBogorSection() {
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-[#64762C] to-[#F99912] rounded-full transition-all duration-500"
+                    className="h-full bg-gradient-to-r from-[#9ACD32] to-[#F99912] rounded-full transition-all duration-500"
                     style={{ width: "67%" }}
                   />
                 </div>
@@ -176,12 +177,12 @@ export function HarvestBogorSection() {
             </div>
 
             {/* Floating Elements */}
-            <div className="absolute -top-4 -right-4 w-20 h-20 rounded-2xl bg-gradient-to-br from-[#F99912] to-[#64762C] p-0.5 shadow-[0_10px_30px_rgba(249,153,18,0.3)] animate-bounce-slow">
+            <div className="absolute -top-4 -right-4 w-20 h-20 rounded-2xl bg-gradient-to-br from-[#F99912] to-[#9ACD32] p-0.5 shadow-[0_10px_30px_rgba(249,153,18,0.12)] animate-bounce-slow">
               <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
                 <span className="text-3xl">🌾</span>
               </div>
             </div>
-            <div className="absolute -bottom-6 -left-6 w-16 h-16 rounded-2xl bg-gradient-to-br from-[#64762C] to-[#424F17] p-0.5 shadow-[0_10px_30px_rgba(100,118,44,0.3)] animate-pulse">
+            <div className="absolute -bottom-6 -left-6 w-16 h-16 rounded-2xl bg-gradient-to-br from-[#9ACD32] to-[#9370DB] p-0.5 shadow-[0_10px_30px_rgba(147,112,219,0.12)] animate-pulse">
               <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
                 <Coins className="w-8 h-8 text-[#F99912]" />
               </div>

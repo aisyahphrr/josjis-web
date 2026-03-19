@@ -273,7 +273,7 @@ export default function GamePage() {
 
     toast({
       title: "Berhasil memanen",
-      description: `+${seed.coinsReward} koin, hasil masuk ke keranjang.`,
+      description: `+${seed.coinsReward} Daya Poin, hasil masuk ke keranjang.`,
     });
 
     setPlots((prev) =>
@@ -349,7 +349,7 @@ export default function GamePage() {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">
-                      Koin Asli Bogor
+                      Daya Poin Asli Bogor
                     </p>
                     <p className="text-xl font-bold text-[#F99912]">
                       {coins.toLocaleString()}
@@ -578,7 +578,7 @@ export default function GamePage() {
               <div className="flex items-start gap-2">
                 <Coins className="w-4 h-4 text-[#F99912] mt-0.5 flex-shrink-0" />
                 <span>
-                  Pilih Panen → hasil masuk ke keranjang + dapat koin.
+                  Pilih Panen → hasil masuk ke keranjang + dapat Daya Poin.
                 </span>
               </div>
             </div>
@@ -613,7 +613,7 @@ export default function GamePage() {
                   Stok: {seeds[s.id] ?? 0}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Reward: +{s.coinsReward} koin
+                  Reward: +{s.coinsReward} Daya Poin
                 </p>
               </button>
             ))}

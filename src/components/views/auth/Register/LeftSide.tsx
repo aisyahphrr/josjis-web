@@ -28,21 +28,21 @@ const roles = [
     title: "User / Pembeli",
     description: "Belanja produk UMKM Bogor",
     icon: ShoppingBag,
-    color: "from-[#F99912] to-[#C9C9C3]",
+    color: "from-[#F99912] to-[#9ACD32]",
   },
   {
     id: "umkm" as Role,
     title: "UMKM / Penjual",
     description: "Jual produk di marketplace",
     icon: Store,
-    color: "from-[#64762C] to-[#424F17]",
+    color: "from-[#F99912] to-[#9370DB]",
   },
   {
     id: "driver" as Role,
     title: "Driver",
     description: "Antar pesanan ke pembeli",
     icon: Truck,
-    color: "from-[#C9C9C3] to-[#64762C]",
+    color: "from-[#ADBCD7] to-[#9ACD32]",
   },
 ];
 
@@ -88,24 +88,24 @@ const LeftSide = () => {
       <div className="flex-1 flex items-center justify-center p-8 overflow-y-auto">
         <div className="w-full max-w-md py-8">
           <Link href="/" className="flex items-center gap-2 mb-8 group">
-            <div className="relative w-12 h-12 rounded-xl bg-linear-to-br from-[#F99912] to-[#64762C] p-0.5 group-hover:shadow-[0_0_20px_rgba(249,153,18,0.5)] transition-shadow duration-300">
+            <div className="relative w-12 h-12 rounded-xl bg-linear-to-br from-[#F99912] to-[#9ACD32] p-0.5 transition-shadow duration-300 group-hover:shadow-[0_12px_30px_rgba(40,50,56,0.10)]">
               <div className="w-full h-full rounded-xl bg-background flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-[#F99912]" />
               </div>
             </div>
-            <span className="text-2xl font-bold bg-linear-to-r from-[#F99912] to-[#64762C] bg-clip-text text-transparent">
-              JOSJIS
+            <span className="text-2xl font-bold bg-linear-to-r from-[#F99912] to-[#9ACD32] bg-clip-text text-transparent">
+              SADAYA
             </span>
           </Link>
 
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">
-              {step === 1 ? "Buat Akun Baru" : "Informasi UMKM"}
+              {step === 1 ? "Mulai di SADAYA" : "Informasi UMKM"}
             </h1>
             <p className="text-muted-foreground">
               {step === 1
-                ? "Pilih role dan isi data untuk mendaftar"
-                : "Lengkapi informasi usaha Anda"}
+                ? "Gabung Sadaya: pilih peran, lalu kumpulkan Daya Poin untuk mulai berdaya."
+                : "Lengkapi informasi usaha Anda supaya UMKM bisa tampil di direktori Sadaya."}
             </p>
           </div>
 
@@ -156,7 +156,7 @@ const LeftSide = () => {
                         >
                           {selectedRole === role.id && (
                             <svg
-                              className="w-full h-full text-[#181612]"
+                              className="w-full h-full text-[#283238]"
                               viewBox="0 0 24 24"
                             >
                               <path
@@ -395,7 +395,7 @@ const LeftSide = () => {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-linear-to-r from-[#F99912] to-[#64762C] hover:from-[#F99912]/90 hover:to-[#64762C]/90 text-[#181612] font-semibold rounded-xl shadow-[0_0_30px_rgba(249,153,18,0.3)] hover:shadow-[0_0_40px_rgba(249,153,18,0.5)] transition-all duration-300"
+              className="w-full h-12 bg-linear-to-r from-[#F99912] to-[#9ACD32] hover:from-[#F99912]/90 hover:to-[#9ACD32]/90 text-[#283238] font-semibold rounded-xl shadow-none hover:scale-[1.02] transition-all duration-300"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
