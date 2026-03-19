@@ -214,7 +214,7 @@ export default function ProductsManagement() {
 
       {/* Add Product Form Modal */}
       {showAddForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/10 overflow-hidden flex items-center justify-center z-50 p-4">
           <div className="backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-6 space-y-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-foreground">
@@ -417,6 +417,44 @@ export default function ProductsManagement() {
             </div>
 
             <form onSubmit={handleUpdateProduct} className="space-y-6">
+              {/* Product Image Upload */}
+              <div className="space-y-2">
+                <Label htmlFor="edit-image" className="text-foreground">
+                  Foto Produk
+                </Label>
+                <div className="w-full border-2 border-dashed border-[#F99912]/30 rounded-lg p-4 text-center hover:border-[#F99912]/50 transition-colors">
+                  <input
+                    id="edit-image"
+                    name="image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                  <label htmlFor="edit-image" className="cursor-pointer block">
+                    {formData.image ? (
+                      <div className="space-y-2">
+                        <img
+                          src={formData.image}
+                          alt="Preview"
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                        <p className="text-xs text-[#F99912]">
+                          Klik untuk ganti foto
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <p className="text-2xl">📷</p>
+                        <p className="text-sm text-muted-foreground">
+                          Klik untuk upload foto produk
+                        </p>
+                      </div>
+                    )}
+                  </label>
+                </div>
+              </div>
+
               {/* Product Name */}
               <div className="space-y-2">
                 <Label htmlFor="edit-name" className="text-foreground">
