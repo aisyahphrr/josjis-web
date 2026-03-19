@@ -39,6 +39,7 @@ export const umkmMenuItems: MenuItem[] = [
     label: "Manajemen Pesanan",
     href: "/orders-management",
   },
+  { icon: MessageSquare, label: "Chat", href: "/chat-umkm" },
   { icon: Bell, label: "Notifikasi", href: "/notifications" },
   { icon: BarChart3, label: "Analisis Feedback", href: "/analysis-feedback" },
 ];
