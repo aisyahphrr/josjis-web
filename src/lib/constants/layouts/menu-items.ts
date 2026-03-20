@@ -50,6 +50,13 @@ export const adminMenuItems: MenuItem[] = [
 
 export const driverMenuItems: MenuItem[] = [
   { icon: Home, label: "Dashboard", href: "/dashboard-driver" },
+  { icon: MessageSquare, label: "Chat", href: "/chat-driver" },
+  { icon: Package, label: "Pesanan Aktif", href: "/orders-active-driver" },
+  {
+    icon: History,
+    label: "Riwayat Pengiriman",
+    href: "/history-driver",
+  },
 ];
 
 export const roleConfigs: Record<string, RoleConfig> = {
