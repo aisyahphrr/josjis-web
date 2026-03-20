@@ -10,6 +10,7 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import DeckGLMap from "@/src/components/views/driver/tracking/deckgl-map";
 
@@ -63,6 +64,7 @@ export default function TrackingPageDeckGL({
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) {
+  const router = useRouter();
   const orderId = Array.isArray(searchParams.orderId)
     ? searchParams.orderId[0]
     : searchParams.orderId || "DLV-001";
@@ -161,6 +163,10 @@ export default function TrackingPageDeckGL({
 
   const handleCompleteDelivery = () => {
     addMessage("driver", "Pesanan sudah dikirim, terimakasih!");
+    // Navigate to delivery history page after 2 seconds
+    setTimeout(() => {
+      router.push("/history-driver");
+    }, 2000);
   };
 
   const distanceToDestination =
