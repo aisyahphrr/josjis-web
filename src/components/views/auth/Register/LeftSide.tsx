@@ -1,6 +1,6 @@
 import React from "react";
-import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
@@ -48,6 +48,7 @@ const roles = [
 
 const LeftSide = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [selectedRole, setSelectedRole] = useState<Role>("user");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -77,6 +78,12 @@ const LeftSide = () => {
       setStep(2);
       return;
     }
+    if (step === 1 && selectedRole === "driver") {
+      // Store basic form data and redirect to driver registration page
+      sessionStorage.setItem("registrationData", JSON.stringify(formData));
+      router.push("/register-driver");
+      return;
+    }
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsLoading(false);
@@ -100,12 +107,18 @@ const LeftSide = () => {
 
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground mb-2">
-              {step === 1 ? "Mulai di SADAYA" : "Informasi UMKM"}
+              {step === 1
+                ? "Mulai di SADAYA"
+                : selectedRole === "umkm"
+                  ? "Informasi UMKM"
+                  : ""}
             </h1>
             <p className="text-muted-foreground">
               {step === 1
                 ? "Gabung Sadaya: pilih peran, lalu kumpulkan Daya Poin untuk mulai berdaya."
-                : "Lengkapi informasi usaha Anda supaya UMKM bisa tampil di direktori Sadaya."}
+                : selectedRole === "umkm"
+                  ? "Lengkapi informasi usaha Anda supaya UMKM bisa tampil di direktori Sadaya."
+                  : ""}
             </p>
           </div>
 
@@ -289,6 +302,106 @@ const LeftSide = () => {
                     </button>
                   </div>
                 </div>
+              </>
+            ) : selectedRole === "umkm" ? (
+              <>
+                {/* UMKM Name */}
+                <div className="space-y-2">
+                  <label
+                    htmlFor="umkmName"
+                    className="text-sm font-medium text-foreground"
+                  >
+                    Nama UMKM
+                  </label>
+                  <div className="relative">
+                    <Store className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input
+                      id="umkmName"
+                      type="text"
+                      placeholder="Nama usaha Anda"
+                      value={formData.umkmName}
+                      onChange={(e) =>
+                        setFormData({ ...formData, umkmName: e.target.value })
+                      }
+                      className="pl-12 h-12 bg-muted/50 border-[#F99912]/10 focus:border-[#F99912]/50 rounded-xl"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* UMKM Description */}
+                <div className="space-y-2">
+                  <label
+                    htmlFor="umkmDescription"
+                    className="text-sm font-medium text-foreground"
+                  >
+                    Deskripsi Usaha
+                  </label>
+                  <textarea
+                    id="umkmDescription"
+                    placeholder="Ceritakan tentang usaha Anda..."
+                    value={formData.umkmDescription}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        umkmDescription: e.target.value,
+                      })
+                    }
+                    className="w-full min-h-30 px-4 py-3 rounded-xl bg-muted/50 border border-[#F99912]/10 focus:border-[#F99912]/50 focus:outline-none resize-none text-foreground placeholder:text-muted-foreground"
+                    required
+                  />
+                </div>
+
+                {/* Document Upload */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Upload Dokumen (KTP/SIUP/NIB)
+                  </label>
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-[#F99912]/20 rounded-xl cursor-pointer hover:bg-[#F99912]/5 hover:border-[#F99912]/40 transition-all">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      {formData.document ? (
+                        <>
+                          <FileText className="w-8 h-8 text-[#F99912] mb-2" />
+                          <p className="text-sm text-foreground">
+                            {formData.document.name}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                          <p className="text-sm text-muted-foreground">
+                            Klik untuk upload atau drag & drop
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            PDF, JPG, PNG (Max 5MB)
+                          </p>
+                        </>
+                      )}
+                    </div>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          setFormData({
+                            ...formData,
+                            document: e.target.files[0],
+                          });
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setStep(1)}
+                  className="w-full h-12 border-[#F99912]/20 hover:bg-[#F99912]/5 rounded-xl"
+                >
+                  Kembali
+                </Button>
               </>
             ) : (
               <>
