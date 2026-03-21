@@ -17,6 +17,8 @@ type DriverFormData = {
   name: string;
   email: string;
   password: string;
+  phone: string;
+  address: string;
   vehicleType: "mobil" | "motor" | "";
   vehicleMerk: string;
   licensePlate: string;
@@ -42,6 +44,8 @@ const DriverRegistration = ({
     name: initialData?.name || "",
     email: initialData?.email || "",
     password: initialData?.password || "",
+    phone: "",
+    address: "",
     vehicleType: "",
     vehicleMerk: "",
     licensePlate: "",
@@ -62,6 +66,38 @@ const DriverRegistration = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Phone Number */}
+      <div className="space-y-2">
+        <label htmlFor="phone" className="text-sm font-medium text-foreground">
+          Nomor Telepon
+        </label>
+        <Input
+          id="phone"
+          type="tel"
+          placeholder="Contoh: 081234567890"
+          value={formData.phone}
+          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+          className="h-12 bg-muted/50 border-[#F99912]/10 focus:border-[#F99912]/50 rounded-xl"
+          required
+        />
+      </div>
+
+      {/* Address */}
+      <div className="space-y-2">
+        <label htmlFor="address" className="text-sm font-medium text-foreground">
+          Alamat Lengkap
+        </label>
+        <Input
+          id="address"
+          type="text"
+          placeholder="Masukkan alamat domisili saat ini"
+          value={formData.address}
+          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+          className="h-12 bg-muted/50 border-[#F99912]/10 focus:border-[#F99912]/50 rounded-xl"
+          required
+        />
+      </div>
+
       {/* Vehicle Type Selection */}
       <div className="space-y-3">
         <label className="text-sm font-medium text-foreground">
