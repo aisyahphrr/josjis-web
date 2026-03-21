@@ -25,6 +25,7 @@ type DriverFormData = {
   stnkPhoto: File | null;
   filePhoto: File | null;
   vehiclePhoto: File | null;
+  skckPhoto: File | null;
 };
 
 interface DriverRegistrationProps {
@@ -49,6 +50,7 @@ const DriverRegistration = ({
     stnkPhoto: null,
     filePhoto: null,
     vehiclePhoto: null,
+    skckPhoto: null,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -202,54 +204,52 @@ const DriverRegistration = ({
           </div>
 
           {/* SIM Photo - Dynamic based on vehicle type */}
-          {formData.vehicleType && (
-            <div className="space-y-2">
-              <label className="text-xs font-medium text-muted-foreground">
-                Foto SIM {formData.vehicleType === "mobil" ? "A" : "C"}
-              </label>
-              <label className="flex items-center justify-center w-full h-24 border-2 border-dashed border-[#F99912]/20 rounded-lg cursor-pointer hover:bg-[#F99912]/5 hover:border-[#F99912]/40 transition-all">
-                {formData.simPhoto ? (
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-[#F99912]" />
-                    <span className="text-xs text-foreground">
-                      {formData.simPhoto.name}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setFormData({
-                          ...formData,
-                          simPhoto: null,
-                        });
-                      }}
-                      className="cursor-pointer"
-                    >
-                      <X className="w-4 h-4 text-destructive" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center">
-                    <Upload className="w-5 h-5 text-muted-foreground mb-1" />
-                    <p className="text-xs text-muted-foreground">Upload SIM</p>
-                  </div>
-                )}
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={(e) => {
-                    if (e.target.files?.[0]) {
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-muted-foreground">
+              Foto SIM {formData.vehicleType === "mobil" ? "A" : formData.vehicleType === "motor" ? "C" : ""}
+            </label>
+            <label className="flex items-center justify-center w-full h-24 border-2 border-dashed border-[#F99912]/20 rounded-lg cursor-pointer hover:bg-[#F99912]/5 hover:border-[#F99912]/40 transition-all">
+              {formData.simPhoto ? (
+                <div className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-[#F99912]" />
+                  <span className="text-xs text-foreground">
+                    {formData.simPhoto.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
                       setFormData({
                         ...formData,
-                        simPhoto: e.target.files[0],
+                        simPhoto: null,
                       });
-                    }
-                  }}
-                />
-              </label>
-            </div>
-          )}
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <X className="w-4 h-4 text-destructive" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center">
+                  <Upload className="w-5 h-5 text-muted-foreground mb-1" />
+                  <p className="text-xs text-muted-foreground">Upload SIM</p>
+                </div>
+              )}
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) {
+                    setFormData({
+                      ...formData,
+                      simPhoto: e.target.files[0],
+                    });
+                  }
+                }}
+              />
+            </label>
+          </div>
 
           {/* STNK Photo */}
           <div className="space-y-2">
@@ -346,8 +346,55 @@ const DriverRegistration = ({
               />
             </label>
           </div>
-        </div>
-        {/* Vehicle Photo */}
+
+          {/* SKCK Photo */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-muted-foreground">
+              Foto SKCK
+            </label>
+            <label className="flex items-center justify-center w-full h-24 border-2 border-dashed border-[#F99912]/20 rounded-lg cursor-pointer hover:bg-[#F99912]/5 hover:border-[#F99912]/40 transition-all">
+              {formData.skckPhoto ? (
+                <div className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-[#F99912]" />
+                  <span className="text-xs text-foreground truncate max-w-[80px]">
+                    {formData.skckPhoto.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setFormData({
+                        ...formData,
+                        skckPhoto: null,
+                      });
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <X className="w-4 h-4 text-destructive" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center">
+                  <Upload className="w-5 h-5 text-muted-foreground mb-1" />
+                  <p className="text-xs text-muted-foreground">Upload SKCK</p>
+                </div>
+              )}
+              <input
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files?.[0]) {
+                    setFormData({
+                      ...formData,
+                      skckPhoto: e.target.files[0],
+                    });
+                  }
+                }}
+              />
+            </label>
+          </div>
+                  {/* Vehicle Photo */}
         <div className="space-y-2">
           <label className="text-xs font-medium text-muted-foreground">
             Foto Kendaraan
@@ -395,6 +442,7 @@ const DriverRegistration = ({
               }}
             />
           </label>
+        </div>
         </div>
       </div>
 
