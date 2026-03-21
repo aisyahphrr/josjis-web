@@ -12,7 +12,12 @@ import { Input } from "@/src/components/ui/input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import DeckGLMap from "@/src/components/views/driver/tracking/deckgl-map";
+import dynamic from "next/dynamic";
+
+const LeafletMap = dynamic(
+  () => import("@/src/components/views/driver/tracking/leaflet-map"),
+  { ssr: false }
+);
 
 // Dummy data
 const orders = [
@@ -59,7 +64,7 @@ function calculateDistance(
   return R * c;
 }
 
-export default function TrackingPageDeckGL({
+export default function TrackingPageLeaflet({
   searchParams,
 }: {
   searchParams: Record<string, string | string[] | undefined>;
@@ -100,38 +105,63 @@ export default function TrackingPageDeckGL({
   const [currentDestination, setCurrentDestination] = useState<
     "store" | "customer"
   >("store");
+  const [routePath, setRoutePath] = useState<[number, number][]>([]);
+  const [routeIndex, setRouteIndex] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Simulate GPS tracking
+  // Simulate GPS tracking along the real route
   useEffect(() => {
+    if (routePath.length === 0) return;
+
+    const intervalTime = Math.max(50, 15000 / routePath.length); 
+
     const interval = setInterval(() => {
-      setDriverLocation((prev) => {
-        const targetLat =
-          currentDestination === "store"
-            ? order.storeLocation.lat
-            : order.deliveryLocation.lat;
-        const targetLng =
-          currentDestination === "store"
-            ? order.storeLocation.lng
-            : order.deliveryLocation.lng;
-
-        const newLat = prev.lat + (targetLat - prev.lat) * 0.01;
-        const newLng = prev.lng + (targetLng - prev.lng) * 0.01;
-
-        const dist = calculateDistance(newLat, newLng, targetLat, targetLng);
-
-        if (dist < 0.1) {
+      setRouteIndex((prev) => {
+        const nextIndex = prev + 1;
+        
+        if (nextIndex >= routePath.length) {
+          clearInterval(interval);
           if (currentDestination === "store") {
             setCurrentDestination("customer");
             addMessage("driver", "Sudah sampai toko, ambil pesanan");
           }
+          return prev;
         }
 
-        return { lng: newLng, lat: newLat };
+        const nextPos = routePath[nextIndex];
+        setDriverLocation({ lng: nextPos[0], lat: nextPos[1] });
+        
+        return nextIndex;
       });
-    }, 3000);
+    }, intervalTime);
 
     return () => clearInterval(interval);
+  }, [routePath, currentDestination]);
+
+  useEffect(() => {
+    async function fetchRoute() {
+      try {
+        let startLng, startLat, endLng, endLat;
+        if (currentDestination === "store") {
+           startLng = driverLocation.lng; startLat = driverLocation.lat;
+           endLng = order.storeLocation.lng; endLat = order.storeLocation.lat;
+        } else {
+           startLng = order.storeLocation.lng; startLat = order.storeLocation.lat;
+           endLng = order.deliveryLocation.lng; endLat = order.deliveryLocation.lat;
+        }
+        
+        const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`);
+        const data = await res.json();
+        if (data.routes && data.routes.length > 0) {
+          setRoutePath(data.routes[0].geometry.coordinates);
+          setRouteIndex(0);
+        }
+      } catch (err) {
+        console.error("Failed to fetch route", err);
+      }
+    }
+    fetchRoute();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentDestination, order]);
 
   useEffect(() => {
@@ -140,7 +170,7 @@ export default function TrackingPageDeckGL({
 
   const addMessage = (sender: "driver" | "customer", text: string) => {
     const newMessage = {
-      id: Date.now().toString(),
+      id: Date.now().toString() + "-" + Math.random().toString(36).substring(2, 9),
       sender,
       text,
       time: new Date().toLocaleTimeString("id-ID", {
@@ -201,13 +231,14 @@ export default function TrackingPageDeckGL({
           </Link>
         </div>
 
-        {/* Deck.gl Map */}
-        <DeckGLMap
+        {/* Leaflet Map */}
+        <LeafletMap
           driverLocation={driverLocation}
           storeLocation={order.storeLocation}
           deliveryLocation={order.deliveryLocation}
           customerName={order.customer}
           storeName={order.store}
+          routePath={routePath}
         />
 
         {/* Distance Card */}

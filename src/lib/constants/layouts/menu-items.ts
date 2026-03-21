@@ -58,6 +58,7 @@ export const driverMenuItems: MenuItem[] = [
     label: "Riwayat Pengiriman",
     href: "/history-driver",
   },
+  { icon: User, label: "Profil Driver", href: "/profile-driver" },
 ];
 
 export const roleConfigs: Record<string, RoleConfig> = {
