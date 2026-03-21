@@ -741,15 +741,17 @@ export default function ProductsManagement() {
         {filteredProducts.map((product) => (
           <div
             key={product.id}
-            onClick={() => setSelectedProductDetail(product)}
-            className="backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-5 hover:border-[#F99912]/30 transition-all duration-300 flex flex-col cursor-pointer hover:shadow-lg hover:shadow-[#F99912]/20"
+            className="backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-5 hover:border-[#F99912]/30 transition-all duration-300 flex flex-col hover:shadow-lg hover:shadow-[#F99912]/20"
           >
             {/* Product Image */}
-            <div className="mb-4 rounded-xl overflow-hidden bg-muted/30 h-40">
+            <div 
+              className="mb-4 rounded-xl overflow-hidden bg-muted/30 h-40 cursor-pointer group"
+              onClick={() => setSelectedProductDetail(product)}
+            >
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
             </div>
 

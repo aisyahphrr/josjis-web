@@ -174,7 +174,7 @@ export function LeftSide() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 {showPassword ? (
                   <EyeOff className="w-5 h-5" />
@@ -188,7 +188,7 @@ export function LeftSide() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-12 bg-linear-to-r from-[#F99912] to-[#9ACD32] hover:from-[#F99912]/90 hover:to-[#9ACD32]/90 text-[#283238] font-semibold rounded-xl shadow-none transition-all duration-300 hover:scale-[1.02]"
+            className="w-full h-12 bg-linear-to-r from-[#F99912] to-[#9ACD32] hover:from-[#F99912]/90 hover:to-[#9ACD32]/90 text-[#283238] font-semibold rounded-xl shadow-none transition-all duration-300 hover:scale-[1.02] cursor-pointer"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -214,7 +214,7 @@ export function LeftSide() {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-12 border-[#F99912]/20 hover:bg-[#F99912]/5 hover:border-[#F99912]/40 rounded-xl"
+            className="w-full h-12 border-[#F99912]/20 hover:bg-[#F99912]/5 hover:border-[#F99912]/40 rounded-xl cursor-pointer"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
               <path
