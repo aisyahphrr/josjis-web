@@ -42,6 +42,7 @@ export const umkmMenuItems: MenuItem[] = [
   { icon: MessageSquare, label: "Chat", href: "/chat-umkm" },
   { icon: Bell, label: "Notifikasi", href: "/notifications" },
   { icon: BarChart3, label: "Analisis Feedback", href: "/analysis-feedback" },
+  { icon: User, label: "Profil UMKM", href: "/profile-umkm" },
 ];
 
 export const adminMenuItems: MenuItem[] = [
