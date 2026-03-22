@@ -10,7 +10,7 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "JOSJIS - Jelajah Oleh-Oleh & UMKM Inovatif Surga Bogor",
+  title: "SADAYA - Jelajah Oleh-Oleh & UMKM Inovatif Surga Bogor",
   description:
     "Platform digital marketplace UMKM Bogor berbasis ekonomi kreatif dengan E-Commerce, Gamification, AI Assistant, dan Edukasi Digital.",
   generator: "v0.app",

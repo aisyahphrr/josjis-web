@@ -24,7 +24,7 @@ import { getFeaturedProducts } from "@/src/lib/constants/user/marketplace/produc
 // Mock data
 const stats = [
   {
-    label: "Koin Asli Bogor",
+    label: "Daya Poin Asli Bogor",
     value: "2,450",
     icon: Coins,
     change: "+150 hari ini",
@@ -86,7 +86,7 @@ export default function UserDashboardPage() {
             Selamat Datang, User!
           </h1>
           <p className="text-muted-foreground mb-4">
-            Jelajahi produk UMKM Bogor dan kumpulkan Koin Asli Bogor
+            Jelajahi produk UMKM Bogor dan kumpulkan Daya Poin Asli Bogor
           </p>
           <div className="flex flex-wrap gap-3">
             <Link href="/dashboard-user/marketplace">

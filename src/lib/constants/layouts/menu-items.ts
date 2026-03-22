@@ -13,13 +13,14 @@ import {
   Users,
   Store,
   Package,
-  BarChart3,
   GraduationCap,
   Truck,
   FileText,
   Settings,
   CreditCard,
   ClipboardCheck,
+  BarChart3,
+  Bell,
 } from "lucide-react";
 import type { MenuItem, RoleConfig } from "@/src/interface/dashboard";
 
@@ -39,10 +40,17 @@ export const userMenuItems: MenuItem[] = [
 
 export const umkmMenuItems: MenuItem[] = [
   { icon: Home, label: "Dashboard", href: "/dashboard-umkm" },
-  { icon: Store, label: "Pendaftaran Toko", href: "/register-umkm" },
+  { icon: BookOpen, label: "Akademi UMKM", href: "/academy" },
   { icon: Package, label: "Manajemen Produk", href: "/products-management" },
-  { icon: ShoppingCart, label: "Manajemen Pesanan", href: "/orders-management" },
+  {
+    icon: ShoppingCart,
+    label: "Manajemen Pesanan",
+    href: "/orders-management",
+  },
+  { icon: MessageSquare, label: "Chat", href: "/chat-umkm" },
+  { icon: Bell, label: "Notifikasi", href: "/notifications" },
   { icon: BarChart3, label: "Analisis Feedback", href: "/analysis-feedback" },
+  { icon: User, label: "Profil UMKM", href: "/profile-umkm" },
 ];
 
 export const adminMenuItems: MenuItem[] = [
@@ -61,6 +69,14 @@ export const adminMenuItems: MenuItem[] = [
 
 export const driverMenuItems: MenuItem[] = [
   { icon: Home, label: "Dashboard", href: "/dashboard-driver" },
+  { icon: MessageSquare, label: "Chat", href: "/chat-driver" },
+  { icon: Package, label: "Pesanan Aktif", href: "/orders-active-driver" },
+  {
+    icon: History,
+    label: "Riwayat Pengiriman",
+    href: "/history-driver",
+  },
+  { icon: User, label: "Profil Driver", href: "/profile-driver" },
 ];
 
 export const roleConfigs: Record<string, RoleConfig> = {

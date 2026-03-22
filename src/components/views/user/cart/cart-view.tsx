@@ -175,7 +175,7 @@ export default function CartPage() {
               </Link>
 
               <p className="text-xs text-center text-muted-foreground">
-                Dapatkan +50 Koin Asli Bogor untuk setiap pembelian
+                Dapatkan +50 Daya Poin Asli Bogor untuk setiap pembelian
               </p>
             </CardContent>
           </Card>

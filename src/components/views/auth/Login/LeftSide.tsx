@@ -14,22 +14,22 @@ import { Button } from "@/src/components/ui/button";
 import { useRouter } from "next/navigation";
 
 const DEMO_USERS = {
-  "user@josjis.com": {
+  "user@sadaya.com": {
     password: "user123",
     role: "user",
     redirect: "/dashboard-user",
   },
-  "umkm@josjis.com": {
+  "umkm@sadaya.com": {
     password: "umkm123",
     role: "umkm",
     redirect: "/dashboard-umkm",
   },
-  "admin@josjis.com": {
+  "admin@sadaya.com": {
     password: "admin123",
     role: "admin",
     redirect: "/dashboard-admin",
   },
-  "driver@josjis.com": {
+  "driver@sadaya.com": {
     password: "driver123",
     role: "driver",
     redirect: "/dashboard-driver",
@@ -76,22 +76,24 @@ export function LeftSide() {
     <div className="flex-1 flex items-center justify-center p-8">
       <div className="w-full max-w-md">
         <Link href="/" className="flex items-center gap-2 mb-8 group">
-          <div className="relative w-12 h-12 rounded-xl bg-linear-to-br from-[#F99912] to-[#64762C] p-0.5 group-hover:shadow-[0_0_20px_rgba(249,153,18,0.5)] transition-shadow duration-300">
+          <div className="relative w-12 h-12 rounded-xl bg-linear-to-br from-[#F99912] to-[#9ACD32] p-0.5 transition-shadow duration-300 group-hover:shadow-[0_12px_30px_rgba(40,50,56,0.10)]">
             <div className="w-full h-full rounded-xl bg-background flex items-center justify-center">
               <Sparkles className="w-6 h-6 text-[#F99912]" />
             </div>
           </div>
-          <span className="text-2xl font-bold bg-linear-to-r from-[#F99912] to-[#64762C] bg-clip-text text-transparent">
-            JOSJIS
+          <span className="text-2xl font-bold bg-linear-to-r from-[#F99912] to-[#9ACD32] bg-clip-text text-transparent">
+            SADAYA
           </span>
         </Link>
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Selamat Datang!
+            Selamat datang di SADAYA
           </h1>
           <p className="text-muted-foreground">
-            Masuk ke akun Anda untuk melanjutkan
+            Masuk untuk jelajah direktori UMKM Bogor, naik pangkat lewat{" "}
+            <span className="text-[#F99912] font-semibold">Daya Poin</span>, dan
+            belajar bareng.
           </p>
         </div>
 
@@ -100,13 +102,13 @@ export function LeftSide() {
             Demo Credentials:
           </p>
           <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-            <div>User: user@josjis.com</div>
+            <div>User: user@sadaya.com</div>
             <div>Pass: user123</div>
-            <div>UMKM: umkm@josjis.com</div>
+            <div>UMKM: umkm@sadaya.com</div>
             <div>Pass: umkm123</div>
-            <div>Admin: admin@josjis.com</div>
+            <div>Admin: admin@sadaya.com</div>
             <div>Pass: admin123</div>
-            <div>Driver: driver@josjis.com</div>
+            <div>Driver: driver@sadaya.com</div>
             <div>Pass: driver123</div>
           </div>
         </div>
@@ -172,7 +174,7 @@ export function LeftSide() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 {showPassword ? (
                   <EyeOff className="w-5 h-5" />
@@ -186,7 +188,7 @@ export function LeftSide() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-12 bg-linear-to-r from-[#F99912] to-[#64762C] hover:from-[#F99912]/90 hover:to-[#64762C]/90 text-[#181612] font-semibold rounded-xl shadow-[0_0_30px_rgba(249,153,18,0.3)] hover:shadow-[0_0_40px_rgba(249,153,18,0.5)] transition-all duration-300"
+            className="w-full h-12 bg-linear-to-r from-[#F99912] to-[#9ACD32] hover:from-[#F99912]/90 hover:to-[#9ACD32]/90 text-[#283238] font-semibold rounded-xl shadow-none transition-all duration-300 hover:scale-[1.02] cursor-pointer"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -212,7 +214,7 @@ export function LeftSide() {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-12 border-[#F99912]/20 hover:bg-[#F99912]/5 hover:border-[#F99912]/40 rounded-xl"
+            className="w-full h-12 border-[#F99912]/20 hover:bg-[#F99912]/5 hover:border-[#F99912]/40 rounded-xl cursor-pointer"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
               <path

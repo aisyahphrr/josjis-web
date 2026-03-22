@@ -26,7 +26,7 @@ const initialMessages = [
     id: 1,
     sender: "bot",
     message:
-      "Halo! Selamat datang di Customer Service JOSJIS. Ada yang bisa kami bantu?",
+      "Halo! Selamat datang di Customer Service SADAYA. Ada yang bisa kami bantu?",
     time: "09:00",
   },
   {
@@ -55,7 +55,7 @@ const quickReplies = [
   "Status pesanan saya",
   "Cara melakukan pembayaran",
   "Produk UMKM terbaru",
-  "Cara mendapatkan koin",
+  "Cara mendapatkan Daya Poin",
   "Bantuan lainnya",
 ];
 
@@ -88,11 +88,11 @@ export default function ChatPage() {
       "Status pesanan saya":
         "Untuk mengecek status pesanan, silakan kunjungi menu 'Riwayat Pembelian' atau berikan nomor pesanan Anda.",
       "Cara melakukan pembayaran":
-        "JOSJIS mendukung berbagai metode pembayaran: E-Wallet (GoPay, OVO, DANA), Transfer Bank, dan Kartu Kredit/Debit.",
+        "SADAYA mendukung berbagai metode pembayaran: E-Wallet (GoPay, OVO, DANA), Transfer Bank, dan Kartu Kredit/Debit.",
       "Produk UMKM terbaru":
         "Produk terbaru kami meliputi Lapis Talas Premium, Kopi Bogor Arabika, dan Brownies Talas Amanda. Kunjungi Marketplace untuk melihat selengkapnya!",
-      "Cara mendapatkan koin":
-        "Anda bisa mendapatkan Koin Asli Bogor dengan: 1) Bermain Harvest Bogor, 2) Menyelesaikan quest harian, 3) Membeli produk UMKM, 4) Memberikan review.",
+      "Cara mendapatkan Daya Poin":
+        "Anda bisa mendapatkan Daya Poin Asli Bogor dengan: 1) Bermain Harvest Bogor, 2) Menyelesaikan quest harian, 3) Membeli produk UMKM, 4) Memberikan review.",
       "Bantuan lainnya":
         "Untuk bantuan lebih lanjut, Anda bisa menghubungi kami di WhatsApp: 0812-3456-7890 atau email: cs@josjis.com",
     };

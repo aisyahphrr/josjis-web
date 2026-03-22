@@ -139,7 +139,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-3">
                   <Coins className="w-5 h-5 text-[#F99912]" />
                   <span className="text-sm text-foreground">
-                    Koin Asli Bogor
+                    Daya Poin Asli Bogor
                   </span>
                 </div>
                 <span className="font-bold text-[#F99912]">

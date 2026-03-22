@@ -526,7 +526,7 @@ export const dummyArticles: ArticleRecord[] = [
   },
   {
     id: "ART-002",
-    title: "Cara Meningkatkan Penjualan di Marketplace JOSJIS",
+    title: "Cara Meningkatkan Penjualan di Marketplace SADAYA",
     content:
       "Optimasi foto, judul, dan deskripsi. Gunakan promo terjadwal, dan respon chat cepat untuk conversion lebih tinggi.",
     status: "draft",

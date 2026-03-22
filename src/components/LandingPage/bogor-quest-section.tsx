@@ -17,7 +17,7 @@ const quests = [
   {
     title: "Daily Check-in",
     description: "Login setiap hari untuk mendapat Talas Power",
-    reward: "+10 Poin",
+    reward: "+10 Daya Poin",
     icon: Zap,
     progress: 5,
     total: 7,
@@ -26,7 +26,7 @@ const quests = [
   {
     title: "Pertama Kali Belanja",
     description: "Selesaikan transaksi pertama Anda",
-    reward: "+100 Poin",
+    reward: "+100 Daya Poin",
     icon: CheckCircle2,
     progress: 1,
     total: 1,
@@ -35,7 +35,7 @@ const quests = [
   {
     title: "Review Master",
     description: "Berikan 5 review produk",
-    reward: "+50 Poin",
+    reward: "+50 Daya Poin",
     icon: Star,
     progress: 3,
     total: 5,
@@ -55,13 +55,13 @@ const badges = [
   {
     icon: Crown,
     name: "Raja Belanja",
-    color: "from-[#F99912] to-[#C9C9C3]",
+    color: "from-[#F99912] to-[#9370DB]",
     earned: true,
   },
   {
     icon: Medal,
     name: "Petani Pro",
-    color: "from-[#64762C] to-[#424F17]",
+    color: "from-[#9ACD32] to-[#9370DB]",
     earned: true,
   },
   {
@@ -73,7 +73,7 @@ const badges = [
   {
     icon: Trophy,
     name: "Top 10",
-    color: "from-[#F99912] to-[#64762C]",
+    color: "from-[#F99912] to-[#9ACD32]",
     earned: false,
   },
 ];
@@ -82,8 +82,10 @@ export function BogorQuestSection() {
   return (
     <section className="relative py-24 overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-[#F99912]/5 to-background" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#F99912]/5 rounded-full blur-3xl" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-[#FDF5E7] to-background" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] bg-[radial-gradient(circle_at_center,rgba(249,153,18,0.16)_0%,transparent_60%)] rounded-full blur-3xl" />
+      <div className="absolute -top-28 -right-28 w-[26rem] h-[26rem] bg-[radial-gradient(circle_at_center,rgba(147,112,219,0.22)_0%,transparent_62%)] opacity-60 pointer-events-none" />
+      <div className="absolute -bottom-28 -left-28 w-[26rem] h-[26rem] bg-[radial-gradient(circle_at_center,rgba(154,205,50,0.22)_0%,transparent_62%)] opacity-60 pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -95,8 +97,8 @@ export function BogorQuestSection() {
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-balance">
-            <span className="bg-gradient-to-r from-[#F99912] to-[#C9C9C3] bg-clip-text text-transparent">
-              Bogor Quest
+            <span className="bg-gradient-to-r from-[#F99912] via-[#9ACD32] to-[#9370DB] bg-clip-text text-transparent">
+              Daya Quest
             </span>
             <br />
             <span className="text-foreground">
@@ -111,7 +113,7 @@ export function BogorQuestSection() {
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Daily Quests */}
-          <div className="lg:col-span-2 backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-6">
+          <div className="lg:col-span-2 backdrop-blur bg-white/80 border border-border rounded-2xl p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-semibold text-foreground">
                 Misi Harian
@@ -119,7 +121,7 @@ export function BogorQuestSection() {
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#F99912]/10">
                 <Gift className="w-4 h-4 text-[#F99912]" />
                 <span className="text-sm font-semibold text-[#F99912]">
-                  +160 Poin
+                  +160 Daya Poin
                 </span>
               </div>
             </div>
@@ -130,16 +132,16 @@ export function BogorQuestSection() {
                   key={index}
                   className={`p-4 rounded-xl border transition-all duration-300 ${
                     quest.completed
-                      ? "bg-[#64762C]/10 border-[#64762C]/30"
-                      : "bg-muted/30 border-[#F99912]/10 hover:border-[#F99912]/30 hover:bg-[#F99912]/5"
+                      ? "bg-[#9ACD32]/10 border-[#9ACD32]/30"
+                      : "bg-muted/30 border-[#F99912]/10 hover:border-[#F99912]/25 hover:bg-[#FCE0D0]/40"
                   }`}
                 >
                   <div className="flex items-center gap-4">
                     <div
                       className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                         quest.completed
-                          ? "bg-gradient-to-br from-[#64762C] to-[#424F17]"
-                          : "bg-gradient-to-br from-[#F99912]/20 to-[#64762C]/20"
+                          ? "bg-gradient-to-br from-[#9ACD32] to-[#9370DB]"
+                          : "bg-gradient-to-br from-[#F99912]/20 to-[#9ACD32]/20"
                       }`}
                     >
                       <quest.icon
@@ -152,7 +154,9 @@ export function BogorQuestSection() {
                           {quest.title}
                         </h4>
                         <span
-                          className={`text-sm font-semibold ${quest.completed ? "text-[#64762C]" : "text-[#F99912]"}`}
+                          className={`text-sm font-semibold ${
+                            quest.completed ? "text-[#9ACD32]" : "text-[#F99912]"
+                          }`}
                         >
                           {quest.reward}
                         </span>
@@ -165,8 +169,8 @@ export function BogorQuestSection() {
                           <div
                             className={`h-full rounded-full transition-all duration-500 ${
                               quest.completed
-                                ? "bg-gradient-to-r from-[#64762C] to-[#424F17]"
-                                : "bg-gradient-to-r from-[#F99912] to-[#64762C]"
+                                ? "bg-gradient-to-r from-[#9ACD32] to-[#9370DB]"
+                                : "bg-gradient-to-r from-[#F99912] to-[#9ACD32]"
                             }`}
                             style={{
                               width: `${(quest.progress / quest.total) * 100}%`,
@@ -184,10 +188,10 @@ export function BogorQuestSection() {
             </div>
 
             {/* Mystery Box */}
-            <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-[#F99912]/10 to-[#64762C]/10 border border-[#F99912]/20">
+            <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-[#F99912]/10 to-[#9ACD32]/12 border border-[#F99912]/20">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#F99912] to-[#64762C] flex items-center justify-center animate-pulse">
-                  <Gift className="w-8 h-8 text-[#181612]" />
+                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#F99912] to-[#9ACD32] flex items-center justify-center animate-pulse">
+                  <Gift className="w-8 h-8 text-[#2B3236]" />
                 </div>
                 <div className="flex-1">
                   <h4 className="font-semibold text-foreground mb-1">
@@ -198,7 +202,7 @@ export function BogorQuestSection() {
                     hadiah menarik!
                   </p>
                 </div>
-                <Button className="bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612] font-semibold">
+                  <Button className="bg-gradient-to-r from-[#F99912] to-[#9ACD32] text-[#2B3236] font-semibold shadow-none transition-all duration-300">
                   Buka
                 </Button>
               </div>
@@ -208,7 +212,7 @@ export function BogorQuestSection() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Badges */}
-            <div className="backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-6">
+            <div className="backdrop-blur bg-white/80 border border-border rounded-2xl p-6">
               <h3 className="text-lg font-semibold text-foreground mb-4">
                 Badge Collection
               </h3>
@@ -245,7 +249,7 @@ export function BogorQuestSection() {
             </div>
 
             {/* Leaderboard */}
-            <div className="backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-6">
+            <div className="backdrop-blur bg-white/80 border border-border rounded-2xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-foreground">
                   Leaderboard
@@ -270,7 +274,7 @@ export function BogorQuestSection() {
                           : user.rank === 2
                             ? "text-[#C9C9C3]"
                             : user.rank === 3
-                              ? "text-[#64762C]"
+                        ? "text-[#9ACD32]"
                               : "text-muted-foreground"
                       }`}
                     >
@@ -279,11 +283,11 @@ export function BogorQuestSection() {
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
                         user.badge === "gold"
-                          ? "bg-gradient-to-br from-[#F99912] to-[#C9C9C3] text-[#181612]"
+                        ? "bg-gradient-to-br from-[#F99912] to-[#9370DB] text-[#2B3236]"
                           : user.badge === "silver"
-                            ? "bg-gradient-to-br from-[#C9C9C3] to-[#a8a8a3] text-[#181612]"
+                            ? "bg-gradient-to-br from-[#C9C9C3] to-[#a8a8a3] text-[#2B3236]"
                             : user.badge === "bronze"
-                              ? "bg-gradient-to-br from-[#64762C] to-[#424F17] text-foreground"
+                            ? "bg-gradient-to-br from-[#9ACD32] to-[#9370DB] text-foreground"
                               : "bg-muted text-muted-foreground"
                       }`}
                     >

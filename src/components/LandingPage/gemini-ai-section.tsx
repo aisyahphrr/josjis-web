@@ -42,27 +42,28 @@ export function GeminiAISection() {
   return (
     <section id="ai" className="relative py-24 overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-[#64762C]/5 to-background" />
-      <div className="absolute top-1/4 right-0 w-96 h-96 bg-[#F99912]/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-1/4 left-0 w-80 h-80 bg-[#64762C]/5 rounded-full blur-3xl" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-[#FCE0D0] to-background" />
+      <div className="absolute top-1/4 right-0 w-96 h-96 bg-[radial-gradient(circle_at_center,rgba(249,153,18,0.22)_0%,transparent_62%)] rounded-full opacity-60 pointer-events-none" />
+      <div className="absolute bottom-1/4 left-0 w-80 h-80 bg-[radial-gradient(circle_at_center,rgba(147,112,219,0.20)_0%,transparent_62%)] rounded-full opacity-60 pointer-events-none" />
+      <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-[30rem] h-[30rem] bg-[radial-gradient(circle_at_center,rgba(154,205,50,0.18)_0%,transparent_64%)] opacity-60 pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Chat Interface */}
           <div className="order-2 lg:order-1">
-            <div className="relative backdrop-blur-xl bg-card/60 border border-[#F99912]/20 rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(249,153,18,0.15)]">
+            <div className="relative backdrop-blur bg-white/80 border border-border rounded-3xl overflow-hidden shadow-[0_18px_45px_rgba(40,50,56,0.08)] transition-all duration-300 hover:shadow-[0_26px_70px_rgba(40,50,56,0.10)]">
               {/* Header */}
-              <div className="p-4 border-b border-[#F99912]/10 bg-gradient-to-r from-[#F99912]/10 to-[#64762C]/10">
+              <div className="p-4 border-b border-border/60 bg-gradient-to-r from-[#F99912]/12 via-[#9ACD32]/10 to-[#9370DB]/12">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F99912] to-[#64762C] flex items-center justify-center">
-                    <Bot className="w-5 h-5 text-[#181612]" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#F99912] to-[#9ACD32] flex items-center justify-center">
+                    <Bot className="w-5 h-5 text-[#2B3236]" />
                   </div>
                   <div>
                     <h4 className="font-semibold text-foreground">
-                      JOSJIS AI Assistant
+                      SADAYA AI Assistant
                     </h4>
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-[#64762C] animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-[#9ACD32] animate-pulse" />
                       Powered by Gemini AI
                     </p>
                   </div>
@@ -79,8 +80,8 @@ export function GeminiAISection() {
                     <div
                       className={`max-w-[85%] p-4 rounded-2xl ${
                         msg.type === "user"
-                          ? "bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612]"
-                          : "bg-muted/50 border border-[#F99912]/10 text-foreground"
+                          ? "bg-gradient-to-r from-[#F99912] to-[#9ACD32] text-[#2B3236]"
+                          : "bg-white/70 border border-border/70 text-foreground"
                       }`}
                     >
                       {msg.type === "ai" && (
@@ -111,16 +112,16 @@ export function GeminiAISection() {
                   />
                   <Button
                     size="icon"
-                    className="w-12 h-12 rounded-xl bg-gradient-to-r from-[#F99912] to-[#64762C] hover:from-[#F99912]/90 hover:to-[#64762C]/90"
+                    className="w-12 h-12 rounded-xl bg-gradient-to-r from-[#F99912] to-[#9ACD32] hover:from-[#F99912]/90 hover:to-[#9ACD32]/90 shadow-none transition-all duration-300"
                   >
-                    <Send className="w-5 h-5 text-[#181612]" />
+                    <Send className="w-5 h-5 text-[#2B3236]" />
                   </Button>
                 </div>
               </div>
             </div>
 
             {/* Floating Sparkle */}
-            <div className="absolute -bottom-4 -right-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-[#F99912] to-[#64762C] p-0.5 shadow-[0_10px_30px_rgba(249,153,18,0.3)] animate-pulse hidden lg:block">
+            <div className="absolute -bottom-4 -right-4 w-16 h-16 rounded-2xl bg-gradient-to-br from-[#F99912] to-[#9ACD32] p-0.5 shadow-[0_10px_30px_rgba(249,153,18,0.12)] animate-pulse hidden lg:block pointer-events-none">
               <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
                 <Sparkles className="w-8 h-8 text-[#F99912]" />
               </div>
@@ -137,8 +138,8 @@ export function GeminiAISection() {
             </div>
 
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-balance">
-              <span className="bg-gradient-to-r from-[#F99912] to-[#C9C9C3] bg-clip-text text-transparent">
-                Gemini AI
+              <span className="bg-gradient-to-r from-[#F99912] via-[#9ACD32] to-[#9370DB] bg-clip-text text-transparent">
+                SADAYA AI
               </span>
               <br />
               <span className="text-foreground">Smart Shopping Assistant</span>
@@ -155,9 +156,9 @@ export function GeminiAISection() {
               {aiFeatures.map((feature, index) => (
                 <div
                   key={index}
-                  className="flex items-start gap-4 p-4 rounded-xl bg-muted/30 border border-[#F99912]/10 hover:border-[#F99912]/30 hover:bg-[#F99912]/5 transition-all duration-300"
+                  className="flex items-start gap-4 p-4 rounded-xl bg-white/75 border border-border/70 hover:border-[#F99912]/25 hover:bg-[#FCE0D0]/40 transition-all duration-300"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#F99912]/20 to-[#64762C]/20 flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#F99912]/20 to-[#9ACD32]/20 flex items-center justify-center shrink-0">
                     <feature.icon className="w-5 h-5 text-[#F99912]" />
                   </div>
                   <div>
