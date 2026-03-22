@@ -5,9 +5,9 @@ import { Eye, Pencil, Search, Store, Trash2, Mail, Phone, MapPin, Tag, Package, 
 import toast from "react-hot-toast"
 
 import { dummyUmkm, type UmkmRecord } from "@/src/lib/dummyData"
-import { PageHeader } from "@/components/admin/page-header"
-import { TableSkeleton } from "@/components/admin/loading-skeletons"
-import { ConfirmDialog } from "@/components/admin/confirm-dialog"
+import { PageHeader } from "@/src/components/views/admin/layouts/page-header"
+import { TableSkeleton } from "@/src/components/views/admin/layouts/loading-skeletons"
+import { ConfirmDialog } from "@/src/components/views/admin/layouts/confirm-dialog"
 import { Card, CardContent } from "@/src/components/ui/card"
 import { Button } from "@/src/components/ui/button"
 import { Input } from "@/src/components/ui/input"
@@ -53,9 +53,9 @@ export default function AdminUmkmPage() {
     if (!selectedEditUmkm) return
     setIsSavingEdit(true)
     await new Promise((r) => setTimeout(r, 1000))
-    
-    setItems((prev) => 
-      prev.map((item) => 
+
+    setItems((prev) =>
+      prev.map((item) =>
         item.id === selectedEditUmkm.id ? { ...item, ...editForm } as UmkmRecord : item
       )
     )
@@ -105,12 +105,12 @@ export default function AdminUmkmPage() {
                 className="h-10 rounded-2xl border-border/60 bg-background/50 pl-9"
               />
             </div>
-            
+
             <Tabs value={category} onValueChange={setCategory} className="w-full md:w-auto overflow-x-auto no-scrollbar pb-1 md:pb-0">
               <TabsList className="h-10 rounded-2xl bg-muted/40 p-1 w-max md:w-auto">
                 {["Semua", "Makanan", "Pakaian", "Kerajinan", "Jasa"].map((tab) => (
-                  <TabsTrigger 
-                    key={tab} 
+                  <TabsTrigger
+                    key={tab}
                     value={tab}
                     className="rounded-xl px-4 text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
                   >
@@ -232,7 +232,7 @@ export default function AdminUmkmPage() {
           <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-background/50">
             {selectedUmkm && (
               <div className="space-y-8">
-                
+
                 {/* Section 1: Business Overview */}
                 <section>
                   <h3 className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider flex items-center gap-2">
@@ -356,50 +356,50 @@ export default function AdminUmkmPage() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground">Nama UMKM / Merchant</label>
-                <Input 
-                  value={editForm.name || ""} 
+                <Input
+                  value={editForm.name || ""}
                   onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                  className="h-10 rounded-xl border-border/60 bg-muted/20" 
+                  className="h-10 rounded-xl border-border/60 bg-muted/20"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground">Nama Pemilik (Owner)</label>
-                <Input 
-                  value={editForm.ownerName || ""} 
+                <Input
+                  value={editForm.ownerName || ""}
                   onChange={(e) => setEditForm(prev => ({ ...prev, ownerName: e.target.value }))}
-                  className="h-10 rounded-xl border-border/60 bg-muted/20" 
+                  className="h-10 rounded-xl border-border/60 bg-muted/20"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-muted-foreground">Kontak (Phone)</label>
-                  <Input 
-                    value={editForm.phone || ""} 
+                  <Input
+                    value={editForm.phone || ""}
                     onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
-                    className="h-10 rounded-xl border-border/60 bg-muted/20" 
+                    className="h-10 rounded-xl border-border/60 bg-muted/20"
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-muted-foreground">Kategori</label>
-                  <Input 
-                    value={editForm.category || ""} 
+                  <Input
+                    value={editForm.category || ""}
                     onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
-                    className="h-10 rounded-xl border-border/60 bg-muted/20" 
+                    className="h-10 rounded-xl border-border/60 bg-muted/20"
                   />
                 </div>
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground">Alamat Outlet Pusat</label>
-                <textarea 
-                  value={editForm.address || ""} 
+                <textarea
+                  value={editForm.address || ""}
                   onChange={(e) => setEditForm(prev => ({ ...prev, address: e.target.value }))}
-                  className="w-full min-h-[80px] rounded-xl border border-input bg-muted/20 px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none" 
+                  className="w-full min-h-[80px] rounded-xl border border-input bg-muted/20 px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
                 />
               </div>
               <div className="pt-4 flex justify-end gap-3 border-t border-border/60 mt-2">
                 <Button variant="outline" className="rounded-xl h-10 px-6 border-border/60" onClick={() => setEditOpen(false)}>Batal</Button>
-                <Button 
-                  className="rounded-xl h-10 px-6 bg-[#F99912] text-white hover:bg-[#F99912]/90 w-[140px]" 
+                <Button
+                  className="rounded-xl h-10 px-6 bg-[#F99912] text-white hover:bg-[#F99912]/90 w-[140px]"
                   onClick={handleSaveEdit}
                   disabled={isSavingEdit}
                 >

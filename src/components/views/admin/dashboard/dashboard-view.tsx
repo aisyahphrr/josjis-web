@@ -14,12 +14,12 @@ import {
   dummyUmkm,
   dummyUsers,
 } from "@/src/lib/dummyData"
-import { PageHeader } from "@/components/admin/page-header"
-import { StatCard } from "@/components/admin/stat-card"
-import { PageSkeleton } from "@/components/admin/loading-skeletons"
+import { PageHeader } from "@/src/components/views/admin/layouts/page-header"
+import { StatCard } from "@/src/components/views/admin/layouts/stat-card"
+import { PageSkeleton } from "@/src/components/views/admin/layouts/loading-skeletons"
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Button } from "@/src/components/ui/button"
-import { StatusBadge } from "@/components/admin/status-badge"
+import { StatusBadge } from "@/src/components/views/admin/layouts/status-badge"
 
 import {
   Bar,

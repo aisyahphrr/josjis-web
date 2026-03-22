@@ -5,10 +5,10 @@ import { Eye, Pencil, Search, Trash2, Mail, Phone, MapPin, Calendar, User, Activ
 import toast from "react-hot-toast"
 
 import { dummyUsers, type UserRecord, type UserStatus } from "@/src/lib/dummyData"
-import { PageHeader } from "@/components/admin/page-header"
-import { TableSkeleton } from "@/components/admin/loading-skeletons"
-import { ConfirmDialog } from "@/components/admin/confirm-dialog"
-import { StatusBadge } from "@/components/admin/status-badge"
+import { PageHeader } from "@/src/components/views/admin/layouts/page-header"
+import { TableSkeleton } from "@/src/components/views/admin/layouts/loading-skeletons"
+import { ConfirmDialog } from "@/src/components/views/admin/layouts/confirm-dialog"
+import { StatusBadge } from "@/src/components/views/admin/layouts/status-badge"
 import { Card, CardContent } from "@/src/components/ui/card"
 import { Button } from "@/src/components/ui/button"
 import { Input } from "@/src/components/ui/input"
@@ -323,42 +323,42 @@ export default function AdminUsersPage() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground">Nama Lengkap</label>
-                <Input 
-                  value={editForm.name || ""} 
+                <Input
+                  value={editForm.name || ""}
                   onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                  className="h-10 rounded-xl border-border/60 bg-muted/20" 
+                  className="h-10 rounded-xl border-border/60 bg-muted/20"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground">Alamat Email</label>
-                <Input 
-                  value={editForm.email || ""} 
+                <Input
+                  value={editForm.email || ""}
                   onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
-                  className="h-10 rounded-xl border-border/60 bg-muted/20" 
+                  className="h-10 rounded-xl border-border/60 bg-muted/20"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground">Kontak (Phone)</label>
-                <Input 
-                  value={editForm.phone || ""} 
+                <Input
+                  value={editForm.phone || ""}
                   onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
-                  className="h-10 rounded-xl border-border/60 bg-muted/20" 
+                  className="h-10 rounded-xl border-border/60 bg-muted/20"
                   placeholder="+628..."
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground">Alamat</label>
-                <textarea 
-                  value={editForm.address || ""} 
+                <textarea
+                  value={editForm.address || ""}
                   onChange={(e) => setEditForm(prev => ({ ...prev, address: e.target.value }))}
-                  className="w-full min-h-[80px] rounded-xl border border-input bg-muted/20 px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none" 
+                  className="w-full min-h-[80px] rounded-xl border border-input bg-muted/20 px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring resize-none"
                   placeholder="Isi alamat..."
                 />
               </div>
               <div className="pt-4 flex justify-end gap-3 border-t border-border/60 mt-2">
                 <Button variant="outline" className="rounded-xl h-10 px-6 border-border/60" onClick={() => setEditOpen(false)}>Batal</Button>
-                <Button 
-                  className="rounded-xl h-10 px-6 bg-[#F99912] text-white hover:bg-[#F99912]/90 w-[140px]" 
+                <Button
+                  className="rounded-xl h-10 px-6 bg-[#F99912] text-white hover:bg-[#F99912]/90 w-[140px]"
                   onClick={handleSaveEdit}
                   disabled={isSavingEdit}
                 >

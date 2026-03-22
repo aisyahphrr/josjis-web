@@ -5,9 +5,9 @@ import { Medal, Trophy } from "lucide-react"
 import toast from "react-hot-toast"
 
 import { dummyLeaderboard, type LeaderboardRecord } from "@/src/lib/dummyData"
-import { PageHeader } from "@/components/admin/page-header"
-import { TableSkeleton } from "@/components/admin/loading-skeletons"
-import { StatusBadge } from "@/components/admin/status-badge"
+import { PageHeader } from "@/src/components/views/admin/layouts/page-header"
+import { TableSkeleton } from "@/src/components/views/admin/layouts/loading-skeletons"
+import { StatusBadge } from "@/src/components/views/admin/layouts/status-badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Switch } from "@/src/components/ui/switch"
 import {

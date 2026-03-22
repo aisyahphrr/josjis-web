@@ -5,11 +5,11 @@ import { Check, Search, X, Eye, FileText, Package, User, MapPin, Phone, Mail, St
 import toast from "react-hot-toast"
 
 import { dummyUmkm, type UmkmApprovalStatus, type UmkmRecord } from "@/src/lib/dummyData"
-import { PageHeader } from "@/components/admin/page-header"
-import { StatusBadge } from "@/components/admin/status-badge"
-import { TableSkeleton } from "@/components/admin/loading-skeletons"
-import { ConfirmDialog } from "@/components/admin/confirm-dialog"
-import { RejectDialog } from "@/components/admin/reject-dialog"
+import { PageHeader } from "@/src/components/views/admin/layouts/page-header"
+import { StatusBadge } from "@/src/components/views/admin/layouts/status-badge"
+import { TableSkeleton } from "@/src/components/views/admin/layouts/loading-skeletons"
+import { ConfirmDialog } from "@/src/components/views/admin/layouts/confirm-dialog"
+import { RejectDialog } from "@/src/components/views/admin/layouts/reject-dialog"
 import { Button } from "@/src/components/ui/button"
 import { Card, CardContent } from "@/src/components/ui/card"
 import { Input } from "@/src/components/ui/input"
@@ -67,7 +67,7 @@ export default function ValidasiUmkmPage() {
       .filter((i) =>
         q
           ? `${i.name} ${i.ownerName}`.toLowerCase().includes(q) ||
-            i.id.toLowerCase().includes(q)
+          i.id.toLowerCase().includes(q)
           : true,
       )
   }, [items, query, status])
@@ -241,7 +241,7 @@ export default function ValidasiUmkmPage() {
           <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-background/50">
             {selectedUmkm && (
               <div className="space-y-8">
-                
+
                 {/* Toko details */}
                 <section>
                   <h3 className="text-sm font-bold text-foreground mb-4 uppercase tracking-wider flex items-center gap-2">
@@ -255,11 +255,11 @@ export default function ValidasiUmkmPage() {
                       </div>
                       <div>
                         <div className="text-xs text-muted-foreground font-medium mb-1">Kategori Toko</div>
-                        <div className="text-sm font-bold text-foreground inline-flex items-center gap-1"><Tag className="size-3 text-muted-foreground"/> {selectedUmkm.category}</div>
+                        <div className="text-sm font-bold text-foreground inline-flex items-center gap-1"><Tag className="size-3 text-muted-foreground" /> {selectedUmkm.category}</div>
                       </div>
                       <div>
                         <div className="text-xs text-muted-foreground font-medium mb-1">Total SKU Produk</div>
-                        <div className="text-sm font-bold text-foreground"><Package className="size-3.5 inline mr-1 text-muted-foreground"/>{selectedUmkm.productCount} Items</div>
+                        <div className="text-sm font-bold text-foreground"><Package className="size-3.5 inline mr-1 text-muted-foreground" />{selectedUmkm.productCount} Items</div>
                       </div>
                     </div>
                     <div>
@@ -350,7 +350,7 @@ export default function ValidasiUmkmPage() {
               </div>
             )}
           </div>
-          
+
           {/* Action Footer */}
           {selectedUmkm?.approvalStatus === "pending" ? (
             <div className="p-4 md:p-6 bg-muted/30 border-t border-border/60 flex flex-wrap items-center justify-end gap-3 rounded-b-3xl">
@@ -404,32 +404,32 @@ export default function ValidasiUmkmPage() {
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground">Nama UMKM Sesuai Izin</label>
-                <Input 
-                  value={editForm.name || ""} 
+                <Input
+                  value={editForm.name || ""}
                   onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                  className="h-10 rounded-xl border-border/60 bg-muted/20" 
+                  className="h-10 rounded-xl border-border/60 bg-muted/20"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground">Penanggung Jawab KTP</label>
-                <Input 
-                  value={editForm.ownerName || ""} 
+                <Input
+                  value={editForm.ownerName || ""}
                   onChange={(e) => setEditForm(prev => ({ ...prev, ownerName: e.target.value }))}
-                  className="h-10 rounded-xl border-border/60 bg-muted/20" 
+                  className="h-10 rounded-xl border-border/60 bg-muted/20"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground">Kategori Operasional</label>
-                <Input 
-                  value={editForm.category || ""} 
+                <Input
+                  value={editForm.category || ""}
                   onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
-                  className="h-10 rounded-xl border-border/60 bg-muted/20" 
+                  className="h-10 rounded-xl border-border/60 bg-muted/20"
                 />
               </div>
               <div className="pt-4 flex justify-end gap-3 border-t border-border/60 mt-2">
                 <Button variant="outline" className="rounded-xl h-10 px-6 border-border/60" onClick={() => setEditOpen(false)}>Batal</Button>
-                <Button 
-                  className="rounded-xl h-10 px-6 bg-[#F99912] text-white hover:bg-[#F99912]/90 w-[140px]" 
+                <Button
+                  className="rounded-xl h-10 px-6 bg-[#F99912] text-white hover:bg-[#F99912]/90 w-[140px]"
                   onClick={handleSaveEdit}
                   disabled={isSavingEdit}
                 >

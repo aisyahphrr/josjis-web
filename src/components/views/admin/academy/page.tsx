@@ -21,12 +21,12 @@ import {
   type ArticleStatus,
 } from "@/src/lib/dummyData"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
-import { PageHeader } from "@/components/admin/page-header"
-import { TableSkeleton } from "@/components/admin/loading-skeletons"
-import { StatusBadge } from "@/components/admin/status-badge"
+import { PageHeader } from "@/src/components/views/admin/layouts/page-header"
+import { TableSkeleton } from "@/src/components/views/admin/layouts/loading-skeletons"
+import { StatusBadge } from "@/src/components/views/admin/layouts/status-badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
 import { Button } from "@/src/components/ui/button"
-import { ConfirmDialog } from "@/components/admin/confirm-dialog"
+import { ConfirmDialog } from "@/src/components/views/admin/layouts/confirm-dialog"
 import { Input } from "@/src/components/ui/input"
 import { Label } from "@/src/components/ui/label"
 import { Textarea } from "@/src/components/ui/textarea"
@@ -49,10 +49,10 @@ import {
 type AcademyTabKey = "edukasi" | "academy"
 
 const toneByStatus: Record<ArticleStatus, Parameters<typeof StatusBadge>[0]["tone"]> =
-  {
-    draft: "warning",
-    published: "success",
-  }
+{
+  draft: "warning",
+  published: "success",
+}
 
 function isoNow() {
   return new Date().toISOString()
@@ -116,13 +116,13 @@ export default function AdminAcademyPage({ initialTab = "academy" }: { initialTa
         prev.map((a) =>
           a.id === editingId
             ? {
-                ...a,
-                title: trimmedTitle,
-                content: trimmedContent,
-                status,
-                imageUrl: imagePreview,
-                updatedAt: isoNow(),
-              }
+              ...a,
+              title: trimmedTitle,
+              content: trimmedContent,
+              status,
+              imageUrl: imagePreview,
+              updatedAt: isoNow(),
+            }
             : a,
         ),
       )
@@ -210,9 +210,9 @@ export default function AdminAcademyPage({ initialTab = "academy" }: { initialTa
       prev.map((w) =>
         w.id === id
           ? {
-              ...w,
-              remainingSeats: Math.max(0, w.remainingSeats - 1),
-            }
+            ...w,
+            remainingSeats: Math.max(0, w.remainingSeats - 1),
+          }
           : w,
       ),
     )
@@ -638,21 +638,21 @@ export default function AdminAcademyPage({ initialTab = "academy" }: { initialTa
                 className="rounded-2xl"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label>Sumber Video</Label>
               <div className="flex gap-2">
-                <Button 
+                <Button
                   type="button"
-                  variant={newVideo.videoSourceType === "link" ? "default" : "outline"} 
+                  variant={newVideo.videoSourceType === "link" ? "default" : "outline"}
                   className={`flex-1 rounded-2xl ${newVideo.videoSourceType === "link" ? 'bg-[#F99912] text-black hover:bg-[#F99912]/90' : 'border-border/60'}`}
                   onClick={() => setNewVideo({ ...newVideo, videoSourceType: "link" })}
                 >
                   Link
                 </Button>
-                <Button 
+                <Button
                   type="button"
-                  variant={newVideo.videoSourceType === "upload" ? "default" : "outline"} 
+                  variant={newVideo.videoSourceType === "upload" ? "default" : "outline"}
                   className={`flex-1 rounded-2xl ${newVideo.videoSourceType === "upload" ? 'bg-[#F99912] text-black hover:bg-[#F99912]/90' : 'border-border/60'}`}
                   onClick={() => setNewVideo({ ...newVideo, videoSourceType: "upload" })}
                 >

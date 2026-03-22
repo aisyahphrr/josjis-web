@@ -8,8 +8,8 @@ import {
   dummyTransactionTrends,
   type AnalyticsPoint,
 } from "@/src/lib/dummyData"
-import { PageHeader } from "@/components/admin/page-header"
-import { PageSkeleton } from "@/components/admin/loading-skeletons"
+import { PageHeader } from "@/src/components/views/admin/layouts/page-header"
+import { PageSkeleton } from "@/src/components/views/admin/layouts/loading-skeletons"
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
 
 import {
@@ -52,7 +52,7 @@ function ProfessionalChartCard({
         <div className="flex items-start justify-between">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2.5">
-              <div 
+              <div
                 className="flex size-8 items-center justify-center rounded-xl"
                 style={{ backgroundColor: `${color}15` }}
               >
@@ -66,10 +66,9 @@ function ProfessionalChartCard({
               <span className="text-4xl font-extrabold tracking-tight text-foreground">
                 {currentValue.toLocaleString("id-ID")}
               </span>
-              <div 
-                className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${
-                  isPositive ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive'
-                }`}
+              <div
+                className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${isPositive ? 'bg-success/15 text-success' : 'bg-destructive/15 text-destructive'
+                  }`}
               >
                 {isPositive ? <TrendingUp className="size-3" /> : null}
                 {growthRate}%
@@ -91,10 +90,10 @@ function ProfessionalChartCard({
                   <stop offset="95%" stopColor={color} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <XAxis 
-                dataKey="label" 
-                axisLine={false} 
-                tickLine={false} 
+              <XAxis
+                dataKey="label"
+                axisLine={false}
+                tickLine={false}
                 tick={{ fill: "white", fontSize: 11, fontWeight: 500 }}
                 tickMargin={12}
                 padding={{ left: 20, right: 20 }}
@@ -148,24 +147,24 @@ export default function AdminAnalyticsPage() {
       />
 
       <div className="grid gap-6 xl:grid-cols-3">
-        <ProfessionalChartCard 
-          title="User Growth" 
-          data={dummyMonthlyGrowth.map((d) => ({ label: d.label, value: d.users }))} 
-          color="#3b82f6" 
+        <ProfessionalChartCard
+          title="User Growth"
+          data={dummyMonthlyGrowth.map((d) => ({ label: d.label, value: d.users }))}
+          color="#3b82f6"
           icon={Users}
           description="Total pengguna aktif bulanan (1 Tahun)"
         />
-        <ProfessionalChartCard 
-          title="UMKM Growth" 
-          data={dummyMonthlyGrowth.map((d) => ({ label: d.label, value: d.umkm }))} 
-          color="#10b981" 
+        <ProfessionalChartCard
+          title="UMKM Growth"
+          data={dummyMonthlyGrowth.map((d) => ({ label: d.label, value: d.umkm }))}
+          color="#10b981"
           icon={Store}
           description="Total mitra UMKM tervalidasi (1 Tahun)"
         />
-        <ProfessionalChartCard 
-          title="Driver Growth" 
-          data={dummyMonthlyGrowth.map((d) => ({ label: d.label, value: d.drivers }))} 
-          color="#F99912" 
+        <ProfessionalChartCard
+          title="Driver Growth"
+          data={dummyMonthlyGrowth.map((d) => ({ label: d.label, value: d.drivers }))}
+          color="#F99912"
           icon={Truck}
           description="Total driver terdaftar (1 Tahun)"
         />
@@ -174,51 +173,51 @@ export default function AdminAnalyticsPage() {
       <div className="mt-8">
         <Card className="rounded-3xl border-border/40 bg-card/60 backdrop-blur-xl">
           <CardHeader className="pb-2">
-             <CardTitle className="text-base flex items-center gap-2">
-                <TrendingUp className="size-4 text-[#F99912]" />
-                Transaction Overview (1 Tahun)
-             </CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              <TrendingUp className="size-4 text-[#F99912]" />
+              Transaction Overview (1 Tahun)
+            </CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
-             <div className="h-[320px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                   <AreaChart data={dummyTransactionTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                     <defs>
-                       <linearGradient id="trxGradient" x1="0" y1="0" x2="0" y2="1">
-                         <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
-                         <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                       </linearGradient>
-                     </defs>
-                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.4} />
-                     <XAxis 
-                       dataKey="label" 
-                       axisLine={false} 
-                       tickLine={false} 
-                       tick={{ fill: "white", fontSize: 12 }}
-                       tickMargin={10}
-                     />
-                     <YAxis 
-                       axisLine={false} 
-                       tickLine={false} 
-                       tick={{ fill: "white", fontSize: 12 }}
-                     />
-                     <Tooltip
-                       contentStyle={{ borderRadius: "16px", border: "1px solid hsl(var(--border))", background: "rgba(18,18,18,0.9)", color: "white" }}
-                       itemStyle={{ color: "white", fontWeight: 500 }}
-                       cursor={{ stroke: "hsl(var(--border))", strokeDasharray: "4 4" }}
-                     />
-                     <Area
-                       type="monotone"
-                       dataKey="value"
-                       stroke="#8b5cf6"
-                       strokeWidth={3}
-                       fillOpacity={1}
-                       fill="url(#trxGradient)"
-                       activeDot={{ r: 6, fill: "#8b5cf6", stroke: "var(--background)", strokeWidth: 2 }}
-                     />
-                   </AreaChart>
-                </ResponsiveContainer>
-             </div>
+            <div className="h-[320px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={dummyTransactionTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="trxGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.4} />
+                  <XAxis
+                    dataKey="label"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "white", fontSize: 12 }}
+                    tickMargin={10}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "white", fontSize: 12 }}
+                  />
+                  <Tooltip
+                    contentStyle={{ borderRadius: "16px", border: "1px solid hsl(var(--border))", background: "rgba(18,18,18,0.9)", color: "white" }}
+                    itemStyle={{ color: "white", fontWeight: 500 }}
+                    cursor={{ stroke: "hsl(var(--border))", strokeDasharray: "4 4" }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#8b5cf6"
+                    strokeWidth={3}
+                    fillOpacity={1}
+                    fill="url(#trxGradient)"
+                    activeDot={{ r: 6, fill: "#8b5cf6", stroke: "var(--background)", strokeWidth: 2 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       </div>

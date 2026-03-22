@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { Sparkles } from "lucide-react"
 
 import { cn } from "@/src/lib/utils"
-import { adminNavItems } from "@/components/admin/admin-nav"
+import { adminNavItems } from "@/src/components/views/admin/layouts/admin-nav"
 import {
   Sidebar,
   SidebarContent,
@@ -78,7 +78,7 @@ export function AdminSidebar() {
             // demo-only (no auth backend yet)
             try {
               localStorage.removeItem("josjis_user")
-            } catch {}
+            } catch { }
             window.location.href = "/login"
           }}
         >

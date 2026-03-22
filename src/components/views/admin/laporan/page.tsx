@@ -5,9 +5,9 @@ import { MessageSquare, Search } from "lucide-react"
 import toast from "react-hot-toast"
 
 import { dummyReports, type ReportRecord, type ReportStatus } from "@/src/lib/dummyData"
-import { PageHeader } from "@/components/admin/page-header"
-import { TableSkeleton } from "@/components/admin/loading-skeletons"
-import { StatusBadge } from "@/components/admin/status-badge"
+import { PageHeader } from "@/src/components/views/admin/layouts/page-header"
+import { TableSkeleton } from "@/src/components/views/admin/layouts/loading-skeletons"
+import { StatusBadge } from "@/src/components/views/admin/layouts/status-badge"
 import { Card, CardContent } from "@/src/components/ui/card"
 import { Button } from "@/src/components/ui/button"
 import { Input } from "@/src/components/ui/input"
@@ -36,11 +36,11 @@ const nextStatus: Record<ReportStatus, ReportStatus> = {
 }
 
 const toneByStatus: Record<ReportStatus, Parameters<typeof StatusBadge>[0]["tone"]> =
-  {
-    pending: "warning",
-    processing: "info",
-    done: "success",
-  }
+{
+  pending: "warning",
+  processing: "info",
+  done: "success",
+}
 
 const labelByStatus: Record<ReportStatus, string> = {
   pending: "Pending",
@@ -54,7 +54,7 @@ export default function AdminLaporanPage() {
   const [items, setItems] = useState<ReportRecord[]>(dummyReports)
 
   const [filterStatus, setFilterStatus] = useState("all")
-  
+
   const [detailOpen, setDetailOpen] = useState(false)
   const [selectedReport, setSelectedReport] = useState<ReportRecord | null>(null)
   const [replyText, setReplyText] = useState("")

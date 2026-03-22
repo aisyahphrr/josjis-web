@@ -9,9 +9,9 @@ import {
   type TransactionRecord,
   type TransactionStatus,
 } from "@/src/lib/dummyData"
-import { PageHeader } from "@/components/admin/page-header"
-import { TableSkeleton } from "@/components/admin/loading-skeletons"
-import { StatusBadge } from "@/components/admin/status-badge"
+import { PageHeader } from "@/src/components/views/admin/layouts/page-header"
+import { TableSkeleton } from "@/src/components/views/admin/layouts/loading-skeletons"
+import { StatusBadge } from "@/src/components/views/admin/layouts/status-badge"
 import { Card, CardContent } from "@/src/components/ui/card"
 import { Button } from "@/src/components/ui/button"
 import { Input } from "@/src/components/ui/input"
@@ -39,11 +39,11 @@ import {
 } from "@/src/components/ui/dialog"
 
 const toneByStatus: Record<TransactionStatus, Parameters<typeof StatusBadge>[0]["tone"]> =
-  {
-    pending: "warning",
-    success: "success",
-    failed: "danger",
-  }
+{
+  pending: "warning",
+  success: "success",
+  failed: "danger",
+}
 
 export default function AdminTransaksiPage() {
   const [isLoading, setIsLoading] = useState(true)
@@ -208,7 +208,7 @@ export default function AdminTransaksiPage() {
                     <div className="text-sm text-foreground/80 leading-relaxed font-medium">{selectedTrx.failedReason}</div>
                   </div>
                 )}
-                
+
                 {/* 1. Overview Info */}
                 <div className="grid grid-cols-2 gap-4 rounded-2xl border border-border/60 bg-muted/20 p-4">
                   <div>
@@ -257,7 +257,7 @@ export default function AdminTransaksiPage() {
                         ))}
                       </TableBody>
                     </Table>
-                    
+
                     <div className="p-5 bg-muted/20 border-t border-border/60 flex justify-between items-center px-4 md:px-6">
                       <div className="font-medium text-foreground flex items-center gap-2.5 text-sm">
                         <div className="p-1.5 bg-background rounded-md border border-border/60"><CreditCard className="size-4" /></div>

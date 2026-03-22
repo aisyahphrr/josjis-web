@@ -5,19 +5,19 @@ import { Moon, Sun, Bell, User, ShieldCheck, Settings, Smartphone, Laptop, Globe
 import toast from "react-hot-toast"
 import { useTheme } from "next-themes"
 
-import { PageHeader } from "@/components/admin/page-header"
+import { PageHeader } from "@/src/components/views/admin/layouts/page-header"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/src/components/ui/card"
 import { Button } from "@/src/components/ui/button"
 import { Switch } from "@/src/components/ui/switch"
 import { Input } from "@/src/components/ui/input"
 import { Label } from "@/src/components/ui/label"
-import { StatusBadge } from "@/components/admin/status-badge"
+import { StatusBadge } from "@/src/components/views/admin/layouts/status-badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 
 export default function AdminSettingsPage() {
   const { theme, setTheme, resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  
+
   // Dummy states
   const [twoFactor, setTwoFactor] = useState(false)
   const [emailNotif, setEmailNotif] = useState(true)
@@ -27,7 +27,7 @@ export default function AdminSettingsPage() {
 
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  
+
   const [profileData, setProfileData] = useState({
     name: "Administrator Josjis",
     email: "admin@josjis.com",
@@ -102,30 +102,30 @@ export default function AdminSettingsPage() {
                       <UserCircle className="size-16 text-muted-foreground" />
                     )}
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="rounded-xl border-border/60"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     Ubah Foto
                   </Button>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    ref={fileInputRef} 
-                    onChange={handleAvatarChange} 
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={handleAvatarChange}
                   />
                 </div>
-                
+
                 <div className="flex-1 w-full grid gap-5 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label>Nama Lengkap</Label>
-                    <Input 
-                      value={profileData.name} 
-                      onChange={(e) => setProfileData(p => ({...p, name: e.target.value}))}
-                      className="h-10 rounded-2xl border-border/60 bg-muted/30" 
+                    <Input
+                      value={profileData.name}
+                      onChange={(e) => setProfileData(p => ({ ...p, name: e.target.value }))}
+                      className="h-10 rounded-2xl border-border/60 bg-muted/30"
                     />
                   </div>
                   <div className="space-y-2">
@@ -134,34 +134,34 @@ export default function AdminSettingsPage() {
                   </div>
                   <div className="space-y-2">
                     <Label>Email Utama</Label>
-                    <Input 
-                      value={profileData.email} 
-                      onChange={(e) => setProfileData(p => ({...p, email: e.target.value}))}
-                      className="h-10 rounded-2xl border-border/60 bg-muted/30" 
+                    <Input
+                      value={profileData.email}
+                      onChange={(e) => setProfileData(p => ({ ...p, email: e.target.value }))}
+                      className="h-10 rounded-2xl border-border/60 bg-muted/30"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label>Nomor Telepon Standby</Label>
-                    <Input 
-                      value={profileData.phone} 
-                      onChange={(e) => setProfileData(p => ({...p, phone: e.target.value}))}
-                      className="h-10 rounded-2xl border-border/60 bg-muted/30" 
+                    <Input
+                      value={profileData.phone}
+                      onChange={(e) => setProfileData(p => ({ ...p, phone: e.target.value }))}
+                      className="h-10 rounded-2xl border-border/60 bg-muted/30"
                     />
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label>Bio Singkat</Label>
-                    <textarea 
+                    <textarea
                       className="flex w-full rounded-2xl border border-input bg-muted/30 px-4 py-3 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring min-h-[80px] resize-none"
                       value={profileData.bio}
-                      onChange={(e) => setProfileData(p => ({...p, bio: e.target.value}))}
+                      onChange={(e) => setProfileData(p => ({ ...p, bio: e.target.value }))}
                     />
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex justify-end border-t border-border/60 pt-5 mt-2">
-                <Button 
-                  onClick={handleSaveProfile} 
+                <Button
+                  onClick={handleSaveProfile}
                   disabled={isSaving}
                   className="rounded-2xl bg-[#F99912] text-white dark:text-black hover:bg-[#F99912]/90 flex items-center justify-center gap-2"
                 >
@@ -192,8 +192,8 @@ export default function AdminSettingsPage() {
                   <Label>Konfirmasi Password Baru</Label>
                   <Input type="password" placeholder="••••••••" className="h-10 rounded-2xl border-border/60 bg-background/50" />
                 </div>
-                <Button 
-                  onClick={handleSavePassword} 
+                <Button
+                  onClick={handleSavePassword}
                   disabled={isSavingPass}
                   className="w-full rounded-2xl mt-2 bg-foreground text-background hover:bg-foreground/90 disabled:cursor-not-allowed"
                 >
@@ -267,7 +267,7 @@ export default function AdminSettingsPage() {
                 </div>
                 <Switch checked={emailNotif} onCheckedChange={(v) => { setEmailNotif(v); toast("Preferensi email diperbarui.") }} />
               </div>
-              
+
               <div className="flex items-start justify-between gap-4 pb-5 border-b border-border/60">
                 <div className="flex gap-4">
                   <div className="p-2.5 rounded-xl bg-[#F99912]/20 text-[#F99912] h-fit"><Bell className="size-5" /></div>
