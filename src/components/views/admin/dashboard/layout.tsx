@@ -2,9 +2,9 @@
 
 import { Toaster as HotToaster } from "react-hot-toast"
 
-import { SidebarInset, SidebarProvider, SidebarRail } from "@/components/ui/sidebar"
-import { AdminSidebar } from "@/components/admin/admin-sidebar"
-import { AdminTopbar } from "@/components/admin/admin-topbar"
+import { SidebarInset, SidebarProvider, SidebarRail } from "@/src/components/ui/sidebar"
+import { AdminSidebar } from "@/src/components/views/admin/layouts/admin-sidebar"
+import { AdminTopbar } from "@/src/components/views/admin/layouts/admin-topbar"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (

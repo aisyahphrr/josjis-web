@@ -1,296 +1,235 @@
+"use client"
 
-"use client";
-import {
-  Shield,
-  Store,
-  TrendingUp,
-  ArrowRight,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  BarChart3,
-  Eye,
-  Clock,
-} from "lucide-react";
-import { Button } from "@/src/components/ui/button";
-import Link from "next/link";
-import { FileCheck, Flag } from "lucide-react";
-import {
-  adminStats,
-  pendingUMKM,
-  recentComplaints,
-  systemStats,
-} from "@/src/lib/constants/admin/dashboard/dashboard";
+import { useEffect, useMemo, useState } from "react"
+import { BarChart3, Store, Truck, Users, CreditCard, ArrowRight } from "lucide-react"
+import Link from "next/link"
+import toast from "react-hot-toast"
 
-export default function AdminDashboard() {
+import {
+  dummyMonthlyGrowth,
+  dummySalesSeries,
+  dummyTopProducts,
+  dummyTopUmkm,
+  dummyTransactions,
+  dummyUmkm,
+  dummyUsers,
+} from "@/src/lib/dummyData"
+import { PageHeader } from "@/src/components/views/admin/layouts/page-header"
+import { StatCard } from "@/src/components/views/admin/layouts/stat-card"
+import { PageSkeleton } from "@/src/components/views/admin/layouts/loading-skeletons"
+import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
+import { Button } from "@/src/components/ui/button"
+import { StatusBadge } from "@/src/components/views/admin/layouts/status-badge"
+
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
+
+export default function AdminDashboardPage() {
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setIsLoading(false), 900)
+    return () => window.clearTimeout(t)
+  }, [])
+
+  const stats = useMemo(() => {
+    const totalUsers = dummyUsers.filter((u) => u.role === "user").length
+    const totalDrivers = dummyUsers.filter((u) => u.role === "driver").length
+    const totalUmkm = dummyUmkm.filter((u) => u.approvalStatus === "approved").length
+    const totalTrx = dummyTransactions.length
+    return { totalUsers, totalDrivers, totalUmkm, totalTrx }
+  }, [])
+
+  const pendingUmkmCount = dummyUmkm.filter((u) => u.approvalStatus === "pending").length
+  const pendingReportsCount = 5
+
+  if (isLoading) return <PageSkeleton />
+
   return (
-    <div className="space-y-8">
-        {/* Admin Banner */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#F99912]/10 via-[#64762C]/20 to-[#424F17]/10 border border-[#F99912]/20 p-6 lg:p-8">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#F99912]/10 rounded-full blur-3xl" />
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#F99912] to-[#64762C] p-0.5">
-                <div className="w-full h-full rounded-2xl bg-background flex items-center justify-center">
-                  <Shield className="w-8 h-8 text-[#F99912]" />
-                </div>
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-foreground">
-                  Admin Control Panel
-                </h2>
-                <p className="text-muted-foreground">
-                  Kelola seluruh sistem SADAYA dari sini
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="px-4 py-2 rounded-xl bg-[#64762C]/20 border border-[#64762C]/30">
-                <p className="text-xs text-muted-foreground">UMKM Pending</p>
-                <p className="text-xl font-bold text-[#64762C]">3</p>
-              </div>
-              <div className="px-4 py-2 rounded-xl bg-[#F99912]/20 border border-[#F99912]/30">
-                <p className="text-xs text-muted-foreground">Komplain Open</p>
-                <p className="text-xl font-bold text-[#F99912]">5</p>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Overview"
+        subtitle="Ringkasan performa sistem dan aktivitas terbaru."
+        actions={
+          <Button
+            className="rounded-2xl bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612] hover:from-[#F99912]/90 hover:to-[#64762C]/90"
+            onClick={() => toast.success("Data terbaru sudah dimuat (dummy).")}
+          >
+            Refresh Data
+          </Button>
+        }
+      />
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          icon={Users}
+          label="Total Users"
+          value={stats.totalUsers.toLocaleString("id-ID")}
+          trend="+3.2% minggu ini"
+          gradient="from-[#F99912] to-[#C9C9C3]"
+        />
+        <StatCard
+          icon={Store}
+          label="Total UMKM (Approved)"
+          value={stats.totalUmkm.toLocaleString("id-ID")}
+          trend="+2 UMKM baru"
+          gradient="from-[#64762C] to-[#424F17]"
+        />
+        <StatCard
+          icon={Truck}
+          label="Total Drivers"
+          value={stats.totalDrivers.toLocaleString("id-ID")}
+          trend="+1 driver aktif"
+          gradient="from-[#C9C9C3] to-[#F99912]"
+        />
+        <StatCard
+          icon={CreditCard}
+          label="Total Transactions"
+          value={stats.totalTrx.toLocaleString("id-ID")}
+          trend="+18% hari ini"
+          gradient="from-[#F99912] to-[#64762C]"
+        />
+      </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {adminStats.map((stat, index) => (
-            <div
-              key={index}
-              className="relative overflow-hidden backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-5 hover:border-[#F99912]/30 transition-all duration-300"
-            >
-              <div
-                className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} p-0.5 mb-4`}
-              >
-                <div className="w-full h-full rounded-xl bg-background flex items-center justify-center">
-                  <stat.icon className="w-6 h-6 text-[#F99912]" />
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
-              <div className="flex items-end justify-between">
-                <p className="text-2xl font-bold text-foreground">
-                  {stat.value}
-                </p>
-                <span className="text-xs text-[#64762C] font-medium flex items-center gap-1">
-                  <TrendingUp className="w-3 h-3" />
-                  {stat.trend}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Pending UMKM Validation */}
-          <div className="lg:col-span-2 backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <h3 className="text-lg font-semibold text-foreground">
-                  Validasi UMKM Pending
-                </h3>
-                <span className="px-2 py-1 rounded-full bg-[#F99912]/20 text-[#F99912] text-xs font-medium">
-                  {pendingUMKM.length} pending
-                </span>
+      <div className="grid gap-4 xl:grid-cols-3">
+        <Card className="rounded-2xl border-[#F99912]/10 bg-card/60 backdrop-blur-xl xl:col-span-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <BarChart3 className="size-4 text-[#F99912]" />
+              Pertumbuhan (1 Tahun Terakhir)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-2">
+            <div className="h-[320px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={dummyMonthlyGrowth}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
+                  <XAxis dataKey="label" tickLine={false} axisLine={false} />
+                  <YAxis tickLine={false} axisLine={false} />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: 16,
+                      border: "1px solid rgba(249,153,18,0.2)",
+                      background: "rgba(18,18,18,0.85)",
+                      color: "white",
+                    }}
+                    labelStyle={{ color: "white" }}
+                    cursor={{ fill: "rgba(249,153,18,0.08)" }}
+                  />
+                  <Legend wrapperStyle={{ paddingTop: "20px" }} />
+                  <Bar dataKey="users" name="Users" fill="#C9C9C3" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="umkm" name="UMKM" fill="#64762C" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="drivers" name="Drivers" fill="#F99912" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl border-[#F99912]/10 bg-card/60 backdrop-blur-xl">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Notifications</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="rounded-2xl border border-[#F99912]/15 bg-[#F99912]/5 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-sm font-semibold text-foreground">
+                  {pendingUmkmCount} UMKM waiting for approval
+                </div>
+                <StatusBadge tone="warning">Action</StatusBadge>
               </div>
-              <Link href="/admin/umkm-validation">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-[#F99912] hover:text-[#F99912]/80"
-                >
-                  Lihat Semua
-                  <ArrowRight className="ml-1 w-4 h-4" />
+              <div className="mt-1 text-sm text-muted-foreground">
+                Tinjau dokumen dan approve/reject.
+              </div>
+              <Link href="/validasi" className="mt-3 inline-flex">
+                <Button variant="outline" className="rounded-2xl border-border/60">
+                  Buka Validasi
+                  <ArrowRight className="ml-2 size-4" />
                 </Button>
               </Link>
             </div>
-            <div className="space-y-3">
-              {pendingUMKM.map((umkm) => (
-                <div
-                  key={umkm.id}
-                  className="flex items-center gap-4 p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#64762C]/20 to-[#424F17]/20 flex items-center justify-center">
-                    <Store className="w-6 h-6 text-[#64762C]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground truncate">
-                      {umkm.name}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {umkm.owner} - {umkm.docs} dokumen
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Clock className="w-3 h-3" />
-                    {umkm.date}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="h-8 bg-[#64762C] hover:bg-[#64762C]/90 text-foreground"
-                    >
-                      <CheckCircle className="w-4 h-4" />
-                    </Button>
-                    <Button size="sm" variant="destructive" className="h-8">
-                      <XCircle className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          {/* System Stats */}
-          <div className="backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-6">
-              Statistik Sistem
-            </h3>
-            <div className="space-y-4">
-              {systemStats.map((stat, index) => (
-                <div key={index} className="p-4 rounded-xl bg-muted/30">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm text-muted-foreground">
-                      {stat.label}
-                    </p>
-                    <span className="text-xs text-[#64762C] font-medium">
-                      {stat.change}
-                    </span>
-                  </div>
-                  <p className="text-xl font-bold text-foreground">
-                    {stat.value}
-                  </p>
+            <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-sm font-semibold text-foreground">
+                  {pendingReportsCount} reports need attention
                 </div>
-              ))}
+                <StatusBadge tone="danger">Urgent</StatusBadge>
+              </div>
+              <div className="mt-1 text-sm text-muted-foreground">
+                Prioritaskan laporan pending.
+              </div>
+              <Link href="/laporan" className="mt-3 inline-flex">
+                <Button variant="outline" className="rounded-2xl border-border/60">
+                  Buka Laporan
+                  <ArrowRight className="ml-2 size-4" />
+                </Button>
+              </Link>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Recent Complaints */}
-        <div className="backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <h3 className="text-lg font-semibold text-foreground">
-                Komplain Terbaru
-              </h3>
-              <span className="px-2 py-1 rounded-full bg-destructive/20 text-destructive text-xs font-medium">
-                1 urgent
-              </span>
-            </div>
-            <Link href="/admin/complaints">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-[#F99912] hover:text-[#F99912]/80"
-              >
-                Lihat Semua
-                <ArrowRight className="ml-1 w-4 h-4" />
+      <div className="grid gap-4 xl:grid-cols-2">
+        <Card className="rounded-2xl border-[#F99912]/10 bg-card/60 backdrop-blur-xl">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <CardTitle className="text-base">Top UMKM (Sales)</CardTitle>
+            <Link href="/umkm">
+              <Button variant="ghost" className="rounded-2xl text-[#F99912] hover:text-[#F99912]/80">
+                Lihat semua
+                <ArrowRight className="ml-1 size-4" />
               </Button>
             </Link>
-          </div>
-          <div className="grid md:grid-cols-3 gap-4">
-            {recentComplaints.map((complaint) => (
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {dummyTopUmkm.map((item) => (
               <div
-                key={complaint.id}
-                className={`p-4 rounded-xl border transition-all ${
-                  complaint.status === "open"
-                    ? "bg-destructive/5 border-destructive/20"
-                    : complaint.status === "in-progress"
-                      ? "bg-[#F99912]/5 border-[#F99912]/20"
-                      : "bg-[#64762C]/5 border-[#64762C]/20"
-                }`}
+                key={item.id}
+                className="flex items-center justify-between gap-3 rounded-2xl border border-border/60 bg-muted/25 p-4 hover:bg-muted/40 transition-colors"
               >
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm font-medium text-foreground">
-                    {complaint.id}
-                  </span>
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      complaint.status === "open"
-                        ? "bg-destructive/20 text-destructive"
-                        : complaint.status === "in-progress"
-                          ? "bg-[#F99912]/20 text-[#F99912]"
-                          : "bg-[#64762C]/20 text-[#64762C]"
-                    }`}
-                  >
-                    {complaint.status === "open"
-                      ? "Open"
-                      : complaint.status === "in-progress"
-                        ? "In Progress"
-                        : "Resolved"}
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground mb-1">
-                  {complaint.user}
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    {complaint.type}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {complaint.date}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            {
-              icon: FileCheck,
-              label: "Validasi UMKM",
-              href: "/admin/umkm-validation",
-              color: "from-[#64762C] to-[#424F17]",
-            },
-            {
-              icon: Flag,
-              label: "Moderasi Review",
-              href: "/admin/reviews",
-              color: "from-[#F99912] to-[#C9C9C3]",
-            },
-            {
-              icon: BarChart3,
-              label: "Laporan",
-              href: "/admin/statistics",
-              color: "from-[#C9C9C3] to-[#64762C]",
-            },
-            {
-              icon: AlertTriangle,
-              label: "Komplain",
-              href: "/admin/complaints",
-              color: "from-[#F99912] to-[#64762C]",
-            },
-          ].map((action, index) => (
-            <Link key={index} href={action.href}>
-              <div className="group backdrop-blur-xl bg-card/60 border border-[#F99912]/10 rounded-2xl p-5 hover:border-[#F99912]/30 transition-all duration-300 hover:translate-y-[-2px] cursor-pointer">
-                <div
-                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${action.color} p-0.5 mb-3 group-hover:shadow-[0_0_20px_rgba(249,153,18,0.3)] transition-shadow`}
-                >
-                  <div className="w-full h-full rounded-xl bg-background flex items-center justify-center">
-                    <action.icon className="w-6 h-6 text-[#F99912]" />
+                <div className="min-w-0">
+                  <div className="truncate font-semibold text-foreground">{item.name}</div>
+                  <div className="text-sm text-muted-foreground">
+                    Rp {item.sales.toLocaleString("id-ID")}
                   </div>
                 </div>
-                <p className="font-medium text-foreground group-hover:text-[#F99912] transition-colors">
-                  {action.label}
-                </p>
+                <StatusBadge tone="success">{item.trend}</StatusBadge>
               </div>
-            </Link>
-          ))}
-        </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl border-[#F99912]/10 bg-card/60 backdrop-blur-xl">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Top Products</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {dummyTopProducts.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-center justify-between gap-3 rounded-2xl border border-border/60 bg-muted/25 p-4 hover:bg-muted/40 transition-colors"
+              >
+                <div className="min-w-0">
+                  <div className="truncate font-semibold text-foreground">{item.name}</div>
+                  <div className="text-sm text-muted-foreground truncate">
+                    {item.umkm}
+                  </div>
+                </div>
+                <StatusBadge tone="info">{item.sold} sold</StatusBadge>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
       </div>
-  );
+    </div>
+  )
 }
+

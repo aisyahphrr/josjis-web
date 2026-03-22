@@ -297,15 +297,14 @@ export default function DriverDashboard() {
               pendingOrders.map((order) => (
                 <div
                   key={order.id}
-                  className={`p-4 rounded-xl border transition-all ${
-                    order.status === "pending"
-                      ? "bg-muted/30 border-[#F99912]/10"
-                      : ""
-                  } ${
-                    newOrderIds.includes(order.id)
+                  className={`p-4 rounded-xl border transition-all ${order.status === "pending"
+                    ? "bg-muted/30 border-[#F99912]/10"
+                    : ""
+                    } ${newOrderIds.includes(order.id)
                       ? "animate-pulse ring-2 ring-[#F99912] ring-opacity-75 shadow-lg shadow-[#F99912]/30"
                       : ""
-                  }`}
+                    }`}
+
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-3">
