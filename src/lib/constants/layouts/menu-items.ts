@@ -10,9 +10,16 @@ import {
   BookOpen,
   MessageSquare,
   User,
+  Users,
   Store,
   Package,
   BarChart3,
+  GraduationCap,
+  Truck,
+  FileText,
+  Settings,
+  CreditCard,
+  ClipboardCheck,
 } from "lucide-react";
 import type { MenuItem, RoleConfig } from "@/src/interface/dashboard";
 
@@ -40,6 +47,16 @@ export const umkmMenuItems: MenuItem[] = [
 
 export const adminMenuItems: MenuItem[] = [
   { icon: Home, label: "Dashboard", href: "/dashboard-admin" },
+  { icon: GraduationCap, label: "Academy + Konten", href: "/academy" },
+  { icon: BarChart3, label: "Analytics", href: "/analytics" },
+  { icon: Truck, label: "Driver", href: "/driver" },
+  { icon: Trophy, label: "Gamification", href: "/gamification" },
+  { icon: FileText, label: "Laporan", href: "/laporan" },
+  { icon: Settings, label: "Settings", href: "/settings" },
+  { icon: CreditCard, label: "Transaksi", href: "/transaksi" },
+  { icon: Store, label: "UMKM", href: "/umkm" },
+  { icon: Users, label: "Users", href: "/users" },
+  { icon: ClipboardCheck, label: "Validasi", href: "/validasi" },
 ];
 
 export const driverMenuItems: MenuItem[] = [

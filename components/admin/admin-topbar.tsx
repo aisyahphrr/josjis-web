@@ -2,9 +2,9 @@
 
 import { Bell, Search } from "lucide-react"
 
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
+import { SidebarTrigger } from "@/src/components/ui/sidebar"
+import { Input } from "@/src/components/ui/input"
+import { cn } from "@/src/lib/utils"
 
 export function AdminTopbar({
   title,

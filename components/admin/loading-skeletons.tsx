@@ -1,6 +1,6 @@
 "use client"
 
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/src/components/ui/skeleton"
 
 export function PageSkeleton() {
   return (

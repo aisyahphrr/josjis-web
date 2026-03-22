@@ -4,12 +4,12 @@ import { useEffect, useMemo, useState } from "react"
 import { Medal, Trophy } from "lucide-react"
 import toast from "react-hot-toast"
 
-import { dummyLeaderboard, type LeaderboardRecord } from "@/lib/dummyData"
+import { dummyLeaderboard, type LeaderboardRecord } from "@/src/lib/dummyData"
 import { PageHeader } from "@/components/admin/page-header"
 import { TableSkeleton } from "@/components/admin/loading-skeletons"
 import { StatusBadge } from "@/components/admin/status-badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Switch } from "@/components/ui/switch"
+import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
+import { Switch } from "@/src/components/ui/switch"
 import {
   Table,
   TableBody,
@@ -17,7 +17,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/src/components/ui/table"
 
 export default function AdminGamificationPage() {
   const [isLoading, setIsLoading] = useState(true)

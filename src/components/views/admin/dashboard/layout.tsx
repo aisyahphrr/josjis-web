@@ -2,7 +2,7 @@
 
 import { Toaster as HotToaster } from "react-hot-toast"
 
-import { SidebarInset, SidebarProvider, SidebarRail } from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider, SidebarRail } from "@/src/components/ui/sidebar"
 import { AdminSidebar } from "@/components/admin/admin-sidebar"
 import { AdminTopbar } from "@/components/admin/admin-topbar"
 

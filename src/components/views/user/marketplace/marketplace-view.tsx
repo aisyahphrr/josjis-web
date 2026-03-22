@@ -237,6 +237,5 @@ export default function MarketplacePage() {
           </div>
         )}
       </div>
-    </div>
   );
 }

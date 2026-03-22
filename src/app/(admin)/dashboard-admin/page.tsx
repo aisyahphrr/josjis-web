@@ -1,5 +1,4 @@
-import AdminDashboardView from "@/src/components/views/admin/dashboard/dashboard-view";
-
-export default function AdminDashboardPage() {
-  return <AdminDashboardView />;
+import AdminDashboardPage from "@/src/components/views/admin/dashboard/dashboard-view";
+export default function AdminDashboardRoutePage() {
+  return <AdminDashboardPage />;
 }

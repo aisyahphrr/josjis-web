@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Sparkles } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/src/lib/utils"
 import { adminNavItems } from "@/components/admin/admin-nav"
 import {
   Sidebar,
@@ -15,8 +15,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
-} from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
+} from "@/src/components/ui/sidebar"
+import { Button } from "@/src/components/ui/button"
 
 export function AdminSidebar() {
   const pathname = usePathname()

@@ -12,8 +12,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/src/components/ui/alert-dialog"
+import { Textarea } from "@/src/components/ui/textarea"
 
 export function RejectDialog({
   trigger,
