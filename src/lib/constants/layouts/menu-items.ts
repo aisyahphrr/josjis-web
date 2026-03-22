@@ -55,7 +55,7 @@ export const umkmMenuItems: MenuItem[] = [
 
 export const adminMenuItems: MenuItem[] = [
   { icon: Home, label: "Dashboard", href: "/dashboard-admin" },
-  { icon: GraduationCap, label: "Academy + Konten", href: "/academy" },
+  { icon: GraduationCap, label: "Academy + Konten", href: "/academy-admin" },
   { icon: BarChart3, label: "Analytics", href: "/analytics" },
   { icon: Truck, label: "Driver", href: "/driver" },
   { icon: Trophy, label: "Gamification", href: "/gamification" },
