@@ -236,14 +236,21 @@ function HarvestPopup({
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[90] flex items-center justify-center px-4">
-      <div className="pointer-events-auto rounded-[28px] border-2 border-[#4ade80] bg-gradient-to-br from-[#f0fdf4] to-[#dcfce7] px-10 py-8 text-center shadow-[0_24px_64px_rgba(0,0,0,0.2)]">
+      <button
+        type="button"
+        onClick={onClose}
+        className="pointer-events-auto rounded-[28px] border-2 border-[#f59e0b] bg-gradient-to-br from-[#fff7ed] to-[#ffedd5] px-10 py-8 text-center shadow-[0_24px_64px_rgba(0,0,0,0.2)] transition-transform hover:scale-[1.01]"
+      >
         <div className="mb-3 text-6xl">{plant.emoji}</div>
-        <div className="text-2xl font-black text-[#14532d]">Panen Berhasil!</div>
-        <div className="mb-5 mt-1 text-sm text-[#166534]">{plant.name}</div>
-        <div className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#4ade80] to-[#16a34a] px-5 py-3 text-lg font-bold text-white">
+        <div className="text-2xl font-black text-[#9a3412]">Panen Berhasil!</div>
+        <div className="mb-5 mt-1 text-sm text-[#c2410c]">{plant.name}</div>
+        <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#fb923c] to-[#f59e0b] px-5 py-3 text-lg font-bold text-white shadow-[0_8px_24px_rgba(249,115,22,0.28)]">
           <Coins className="h-5 w-5" />+{points} Daya Poin
+        </span>
+        <div className="mt-4 text-xs font-medium text-[#c2410c]">
+          Klik untuk tutup
         </div>
-      </div>
+      </button>
     </div>
   );
 }
@@ -390,8 +397,8 @@ function PlotCard({
               onClick={() => setSelecting(selecting === index ? null : index)}
               className={`w-full rounded-xl ${
                 selecting === index
-                  ? "bg-gradient-to-r from-[#22c55e] to-[#16a34a] text-white"
-                  : "bg-[#f0fdf4] text-[#15803d] hover:bg-[#dcfce7]"
+                  ? "bg-gradient-to-r from-[#fb923c] to-[#f59e0b] text-white"
+                  : "bg-[#fff7ed] text-[#c2410c] hover:bg-[#ffedd5]"
               }`}
             >
               {selecting === index ? "Batal pilih bibit" : "Pilih Bibit"}
@@ -592,7 +599,7 @@ export default function GameView() {
     <>
       <style>{`
         .game-shell {
-          background: linear-gradient(160deg,#f0fdf4 0%,#ecfdf5 30%,#f8fafc 60%,#fffbeb 100%);
+          background: linear-gradient(160deg,#fff7ed 0%,#ffedd5 28%,#f8fafc 62%,#fffbeb 100%);
           position: relative;
         }
         .game-shell::before {
@@ -601,8 +608,8 @@ export default function GameView() {
           inset: 0;
           pointer-events: none;
           background:
-            radial-gradient(ellipse 80% 40% at 20% 20%,rgba(74,222,128,0.08) 0%,transparent 70%),
-            radial-gradient(ellipse 60% 50% at 80% 80%,rgba(251,191,36,0.06) 0%,transparent 70%);
+            radial-gradient(ellipse 80% 40% at 20% 20%,rgba(249,115,22,0.08) 0%,transparent 70%),
+            radial-gradient(ellipse 60% 50% at 80% 80%,rgba(251,191,36,0.08) 0%,transparent 70%);
         }
       `}</style>
       {confetti && <ConfettiBlast onDone={() => setConfetti(false)} />}
@@ -615,10 +622,10 @@ export default function GameView() {
       )}
 
       {!started ? (
-        <section className="game-shell overflow-hidden rounded-3xl border border-[#22c55e]/15 p-6 md:p-8">
+        <section className="game-shell overflow-hidden rounded-3xl border border-[#f59e0b]/20 p-6 md:p-8">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] lg:items-center">
             <div>
-              <Badge className="mb-5 border border-[#22c55e]/20 bg-[#dcfce7] text-[#15803d] hover:bg-[#dcfce7]">
+              <Badge className="mb-5 border border-[#f59e0b]/20 bg-[#ffedd5] text-[#c2410c] hover:bg-[#ffedd5]">
                 Harvest Bogor
               </Badge>
               <h1 className="mb-4 text-3xl font-bold text-foreground md:text-5xl">
@@ -630,7 +637,7 @@ export default function GameView() {
               </p>
               <div className="mb-8 grid gap-3 sm:grid-cols-3">
                 {[
-                  { icon: <Leaf className="h-5 w-5 text-[#16a34a]" />, value: SLOTS, label: "Slot lahan" },
+                  { icon: <Leaf className="h-5 w-5 text-[#ea580c]" />, value: SLOTS, label: "Slot lahan" },
                   { icon: <Coins className="h-5 w-5 text-[#f59e0b]" />, value: "120", label: "Poin maksimal" },
                   { icon: <Droplets className="h-5 w-5 text-[#2563eb]" />, value: `${MAX_WATER_PER_DAY}x`, label: "Siram per hari" },
                 ].map((item) => (
@@ -647,9 +654,9 @@ export default function GameView() {
                   </Card>
                 ))}
               </div>
-              <Button
+                <Button
                 onClick={() => setStarted(true)}
-                className="rounded-xl bg-gradient-to-r from-[#22c55e] to-[#16a34a] text-white"
+                className="rounded-xl bg-gradient-to-r from-[#fb923c] to-[#f59e0b] text-white"
               >
                 <Sprout className="mr-2 h-4 w-4" />
                 Mulai Bertani
@@ -681,10 +688,10 @@ export default function GameView() {
         </section>
       ) : (
         <div className="space-y-6">
-          <section className="game-shell overflow-hidden rounded-3xl border border-[#22c55e]/15 p-6 md:p-8">
+          <section className="game-shell overflow-hidden rounded-3xl border border-[#f59e0b]/20 p-6 md:p-8">
             <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
-                <Badge className="mb-3 border border-[#22c55e]/20 bg-[#dcfce7] text-[#15803d] hover:bg-[#dcfce7]">
+                <Badge className="mb-3 border border-[#f59e0b]/20 bg-[#ffedd5] text-[#c2410c] hover:bg-[#ffedd5]">
                   Harvest Bogor
                 </Badge>
                 <h1 className="text-2xl font-bold text-foreground md:text-3xl">
@@ -715,7 +722,7 @@ export default function GameView() {
                 { icon: <Droplets className="h-5 w-5 text-[#2563eb]" />, label: "Air tersedia", value: `${state.water}/${MAX_WATER}`, detail: state.water < MAX_WATER ? `+1 dalam ${fmt(waterCD)}` : "Tangki penuh" },
                 { icon: <Coins className="h-5 w-5 text-[#f59e0b]" />, label: "Daya Poin", value: state.points.toLocaleString(), detail: "1 poin = Rp1 diskon" },
                 { icon: <Scissors className="h-5 w-5 text-[#a855f7]" />, label: "Total panen", value: `${state.totalHarvests}`, detail: "Akumulasi semua sesi" },
-                { icon: <Zap className="h-5 w-5 text-[#16a34a]" />, label: "Lahan aktif", value: `${activeCnt}/${SLOTS}`, detail: hasReady ? "Ada yang siap dipanen" : "Masih tumbuh" },
+                { icon: <Zap className="h-5 w-5 text-[#ea580c]" />, label: "Lahan aktif", value: `${activeCnt}/${SLOTS}`, detail: hasReady ? "Ada yang siap dipanen" : "Masih tumbuh" },
               ].map((item) => (
                 <Card key={item.label} className="border-white/60 bg-white/85 backdrop-blur">
                   <CardContent className="flex items-start gap-3 p-4">
@@ -737,13 +744,13 @@ export default function GameView() {
                 <Card className="border-white/60 bg-white/85">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-lg">
-                      <Leaf className="h-5 w-5 text-[#16a34a]" />
+                      <Leaf className="h-5 w-5 text-[#ea580c]" />
                       Kebun Virtual
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {[
-                      { icon: <Sprout className="h-4 w-4 text-[#16a34a]" />, label: "Lahan ditanam", val: `${activeCnt}/${SLOTS}` },
+                      { icon: <Sprout className="h-4 w-4 text-[#ea580c]" />, label: "Lahan ditanam", val: `${activeCnt}/${SLOTS}` },
                       { icon: <Coins className="h-4 w-4 text-[#f59e0b]" />, label: "Total poin", val: state.points.toLocaleString() },
                       { icon: <Scissors className="h-4 w-4 text-[#a855f7]" />, label: "Total panen", val: `${state.totalHarvests}` },
                       { icon: <Droplets className="h-4 w-4 text-[#2563eb]" />, label: "Air tersisa", val: `${state.water}/${MAX_WATER}` },
@@ -776,7 +783,7 @@ export default function GameView() {
                         {item}
                       </div>
                     ))}
-                    <div className="rounded-xl border border-[#86efac] bg-gradient-to-r from-[#f0fdf4] to-[#dcfce7] p-3 text-xs leading-5 text-[#166534]">
+                    <div className="rounded-xl border border-[#fdba74] bg-gradient-to-r from-[#fff7ed] to-[#ffedd5] p-3 text-xs leading-5 text-[#c2410c]">
                       Siram menambah {WATER_BOOST}% progress. Air bertambah 1 setiap 1 menit.
                     </div>
                   </CardContent>
