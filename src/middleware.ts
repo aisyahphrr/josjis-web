@@ -5,9 +5,20 @@ import type { UserRole } from "@prisma/client";
 
 import { DASHBOARD_HOME_BY_ROLE } from "@/src/server/auth/roles";
 
-const PUBLIC_ROUTES = ["/", "/login", "/register"];
+const PUBLIC_ROUTES = [
+  "/",
+  "/login",
+  "/register",
+  "/register-umkm",
+  "/register-driver",
+];
 
-const AUTH_ONLY_ROUTES = ["/login", "/register"];
+const AUTH_ONLY_ROUTES = [
+  "/login",
+  "/register",
+  "/register-umkm",
+  "/register-driver",
+];
 
 const ROLE_BASED_ROUTES: Record<UserRole, string[]> = {
   ADMIN: [
