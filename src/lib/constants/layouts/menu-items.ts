@@ -34,7 +34,7 @@ export const userMenuItems: MenuItem[] = [
   { icon: Trophy, label: "Bogor Quest", href: "/quest" },
   { icon: Gift, label: "Mystery Box", href: "/mystery-box" },
   { icon: BookOpen, label: "Artikel", href: "/articles" },
-  { icon: MessageSquare, label: "Chat CS", href: "/chat" },
+  { icon: MessageSquare, label: "Chat Seller", href: "/chat" },
   { icon: User, label: "Profil", href: "/profile" },
 ];
 

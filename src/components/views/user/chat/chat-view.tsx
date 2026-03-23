@@ -1,300 +1,389 @@
 "use client";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/src/components/ui/card";
+
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
-import { useState } from "react";
 import { Input } from "@/src/components/ui/input";
 import { ScrollArea } from "@/src/components/ui/scroll-area";
 import {
   Send,
-  Bot,
   Phone,
   Video,
   MoreVertical,
   Paperclip,
   Smile,
   CheckCheck,
+  Search,
+  Store,
+  ShoppingBag,
 } from "lucide-react";
+import { useUserStore } from "@/src/store/user-store";
+import { getProductById, products } from "@/src/lib/constants/user/marketplace/products";
 
-// Mock chat data
-const initialMessages = [
-  {
-    id: 1,
-    sender: "bot",
-    message:
-      "Halo! Selamat datang di Customer Service SADAYA. Ada yang bisa kami bantu?",
-    time: "09:00",
-  },
-  {
-    id: 2,
-    sender: "user",
-    message: "Halo, saya mau tanya tentang status pesanan saya",
-    time: "09:01",
-  },
-  {
-    id: 3,
-    sender: "bot",
-    message: "Tentu! Boleh saya tahu nomor pesanan Anda?",
-    time: "09:01",
-  },
-  { id: 4, sender: "user", message: "ORD-2026-002", time: "09:02" },
-  {
-    id: 5,
-    sender: "bot",
-    message:
-      "Baik, pesanan ORD-2026-002 saat ini sedang dalam proses pengiriman. Estimasi tiba dalam 1-2 hari. Apakah ada pertanyaan lain?",
-    time: "09:02",
-  },
-];
+type ChatMessage = {
+  id: string;
+  sender: "seller" | "user";
+  message: string;
+  time: string;
+};
 
-const quickReplies = [
-  "Status pesanan saya",
-  "Cara melakukan pembayaran",
-  "Produk UMKM terbaru",
-  "Cara mendapatkan Daya Poin",
-  "Bantuan lainnya",
-];
+type SellerConversation = {
+  sellerName: string;
+  sellerDescription: string;
+  productName: string;
+  unread: number;
+  online: boolean;
+  messages: ChatMessage[];
+};
+
+function buildInitialConversations() {
+  const uniqueSellers = new Map<string, SellerConversation>();
+
+  products.forEach((product, index) => {
+    if (uniqueSellers.has(product.sellerName)) return;
+
+    uniqueSellers.set(product.sellerName, {
+      sellerName: product.sellerName,
+      sellerDescription: product.sellerDescription,
+      productName: product.name,
+      unread: index < 3 ? index + 1 : 0,
+      online: index % 2 === 0,
+      messages: [
+        {
+          id: `${product.id}-1`,
+          sender: "seller",
+          message: `Halo kak, ini ${product.sellerName}. Kalau mau tanya soal ${product.name}, langsung chat di sini ya.`,
+          time: "09:00",
+        },
+        {
+          id: `${product.id}-2`,
+          sender: "user",
+          message: "Baik kak, saya mau cek ketersediaan dan estimasi kirimnya.",
+          time: "09:02",
+        },
+        {
+          id: `${product.id}-3`,
+          sender: "seller",
+          message: "Siap, stok aman dan pengiriman bisa kami proses di hari yang sama.",
+          time: "09:03",
+        },
+      ],
+    });
+  });
+
+  return Array.from(uniqueSellers.values());
+}
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState(initialMessages);
+  const searchParams = useSearchParams();
+  const sellerQuery = searchParams.get("seller");
+  const { orders } = useUserStore();
+
+  const orderBasedConversations = useMemo(() => {
+    const mapped = new Map<string, SellerConversation>();
+
+    orders.forEach((order) => {
+      order.items.forEach((item) => {
+        const product = getProductById(item.productId);
+        if (!product || mapped.has(product.sellerName)) return;
+
+        mapped.set(product.sellerName, {
+          sellerName: product.sellerName,
+          sellerDescription: product.sellerDescription,
+          productName: product.name,
+          unread: order.status === "processing" ? 1 : 0,
+          online: true,
+          messages: [
+            {
+              id: `${order.id}-${item.productId}-1`,
+              sender: "seller",
+              message: `Halo kak, pesanan ${product.name} untuk order ${order.id} sedang kami siapkan ya.`,
+              time: "10:10",
+            },
+            {
+              id: `${order.id}-${item.productId}-2`,
+              sender: "user",
+              message: "Siap kak, saya pantau di chat ini ya.",
+              time: "10:12",
+            },
+          ],
+        });
+      });
+    });
+
+    return Array.from(mapped.values());
+  }, [orders]);
+
+  const [searchQuery, setSearchQuery] = useState("");
   const [inputMessage, setInputMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const [conversations, setConversations] = useState<SellerConversation[]>([]);
+  const [activeSeller, setActiveSeller] = useState<string | null>(null);
 
-  const sendMessage = async (text: string) => {
-    if (!text.trim()) return;
+  useEffect(() => {
+    const merged = [...orderBasedConversations];
+    buildInitialConversations().forEach((conversation) => {
+      if (!merged.some((item) => item.sellerName === conversation.sellerName)) {
+        merged.push(conversation);
+      }
+    });
 
-    const userMessage = {
-      id: messages.length + 1,
+    setConversations(merged);
+
+    if (sellerQuery && merged.some((item) => item.sellerName === sellerQuery)) {
+      setActiveSeller(sellerQuery);
+      return;
+    }
+
+    if (!activeSeller && merged.length > 0) {
+      setActiveSeller(merged[0].sellerName);
+    }
+  }, [orderBasedConversations, sellerQuery, activeSeller]);
+
+  const filteredConversations = conversations.filter((conversation) =>
+    `${conversation.sellerName} ${conversation.productName}`
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase()),
+  );
+
+  const activeConversation =
+    filteredConversations.find((item) => item.sellerName === activeSeller) ??
+    conversations.find((item) => item.sellerName === activeSeller) ??
+    null;
+
+  const sendMessage = () => {
+    if (!inputMessage.trim() || !activeConversation) return;
+
+    const nextUserMessage: ChatMessage = {
+      id: `${activeConversation.sellerName}-${Date.now()}`,
       sender: "user",
-      message: text,
+      message: inputMessage.trim(),
       time: new Date().toLocaleTimeString("id-ID", {
         hour: "2-digit",
         minute: "2-digit",
       }),
     };
 
-    setMessages([...messages, userMessage]);
+    const nextSellerMessage: ChatMessage = {
+      id: `${activeConversation.sellerName}-${Date.now()}-reply`,
+      sender: "seller",
+      message: `Baik kak, pesan untuk ${activeConversation.sellerName} sudah kami terima. Kami balas lebih lanjut secepatnya ya.`,
+      time: new Date().toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+
+    setConversations((prev) =>
+      prev.map((conversation) =>
+        conversation.sellerName === activeConversation.sellerName
+          ? {
+              ...conversation,
+              messages: [...conversation.messages, nextUserMessage, nextSellerMessage],
+              unread: 0,
+            }
+          : conversation,
+      ),
+    );
     setInputMessage("");
-    setIsTyping(true);
-
-    // Simulate bot response
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    const botResponses: Record<string, string> = {
-      "Status pesanan saya":
-        "Untuk mengecek status pesanan, silakan kunjungi menu 'Riwayat Pembelian' atau berikan nomor pesanan Anda.",
-      "Cara melakukan pembayaran":
-        "SADAYA mendukung berbagai metode pembayaran: E-Wallet (GoPay, OVO, DANA), Transfer Bank, dan Kartu Kredit/Debit.",
-      "Produk UMKM terbaru":
-        "Produk terbaru kami meliputi Lapis Talas Premium, Kopi Bogor Arabika, dan Brownies Talas Amanda. Kunjungi Marketplace untuk melihat selengkapnya!",
-      "Cara mendapatkan Daya Poin":
-        "Anda bisa mendapatkan Daya Poin Asli Bogor dengan: 1) Bermain Harvest Bogor, 2) Menyelesaikan quest harian, 3) Membeli produk UMKM, 4) Memberikan review.",
-      "Bantuan lainnya":
-        "Untuk bantuan lebih lanjut, Anda bisa menghubungi kami di WhatsApp: 0812-3456-7890 atau email: cs@josjis.com",
-    };
-
-    const botMessage = {
-      id: messages.length + 2,
-      sender: "bot",
-      message:
-        botResponses[text] ||
-        "Terima kasih atas pertanyaan Anda. Tim kami akan segera membantu. Ada yang lain yang bisa saya bantu?",
-      time: new Date().toLocaleTimeString("id-ID", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
-
-    setIsTyping(false);
-    setMessages((prev) => [...prev, botMessage]);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    sendMessage(inputMessage);
   };
 
   return (
     <div className="h-[calc(100vh-12rem)]">
-      <Card className="h-full bg-card/50 backdrop-blur border-[#F99912]/10 flex flex-col">
-        {/* Chat Header */}
-        <CardHeader className="border-b border-[#F99912]/10 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#F99912] to-[#64762C] flex items-center justify-center">
-                  <Bot className="w-6 h-6 text-[#181612]" />
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-card" />
+      <Card className="h-full overflow-hidden border-[#F99912]/10 bg-card/50 backdrop-blur">
+        <div className="grid h-full lg:grid-cols-[340px_minmax(0,1fr)]">
+          <div className="border-r border-[#F99912]/10">
+            <CardHeader className="border-b border-[#F99912]/10">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Store className="h-5 w-5 text-[#F99912]" />
+                Chat Seller
+              </CardTitle>
+              <div className="relative mt-3">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Cari seller..."
+                  className="h-10 rounded-xl border-[#F99912]/10 bg-muted/50 pl-9 focus:border-[#F99912]/50"
+                />
               </div>
-              <div>
-                <CardTitle className="text-lg">Customer Service</CardTitle>
-                <p className="text-sm text-green-500 flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-green-500" />
-                  Online
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:bg-[#F99912]/10"
-              >
-                <Phone className="w-5 h-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:bg-[#F99912]/10"
-              >
-                <Video className="w-5 h-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="hover:bg-[#F99912]/10"
-              >
-                <MoreVertical className="w-5 h-5" />
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
+            </CardHeader>
 
-        {/* Chat Messages */}
-        <ScrollArea className="flex-1 p-4">
-          <div className="space-y-4">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`flex gap-2 max-w-[80%] ${msg.sender === "user" ? "flex-row-reverse" : ""}`}
-                >
-                  {msg.sender === "bot" && (
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#F99912] to-[#64762C] flex items-center justify-center flex-shrink-0">
-                      <Bot className="w-4 h-4 text-[#181612]" />
-                    </div>
-                  )}
-                  <div
-                    className={`rounded-2xl px-4 py-3 ${
-                      msg.sender === "user"
-                        ? "bg-[#F99912] text-[#181612]"
-                        : "bg-muted/50"
-                    }`}
-                  >
-                    <p className="text-sm">{msg.message}</p>
-                    <div
-                      className={`flex items-center gap-1 mt-1 ${
-                        msg.sender === "user" ? "justify-end" : ""
+            <ScrollArea className="h-[calc(100%-105px)]">
+              <div className="space-y-2 p-3">
+                {filteredConversations.map((conversation) => {
+                  const lastMessage =
+                    conversation.messages[conversation.messages.length - 1];
+                  const isActive = conversation.sellerName === activeSeller;
+
+                  return (
+                    <button
+                      key={conversation.sellerName}
+                      type="button"
+                      onClick={() => setActiveSeller(conversation.sellerName)}
+                      className={`w-full rounded-2xl border p-3 text-left transition-all ${
+                        isActive
+                          ? "border-[#F99912]/40 bg-[#F99912]/10"
+                          : "border-transparent bg-muted/20 hover:border-[#F99912]/20 hover:bg-muted/40"
                       }`}
                     >
-                      <span
-                        className={`text-xs ${
-                          msg.sender === "user"
-                            ? "text-[#181612]/70"
-                            : "text-muted-foreground"
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3">
+                          <div className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#F99912] to-[#64762C] text-[#181612]">
+                            <Store className="h-5 w-5" />
+                            {conversation.online && (
+                              <span className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-card bg-green-500" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="truncate font-semibold text-foreground">
+                              {conversation.sellerName}
+                            </div>
+                            <div className="truncate text-xs text-muted-foreground">
+                              {conversation.productName}
+                            </div>
+                            <div className="mt-1 truncate text-sm text-muted-foreground">
+                              {lastMessage?.message}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <span className="text-[11px] text-muted-foreground">
+                            {lastMessage?.time}
+                          </span>
+                          {conversation.unread > 0 && (
+                            <span className="rounded-full bg-[#F99912] px-2 py-0.5 text-[11px] font-semibold text-[#181612]">
+                              {conversation.unread}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </ScrollArea>
+          </div>
+
+          <div className="flex min-h-0 flex-col">
+            {activeConversation ? (
+              <>
+                <CardHeader className="border-b border-[#F99912]/10">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#F99912] to-[#64762C] text-[#181612]">
+                        <Store className="h-6 w-6" />
+                        {activeConversation.online && (
+                          <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-card bg-green-500" />
+                        )}
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">
+                          {activeConversation.sellerName}
+                        </CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          {activeConversation.sellerDescription}
+                        </p>
+                        <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                          <ShoppingBag className="h-3.5 w-3.5" />
+                          Produk terkait: {activeConversation.productName}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="icon" className="hover:bg-[#F99912]/10">
+                        <Phone className="h-5 w-5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="hover:bg-[#F99912]/10">
+                        <Video className="h-5 w-5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="hover:bg-[#F99912]/10">
+                        <MoreVertical className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <ScrollArea className="flex-1 p-4">
+                  <div className="space-y-4">
+                    {activeConversation.messages.map((message) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${
+                          message.sender === "user" ? "justify-end" : "justify-start"
                         }`}
                       >
-                        {msg.time}
-                      </span>
-                      {msg.sender === "user" && (
-                        <CheckCheck className="w-3 h-3 text-[#181612]/70" />
-                      )}
-                    </div>
+                        <div
+                          className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                            message.sender === "user"
+                              ? "bg-[#F99912] text-[#181612]"
+                              : "bg-muted/50"
+                          }`}
+                        >
+                          <p className="text-sm">{message.message}</p>
+                          <div
+                            className={`mt-1 flex items-center gap-1 text-xs ${
+                              message.sender === "user"
+                                ? "justify-end text-[#181612]/70"
+                                : "text-muted-foreground"
+                            }`}
+                          >
+                            <span>{message.time}</span>
+                            {message.sender === "user" && (
+                              <CheckCheck className="h-3 w-3" />
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              </div>
-            ))}
+                </ScrollArea>
 
-            {/* Typing Indicator */}
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="flex gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#F99912] to-[#64762C] flex items-center justify-center">
-                    <Bot className="w-4 h-4 text-[#181612]" />
-                  </div>
-                  <div className="rounded-2xl px-4 py-3 bg-muted/50">
-                    <div className="flex gap-1">
-                      <span
-                        className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce"
-                        style={{ animationDelay: "0ms" }}
-                      />
-                      <span
-                        className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce"
-                        style={{ animationDelay: "150ms" }}
-                      />
-                      <span
-                        className="w-2 h-2 rounded-full bg-muted-foreground animate-bounce"
-                        style={{ animationDelay: "300ms" }}
-                      />
-                    </div>
-                  </div>
+                <div className="border-t border-[#F99912]/10 p-4">
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      sendMessage();
+                    }}
+                    className="flex gap-2"
+                  >
+                    <Button type="button" variant="ghost" size="icon" className="hover:bg-[#F99912]/10">
+                      <Paperclip className="h-5 w-5" />
+                    </Button>
+                    <Input
+                      placeholder={`Ketik pesan ke ${activeConversation.sellerName}...`}
+                      value={inputMessage}
+                      onChange={(e) => setInputMessage(e.target.value)}
+                      className="flex-1 rounded-xl border-[#F99912]/10 bg-muted/50 focus:border-[#F99912]/50"
+                    />
+                    <Button type="button" variant="ghost" size="icon" className="hover:bg-[#F99912]/10">
+                      <Smile className="h-5 w-5" />
+                    </Button>
+                    <Button
+                      type="submit"
+                      size="icon"
+                      className="bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612]"
+                      disabled={!inputMessage.trim()}
+                    >
+                      <Send className="h-5 w-5" />
+                    </Button>
+                  </form>
+                </div>
+              </>
+            ) : (
+              <div className="flex h-full items-center justify-center p-8 text-center">
+                <div>
+                  <Store className="mx-auto mb-4 h-12 w-12 text-muted-foreground/40" />
+                  <h3 className="text-lg font-semibold text-foreground">
+                    Belum ada chat seller
+                  </h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Mulai dari pesanan atau halaman produk untuk membuka percakapan dengan seller.
+                  </p>
                 </div>
               </div>
             )}
           </div>
-        </ScrollArea>
-
-        {/* Quick Replies */}
-        <div className="px-4 py-2 border-t border-[#F99912]/10 flex-shrink-0">
-          <p className="text-xs text-muted-foreground mb-2">
-            Pertanyaan cepat:
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {quickReplies.map((reply) => (
-              <Button
-                key={reply}
-                variant="outline"
-                size="sm"
-                className="border-[#F99912]/30 hover:bg-[#F99912]/10 text-xs"
-                onClick={() => sendMessage(reply)}
-              >
-                {reply}
-              </Button>
-            ))}
-          </div>
-        </div>
-
-        {/* Input Area */}
-        <div className="p-4 border-t border-[#F99912]/10 flex-shrink-0">
-          <form onSubmit={handleSubmit} className="flex gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="hover:bg-[#F99912]/10 flex-shrink-0"
-            >
-              <Paperclip className="w-5 h-5" />
-            </Button>
-            <Input
-              placeholder="Ketik pesan..."
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              className="flex-1 bg-muted/50 border-[#F99912]/10 focus:border-[#F99912]/50 rounded-xl"
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="hover:bg-[#F99912]/10 flex-shrink-0"
-            >
-              <Smile className="w-5 h-5" />
-            </Button>
-            <Button
-              type="submit"
-              size="icon"
-              className="bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612] flex-shrink-0"
-              disabled={!inputMessage.trim()}
-            >
-              <Send className="w-5 h-5" />
-            </Button>
-          </form>
         </div>
       </Card>
     </div>

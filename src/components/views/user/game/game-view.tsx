@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Card,
   CardContent,
@@ -8,10 +8,7 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { Button } from "@/src/components/ui/button";
-import { Progress } from "@/src/components/ui/progress";
 import { Badge } from "@/src/components/ui/badge";
-import { cn } from "@/src/lib/utils";
-import { toast } from "@/src/hooks/use-toast";
 import {
   Coins,
   Droplets,
@@ -21,615 +18,829 @@ import {
   Sprout,
   Zap,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/src/components/ui/dialog";
-import { useUserStore } from "@/src/store/user-store";
 
-type PlotStatus =
-  | "empty"
-  | "planted"
-  | "watered"
-  | "growing"
-  | "ready_to_harvest";
-
-type SeedDef = {
-  id: "talas" | "pala" | "jambu";
+interface PlantDef {
+  id: string;
   name: string;
+  emoji: string;
+  days: number;
+  points: number;
   color: string;
-  growMs: number;
-  coinsReward: number;
-  productIdReward: number;
-};
+  accent: string;
+  description: string;
+}
 
-const SEEDS: SeedDef[] = [
+interface ActivePlant {
+  defId: string;
+  progress: number;
+  plantedAt: number;
+  wateredToday: number;
+  lastWaterDate: string;
+}
+
+interface GameState {
+  activePlants: (ActivePlant | null)[];
+  water: number;
+  points: number;
+  lastDailyClaim: string;
+  lastWaterRegen: number;
+  totalHarvests: number;
+}
+
+const PLANT_DEFS: PlantDef[] = [
   {
     id: "talas",
     name: "Talas Bogor",
-    color: "from-[#64762C]/30 to-[#64762C]/10",
-    growMs: 45_000,
-    coinsReward: 50,
-    productIdReward: 1,
+    emoji: "🌿",
+    days: 7,
+    points: 50,
+    color: "#22c55e",
+    accent: "#15803d",
+    description: "Tumbuh cepat, poin rendah",
   },
   {
     id: "pala",
-    name: "Pala Bogor",
-    color: "from-[#F99912]/25 to-[#F99912]/10",
-    growMs: 70_000,
-    coinsReward: 80,
-    productIdReward: 3,
+    name: "Pala Premium",
+    emoji: "🌰",
+    days: 14,
+    points: 120,
+    color: "#f97316",
+    accent: "#c2410c",
+    description: "Tumbuh lambat, poin tinggi",
   },
   {
     id: "jambu",
     name: "Jambu Kristal",
-    color: "from-[#3b82f6]/20 to-[#3b82f6]/10",
-    growMs: 55_000,
-    coinsReward: 65,
-    productIdReward: 10,
+    emoji: "🍐",
+    days: 10,
+    points: 80,
+    color: "#eab308",
+    accent: "#a16207",
+    description: "Tumbuh sedang, seimbang",
   },
 ];
 
-type Plot = {
-  id: number;
-  status: PlotStatus;
-  seedId: SeedDef["id"] | null;
-  watered: boolean;
-  growthMs: number;
-  lastTickISO: string | null;
-  plantedAtISO: string | null;
+const SLOTS = 3;
+const MAX_WATER = 10;
+const WATER_REGEN_MS = 60_000;
+const WATER_BOOST = 8;
+const MAX_WATER_PER_DAY = 2;
+const PROGRESS_TICK_MS = 3_000;
+const DAILY_WATER_BONUS = 5;
+
+const DEFAULT_STATE: GameState = {
+  activePlants: [null, null, null],
+  water: 5,
+  points: 0,
+  lastDailyClaim: "",
+  lastWaterRegen: Date.now(),
+  totalHarvests: 0,
 };
 
-type Tool = "seed" | "water" | "harvest";
+const today = () => new Date().toDateString();
 
-const GAME_STORAGE_KEY = "josjis:harvest-bogor:v1";
-
-function makeInitialPlots(size: number): Plot[] {
-  return Array.from({ length: size }).map((_, idx) => ({
-    id: idx + 1,
-    status: "empty" as const,
-    seedId: null,
-    watered: false,
-    growthMs: 0,
-    lastTickISO: null,
-    plantedAtISO: null,
-  }));
+function loadState(): GameState {
+  try {
+    const raw = localStorage.getItem("harvest_bogor_v3");
+    if (!raw) return DEFAULT_STATE;
+    return { ...DEFAULT_STATE, ...JSON.parse(raw) };
+  } catch {
+    return DEFAULT_STATE;
+  }
 }
 
-export default function GamePage() {
-  const {
-    coins,
-    energy,
-    seeds,
-    claimDailyBonus,
-    spendEnergy,
-    useSeed,
-    addCoins,
-    addToCart,
-  } = useUserStore();
+function saveState(state: GameState) {
+  localStorage.setItem("harvest_bogor_v3", JSON.stringify(state));
+}
 
-  const [plots, setPlots] = React.useState<Plot[]>(() => {
-    if (typeof window === "undefined") return makeInitialPlots(9);
-    try {
-      const raw = window.localStorage.getItem(GAME_STORAGE_KEY);
-      if (!raw) return makeInitialPlots(9);
-      const parsed = JSON.parse(raw) as unknown;
-      if (!Array.isArray(parsed)) return makeInitialPlots(9);
-      return (parsed as Plot[]).map((p, idx) => ({
-        id: typeof p.id === "number" ? p.id : idx + 1,
-        status: (p.status as PlotStatus) ?? "empty",
-        seedId: (p.seedId as Plot["seedId"]) ?? null,
-        watered: Boolean(p.watered),
-        growthMs: typeof p.growthMs === "number" ? p.growthMs : 0,
-        lastTickISO: typeof p.lastTickISO === "string" ? p.lastTickISO : null,
-        plantedAtISO:
-          typeof p.plantedAtISO === "string" ? p.plantedAtISO : null,
-      }));
-    } catch {
-      return makeInitialPlots(9);
-    }
-  });
+const mkCtx = () =>
+  new (window.AudioContext ||
+    (window as Window & { webkitAudioContext?: typeof AudioContext })
+      .webkitAudioContext)();
 
-  const [selectedTool, setSelectedTool] = React.useState<Tool>("seed");
-  const [seedDialogOpen, setSeedDialogOpen] = React.useState(false);
-  const [targetPlotId, setTargetPlotId] = React.useState<number | null>(null);
-  const [harvestPulsePlotId, setHarvestPulsePlotId] = React.useState<
-    number | null
-  >(null);
+function playWater() {
+  try {
+    const c = mkCtx();
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.connect(g);
+    g.connect(c.destination);
+    o.frequency.setValueAtTime(880, c.currentTime);
+    o.frequency.exponentialRampToValueAtTime(440, c.currentTime + 0.3);
+    g.gain.setValueAtTime(0.12, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.4);
+    o.start();
+    o.stop(c.currentTime + 0.4);
+  } catch {}
+}
 
-  React.useEffect(() => {
-    claimDailyBonus();
-  }, [claimDailyBonus]);
-
-  React.useEffect(() => {
-    try {
-      window.localStorage.setItem(GAME_STORAGE_KEY, JSON.stringify(plots));
-    } catch {
-      // ignore
-    }
-  }, [plots]);
-
-  React.useEffect(() => {
-    const interval = window.setInterval(() => {
-      const now = new Date();
-      setPlots((prev) =>
-        prev.map((plot) => {
-          if (!plot.seedId) return plot;
-          if (plot.status === "ready_to_harvest") return plot;
-          if (!plot.watered) return { ...plot, lastTickISO: now.toISOString() };
-
-          const seed = SEEDS.find((s) => s.id === plot.seedId);
-          if (!seed) return plot;
-
-          const last = plot.lastTickISO ? new Date(plot.lastTickISO) : now;
-          const delta = Math.max(0, now.getTime() - last.getTime());
-          const nextGrowth = Math.min(seed.growMs, plot.growthMs + delta);
-          const nextStatus: PlotStatus =
-            nextGrowth >= seed.growMs ? "ready_to_harvest" : "growing";
-
-          if (
-            nextStatus === "ready_to_harvest" &&
-            plot.status !== "ready_to_harvest"
-          ) {
-            setHarvestPulsePlotId(plot.id);
-            toast({
-              title: "Siap dipanen",
-              description: `${seed.name} sudah siap dipanen.`,
-            });
-          }
-
-          return {
-            ...plot,
-            growthMs: nextGrowth,
-            status: nextStatus,
-            lastTickISO: now.toISOString(),
-          };
-        }),
+function playHarvest() {
+  try {
+    const c = mkCtx();
+    [523, 659, 784, 1047].forEach((f, i) => {
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.connect(g);
+      g.connect(c.destination);
+      o.frequency.value = f;
+      g.gain.setValueAtTime(0.15, c.currentTime + i * 0.12);
+      g.gain.exponentialRampToValueAtTime(
+        0.001,
+        c.currentTime + i * 0.12 + 0.3
       );
-    }, 1000);
+      o.start(c.currentTime + i * 0.12);
+      o.stop(c.currentTime + i * 0.12 + 0.3);
+    });
+  } catch {}
+}
 
-    return () => window.clearInterval(interval);
-  }, []);
+function playPlant() {
+  try {
+    const c = mkCtx();
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.connect(g);
+    g.connect(c.destination);
+    o.frequency.setValueAtTime(330, c.currentTime);
+    o.frequency.exponentialRampToValueAtTime(660, c.currentTime + 0.2);
+    g.gain.setValueAtTime(0.08, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 0.3);
+    o.start();
+    o.stop(c.currentTime + 0.3);
+  } catch {}
+}
 
-  const openSeedDialogFor = (plotId: number) => {
-    setTargetPlotId(plotId);
-    setSeedDialogOpen(true);
-  };
+function ConfettiBlast({ onDone }: { onDone: () => void }) {
+  const ref = useRef<HTMLCanvasElement>(null);
 
-  const handlePlotClick = (plotId: number) => {
-    const plot = plots.find((p) => p.id === plotId);
-    if (!plot) return;
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-    if (selectedTool === "seed") {
-      if (plot.status !== "empty") {
-        toast({
-          title: "Lahan terisi",
-          description: "Pilih lahan kosong untuk menanam.",
-        });
-        return;
-      }
-      openSeedDialogFor(plotId);
-      return;
-    }
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    if (selectedTool === "water") {
-      if (plot.status === "empty") {
-        toast({
-          title: "Belum ada tanaman",
-          description: "Tanam dulu sebelum menyiram.",
-        });
-        return;
-      }
-      if (plot.status === "ready_to_harvest") {
-        toast({
-          title: "Sudah siap panen",
-          description: "Gunakan alat panen untuk memanen.",
-        });
-        return;
-      }
-      if (plot.watered) {
-        toast({
-          title: "Sudah disiram",
-          description: "Tunggu sampai siap dipanen.",
-        });
-        return;
-      }
-      if (!spendEnergy(1)) return;
+    const points = Array.from({ length: 100 }, () => ({
+      x: Math.random() * canvas.width,
+      y: -20,
+      vx: (Math.random() - 0.5) * 6,
+      vy: Math.random() * 3 + 2,
+      size: Math.random() * 8 + 4,
+      rot: Math.random() * 360,
+      vr: (Math.random() - 0.5) * 10,
+      color: ["#22c55e", "#eab308", "#f97316", "#60a5fa"][Math.floor(Math.random() * 4)],
+    }));
 
-      setPlots((prev) =>
-        prev.map((p) =>
-          p.id === plotId
-            ? {
-                ...p,
-                watered: true,
-                status: p.status === "planted" ? "watered" : "growing",
-                lastTickISO: new Date().toISOString(),
-              }
-            : p,
-        ),
-      );
-      toast({ title: "Disiram", description: "Tanaman mulai tumbuh." });
-      return;
-    }
-
-    if (plot.status !== "ready_to_harvest" || !plot.seedId) {
-      toast({
-        title: "Belum siap",
-        description: "Tanaman ini belum siap dipanen.",
+    let frame = 0;
+    let raf = 0;
+    const tick = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      points.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.12;
+        p.rot += p.vr;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate((p.rot * Math.PI) / 180);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+        ctx.restore();
       });
-      return;
-    }
+      frame += 1;
+      if (frame < 120) raf = requestAnimationFrame(tick);
+      else onDone();
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [onDone]);
 
-    const seed = SEEDS.find((s) => s.id === plot.seedId);
-    if (!seed) return;
-    if (!spendEnergy(1)) return;
+  return <canvas ref={ref} className="pointer-events-none fixed inset-0 z-[999]" />;
+}
 
-    addCoins(seed.coinsReward);
-    addToCart(seed.productIdReward, 1);
-
-    toast({
-      title: "Berhasil memanen",
-      description: `+${seed.coinsReward} Daya Poin, hasil masuk ke keranjang.`,
-    });
-
-    setPlots((prev) =>
-      prev.map((p) =>
-        p.id === plotId
-          ? {
-              ...p,
-              status: "empty",
-              seedId: null,
-              watered: false,
-              growthMs: 0,
-              lastTickISO: null,
-              plantedAtISO: null,
-            }
-          : p,
-      ),
-    );
-  };
-
-  const plantOnTarget = (seedId: SeedDef["id"]) => {
-    if (!targetPlotId) return;
-    const seed = SEEDS.find((s) => s.id === seedId);
-    if (!seed) return;
-    if (!useSeed(seedId)) return;
-
-    setPlots((prev) =>
-      prev.map((p) =>
-        p.id === targetPlotId
-          ? {
-              ...p,
-              status: "planted",
-              seedId,
-              watered: false,
-              growthMs: 0,
-              plantedAtISO: new Date().toISOString(),
-              lastTickISO: new Date().toISOString(),
-            }
-          : p,
-      ),
-    );
-    setSeedDialogOpen(false);
-    setTargetPlotId(null);
-    toast({
-      title: "Tanaman berhasil ditanam",
-      description: `${seed.name} ditanam.`,
-    });
-  };
-
-  const totalHarvestReady = plots.filter(
-    (p) => p.status === "ready_to_harvest",
-  ).length;
+function HarvestPopup({
+  plant,
+  points,
+  onClose,
+}: {
+  plant: PlantDef;
+  points: number;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const timeout = setTimeout(onClose, 2500);
+    return () => clearTimeout(timeout);
+  }, [onClose]);
 
   return (
-    <>
-      <div className="space-y-8">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#64762C]/30 via-[#424F17]/20 to-[#F99912]/20 p-6 border border-[#64762C]/30">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#64762C]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
-                <Sparkles className="w-8 h-8 text-[#F99912]" />
-                Harvest Bogor
-              </h1>
-              <p className="text-muted-foreground">
-                Tanam, siram, tunggu tumbuh, lalu panen untuk hadiah.
-              </p>
-            </div>
-            <div className="flex gap-4">
-              <Card className="bg-card/80 backdrop-blur border-[#F99912]/20">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#F99912]/20 flex items-center justify-center">
-                    <Coins className="w-5 h-5 text-[#F99912]" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">
-                      Daya Poin Asli Bogor
-                    </p>
-                    <p className="text-xl font-bold text-[#F99912]">
-                      {coins.toLocaleString()}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="bg-card/80 backdrop-blur border-[#3b82f6]/20">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#3b82f6]/15 flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-[#3b82f6]" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Energi</p>
-                    <p className="text-xl font-bold text-[#3b82f6]">{energy}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+    <div className="pointer-events-none fixed inset-0 z-[90] flex items-center justify-center px-4">
+      <button
+        type="button"
+        onClick={onClose}
+        className="pointer-events-auto rounded-[28px] border-2 border-[#f59e0b] bg-gradient-to-br from-[#fff7ed] to-[#ffedd5] px-10 py-8 text-center shadow-[0_24px_64px_rgba(0,0,0,0.2)] transition-transform hover:scale-[1.01]"
+      >
+        <div className="mb-3 text-6xl">{plant.emoji}</div>
+        <div className="text-2xl font-black text-[#9a3412]">Panen Berhasil!</div>
+        <div className="mb-5 mt-1 text-sm text-[#c2410c]">{plant.name}</div>
+        <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#fb923c] to-[#f59e0b] px-5 py-3 text-lg font-bold text-white shadow-[0_8px_24px_rgba(249,115,22,0.28)]">
+          <Coins className="h-5 w-5" />+{points} Daya Poin
+        </span>
+        <div className="mt-4 text-xs font-medium text-[#c2410c]">
+          Klik untuk tutup
         </div>
+      </button>
+    </div>
+  );
+}
 
-        <Card className="bg-card/50 backdrop-blur border-[#64762C]/20 overflow-hidden">
-          <CardHeader className="pb-2">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Sprout className="w-5 h-5 text-[#64762C]" />
-                Lahan Tanam
-              </CardTitle>
-              <div className="flex items-center gap-2">
-                <Badge className="bg-[#64762C]/20 text-[#64762C]">
-                  Siap panen: {totalHarvestReady}
-                </Badge>
-                <Badge className="bg-[#F99912]/15 text-[#F99912]">
-                  Bibit:{" "}
-                  {SEEDS.map((s) => `${s.id} ${seeds[s.id] ?? 0}`).join(" • ")}
-                </Badge>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="grid grid-cols-3 gap-4">
-              {plots.map((plot) => {
-                const seed = plot.seedId
-                  ? (SEEDS.find((s) => s.id === plot.seedId) ?? null)
-                  : null;
-                const pct = seed
-                  ? Math.round((plot.growthMs / seed.growMs) * 100)
-                  : 0;
-                const showReady = plot.status === "ready_to_harvest";
+function getPlantStage(progress: number) {
+  if (progress >= 100) return "Siap panen";
+  if (progress >= 80) return "Menguning";
+  if (progress >= 50) return "Tumbuh subur";
+  if (progress >= 20) return "Tumbuh awal";
+  if (progress >= 5) return "Sprout";
+  return "Benih";
+}
 
-                return (
-                  <button
-                    key={plot.id}
-                    onClick={() => handlePlotClick(plot.id)}
-                    className={cn(
-                      "group relative rounded-2xl border transition-all text-left p-3 overflow-hidden",
-                      "bg-gradient-to-b from-[#181612]/10 to-[#181612]/0",
-                      "border-[#64762C]/25 hover:border-[#64762C]/50",
-                      "focus:outline-none focus:ring-2 focus:ring-[#F99912]/60",
-                      showReady &&
-                        "ring-2 ring-[#F99912] ring-offset-2 ring-offset-background",
-                      harvestPulsePlotId === plot.id && "animate-pulse",
-                    )}
-                    aria-label={`Plot ${plot.id}`}
-                  >
-                    <div className="absolute inset-0">
-                      <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#8B4513] to-[#A0522D]" />
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(100,118,44,0.20),transparent_60%)]" />
-                    </div>
+function PlotCard({
+  index,
+  plant,
+  def,
+  state,
+  selecting,
+  setSelecting,
+  onPlant,
+  onWater,
+  onHarvest,
+}: {
+  index: number;
+  plant: ActivePlant | null;
+  def: PlantDef | null;
+  state: GameState;
+  selecting: number | null;
+  setSelecting: (value: number | null) => void;
+  onPlant: (index: number, id: string) => void;
+  onWater: (index: number) => void;
+  onHarvest: (index: number) => void;
+}) {
+  const progress = plant ? Math.min(100, plant.progress) : 0;
+  const wateredToday =
+    plant?.lastWaterDate === today() ? (plant?.wateredToday ?? 0) : 0;
+  const canWater =
+    !!plant &&
+    plant.progress < 100 &&
+    state.water > 0 &&
+    wateredToday < MAX_WATER_PER_DAY;
+  const canHarvest = !!plant && progress >= 100;
+  const stage = getPlantStage(progress);
 
-                    <div className="relative z-10 space-y-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground">
-                            Petak #{plot.id}
-                          </p>
-                          <p className="text-sm font-semibold text-foreground truncate">
-                            {seed?.name ?? "Tanah kosong"}
-                          </p>
-                        </div>
-                        {showReady ? (
-                          <Badge className="bg-[#F99912] text-[#181612] whitespace-nowrap">
-                            Siap
-                          </Badge>
-                        ) : plot.status === "empty" ? (
-                          <Badge className="bg-muted/40 text-muted-foreground whitespace-nowrap">
-                            Kosong
-                          </Badge>
-                        ) : plot.watered ? (
-                          <Badge className="bg-[#3b82f6]/15 text-[#3b82f6] whitespace-nowrap">
-                            Disiram
-                          </Badge>
-                        ) : (
-                          <Badge className="bg-[#64762C]/15 text-[#64762C] whitespace-nowrap">
-                            Butuh air
-                          </Badge>
-                        )}
-                      </div>
-
-                      <div
-                        className={cn(
-                          "h-16 rounded-xl border border-white/5 flex items-end justify-center overflow-hidden",
-                          seed
-                            ? `bg-gradient-to-br ${seed.color}`
-                            : "bg-muted/30",
-                        )}
-                      >
-                        {plot.status === "empty" ? (
-                          <div className="mb-3 h-3 w-10 rounded-full bg-[#8B4513]/40" />
-                        ) : (
-                          <div
-                            className={cn(
-                              "mb-2 w-10 rounded-[14px] bg-gradient-to-b from-[#22c55e] to-[#64762C] shadow-[0_8px_22px_rgba(34,197,94,0.12)]",
-                              showReady
-                                ? "animate-[bounce_1.2s_ease-in-out_infinite]"
-                                : "transition-all",
-                            )}
-                            style={{
-                              height: `${Math.max(14, Math.min(58, 14 + pct * 0.44))}px`,
-                            }}
-                          />
-                        )}
-                      </div>
-
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between text-[11px]">
-                          <span className="text-muted-foreground">
-                            {plot.status === "empty"
-                              ? "Klik untuk aksi"
-                              : showReady
-                                ? "Siap panen"
-                                : plot.watered
-                                  ? "Tumbuh..."
-                                  : "Butuh air"}
-                          </span>
-                          <span className="text-foreground/80">
-                            {seed ? `${pct}%` : ""}
-                          </span>
-                        </div>
-                        <Progress value={seed ? pct : 0} className="h-1.5" />
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card/50 backdrop-blur border-[#F99912]/10 sticky bottom-4">
-          <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-              <div className="flex items-center gap-2">
-                <Badge className="bg-muted/40 text-muted-foreground">
-                  Tool aktif:
-                  <span className="ml-1 font-medium text-foreground">
-                    {selectedTool === "seed"
-                      ? "Bibit"
-                      : selectedTool === "water"
-                        ? "Siram"
-                        : "Panen"}
-                  </span>
-                </Badge>
-                <Badge className="bg-[#F99912]/15 text-[#F99912]">
-                  Biaya: 1 energi
-                </Badge>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant={selectedTool === "seed" ? "default" : "outline"}
-                  className={
-                    selectedTool === "seed"
-                      ? "bg-[#64762C] text-white hover:bg-[#64762C]/90"
-                      : "border-[#64762C]/30 hover:bg-[#64762C]/10"
-                  }
-                  onClick={() => setSelectedTool("seed")}
-                >
-                  <Leaf className="w-4 h-4 mr-2" />
-                  Bibit
-                </Button>
-                <Button
-                  variant={selectedTool === "water" ? "default" : "outline"}
-                  className={
-                    selectedTool === "water"
-                      ? "bg-[#3b82f6] text-white hover:bg-[#3b82f6]/90"
-                      : "border-[#3b82f6]/30 hover:bg-[#3b82f6]/10"
-                  }
-                  onClick={() => setSelectedTool("water")}
-                >
-                  <Droplets className="w-4 h-4 mr-2" />
-                  Siram
-                </Button>
-                <Button
-                  variant={selectedTool === "harvest" ? "default" : "outline"}
-                  className={
-                    selectedTool === "harvest"
-                      ? "bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612]"
-                      : "border-[#F99912]/30 hover:bg-[#F99912]/10"
-                  }
-                  onClick={() => setSelectedTool("harvest")}
-                >
-                  <Scissors className="w-4 h-4 mr-2" />
-                  Panen
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card/50 backdrop-blur border-[#F99912]/10">
-          <CardContent className="p-6">
-            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#F99912]" />
-              Tips Bermain
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-              <div className="flex items-start gap-2">
-                <Leaf className="w-4 h-4 text-[#64762C] mt-0.5 flex-shrink-0" />
-                <span>Pilih Bibit → klik lahan kosong → pilih tanaman.</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Droplets className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                <span>Pilih Siram → klik tanaman supaya mulai tumbuh.</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <Coins className="w-4 h-4 text-[#F99912] mt-0.5 flex-shrink-0" />
-                <span>
-                  Pilih Panen → hasil masuk ke keranjang + dapat Daya Poin.
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Dialog open={seedDialogOpen} onOpenChange={setSeedDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Pilih Tanaman</DialogTitle>
-            <DialogDescription>
-              Pertumbuhan berjalan setelah disiram (timer). Stok bibit dari
-              bonus harian.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {SEEDS.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => plantOnTarget(s.id)}
-                className="rounded-2xl border border-[#F99912]/10 hover:border-[#F99912]/30 bg-muted/20 hover:bg-muted/30 transition-all p-3 text-left"
+  return (
+    <div className="relative">
+      <Card className="overflow-hidden border-white/70 bg-white/90 shadow-[0_10px_30px_rgba(15,23,42,0.08)]">
+        <CardHeader className="border-b border-slate-100 pb-3">
+          <CardTitle className="flex items-center justify-between gap-3 text-base">
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-10 w-10 items-center justify-center rounded-2xl text-xl"
+                style={{
+                  background: def
+                    ? `linear-gradient(135deg,${def.color}22,${def.accent}1a)`
+                    : "#f1f5f9",
+                }}
               >
+                {def ? def.emoji : "🌱"}
+              </div>
+              <div>
+                <div className="text-sm font-bold text-foreground">
+                  {def ? def.name : `Lahan ${index + 1}`}
+                </div>
+                <div className="text-xs text-muted-foreground">{plant ? stage : "Kosong"}</div>
+              </div>
+            </div>
+            {def && (
+              <Badge className="border-0 bg-slate-100 text-slate-700 hover:bg-slate-100">
+                {def.points} poin
+              </Badge>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4 p-4">
+          <div
+            className="relative flex h-56 items-center justify-center overflow-hidden rounded-3xl border border-slate-100"
+            style={{
+              background:
+                progress >= 80
+                  ? "linear-gradient(180deg,#fefce8 0%,#f0fdf4 45%,#dcfce7 100%)"
+                  : "linear-gradient(180deg,#f8fafc 0%,#eefbf3 45%,#dcfce7 100%)",
+            }}
+          >
+            <div className="absolute inset-x-0 bottom-0 h-14 bg-[linear-gradient(180deg,#a16207_0%,#78350f_100%)] opacity-20" />
+            {plant ? (
+              <div className="relative text-center">
                 <div
-                  className={cn("h-12 rounded-xl bg-gradient-to-br", s.color)}
+                  className={`text-7xl transition-transform duration-300 ${
+                    canHarvest ? "animate-pulse" : ""
+                  }`}
+                >
+                  {def?.emoji}
+                </div>
+                <div className="mt-3 text-xs font-semibold text-slate-500">
+                  {stage}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center text-slate-400">
+                <div className="text-5xl opacity-30">🌾</div>
+                <div className="mt-2 text-sm italic">Pilih bibit untuk mulai</div>
+              </div>
+            )}
+            {plant && (
+              <div className="absolute left-3 top-3 rounded-full bg-white/85 px-3 py-1 text-xs font-bold text-slate-700">
+                {progress}%
+              </div>
+            )}
+          </div>
+
+          {plant && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Progress panen</span>
+                <span className="font-bold text-foreground">{progress}%</span>
+              </div>
+              <div className="h-2.5 overflow-hidden rounded-full bg-slate-200">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${progress}%`,
+                    background:
+                      progress >= 100
+                        ? "linear-gradient(90deg,#fbbf24,#f59e0b)"
+                        : progress >= 80
+                          ? "linear-gradient(90deg,#a3e635,#eab308)"
+                          : "linear-gradient(90deg,#4ade80,#16a34a)",
+                  }}
                 />
-                <p className="mt-2 text-sm font-semibold text-foreground">
-                  {s.name}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Stok: {seeds[s.id] ?? 0}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Reward: +{s.coinsReward} Daya Poin
-                </p>
+              </div>
+              <div className="flex items-center justify-between text-[11px] text-slate-400">
+                <span>
+                  Siram: {wateredToday}/{MAX_WATER_PER_DAY}x hari ini
+                </span>
+                <span>{def?.days} hari</span>
+              </div>
+            </div>
+          )}
+
+          {!plant ? (
+            <Button
+              onClick={() => setSelecting(selecting === index ? null : index)}
+              className={`w-full rounded-xl ${
+                selecting === index
+                  ? "bg-gradient-to-r from-[#fb923c] to-[#f59e0b] text-white"
+                  : "bg-[#fff7ed] text-[#c2410c] hover:bg-[#ffedd5]"
+              }`}
+            >
+              {selecting === index ? "Batal pilih bibit" : "Pilih Bibit"}
+            </Button>
+          ) : (
+            <div className="flex gap-2">
+              <Button
+                disabled={!canWater}
+                onClick={() => onWater(index)}
+                className="flex-1 rounded-xl bg-gradient-to-r from-[#60a5fa] to-[#2563eb] text-white disabled:bg-slate-200 disabled:text-slate-400"
+              >
+                <Droplets className="mr-2 h-4 w-4" />
+                Siram
+              </Button>
+              <Button
+                disabled={!canHarvest}
+                onClick={() => onHarvest(index)}
+                className="flex-1 rounded-xl bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-white disabled:bg-slate-200 disabled:text-slate-400"
+              >
+                <Scissors className="mr-2 h-4 w-4" />
+                Panen
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {selecting === index && !plant && (
+        <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-40 rounded-3xl border border-slate-200 bg-white p-4 shadow-[0_14px_48px_rgba(0,0,0,0.15)]">
+          <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+            Pilih Bibit
+          </div>
+          <div className="space-y-2">
+            {PLANT_DEFS.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  onPlant(index, item.id);
+                  setSelecting(null);
+                }}
+                className="flex w-full items-center gap-3 rounded-2xl border px-3 py-3 text-left transition hover:shadow-sm"
+                style={{
+                  borderColor: `${item.color}44`,
+                  background: `linear-gradient(135deg,${item.color}11,${item.accent}08)`,
+                }}
+              >
+                <span className="text-2xl">{item.emoji}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-bold text-foreground">{item.name}</div>
+                  <div className="text-xs text-muted-foreground">{item.description}</div>
+                </div>
+                <div className="rounded-full bg-white/70 px-3 py-1 text-xs font-bold text-slate-700">
+                  {item.points} poin
+                </div>
               </button>
             ))}
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
-          <DialogFooter>
-            <Button
-              variant="outline"
-              className="border-[#F99912]/30 hover:bg-[#F99912]/10"
-              onClick={() => setSeedDialogOpen(false)}
-            >
-              Batal
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+export default function GameView() {
+  const [state, setState] = useState<GameState>(loadState);
+  const [selecting, setSelecting] = useState<number | null>(null);
+  const [harvest, setHarvest] = useState<{ def: PlantDef; points: number } | null>(null);
+  const [confetti, setConfetti] = useState(false);
+  const [waterCD, setWaterCD] = useState(0);
+  const [canClaim, setCanClaim] = useState(false);
+  const [started, setStarted] = useState(() => {
+    const current = loadState();
+    return current.totalHarvests > 0 || current.activePlants.some(Boolean) || current.points > 0;
+  });
+  const stateRef = useRef(state);
+
+  useEffect(() => {
+    stateRef.current = state;
+    saveState(state);
+  }, [state]);
+
+  useEffect(() => {
+    const check = () => setCanClaim(stateRef.current.lastDailyClaim !== today());
+    check();
+    const timer = setInterval(check, 10_000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setState((prev) => ({
+        ...prev,
+        activePlants: prev.activePlants.map((plant) =>
+          plant && plant.progress < 100
+            ? { ...plant, progress: Math.min(100, plant.progress + 1) }
+            : plant
+        ),
+      }));
+    }, PROGRESS_TICK_MS);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setState((prev) => {
+        const elapsed = Date.now() - prev.lastWaterRegen;
+        if (elapsed >= WATER_REGEN_MS && prev.water < MAX_WATER) {
+          return {
+            ...prev,
+            water: Math.min(MAX_WATER, prev.water + 1),
+            lastWaterRegen: Date.now(),
+          };
+        }
+        return prev;
+      });
+      setWaterCD(
+        Math.ceil(
+          Math.max(0, WATER_REGEN_MS - (Date.now() - stateRef.current.lastWaterRegen)) / 1000
+        )
+      );
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handlePlant = useCallback((index: number, id: string) => {
+    playPlant();
+    setState((prev) => {
+      const activePlants = [...prev.activePlants];
+      activePlants[index] = {
+        defId: id,
+        progress: 0,
+        plantedAt: Date.now(),
+        wateredToday: 0,
+        lastWaterDate: "",
+      };
+      return { ...prev, activePlants };
+    });
+  }, []);
+
+  const handleWater = useCallback((index: number) => {
+    playWater();
+    setState((prev) => {
+      if (prev.water < 1) return prev;
+      const activePlants = [...prev.activePlants];
+      const plant = activePlants[index];
+      if (!plant) return prev;
+      const wateredToday = plant.lastWaterDate === today() ? plant.wateredToday : 0;
+      if (wateredToday >= MAX_WATER_PER_DAY) return prev;
+      activePlants[index] = {
+        ...plant,
+        progress: Math.min(100, plant.progress + WATER_BOOST),
+        wateredToday: wateredToday + 1,
+        lastWaterDate: today(),
+      };
+      return { ...prev, water: prev.water - 1, activePlants };
+    });
+  }, []);
+
+  const handleHarvest = useCallback((index: number) => {
+    setState((prev) => {
+      const activePlants = [...prev.activePlants];
+      const plant = activePlants[index];
+      if (!plant || plant.progress < 100) return prev;
+      const def = PLANT_DEFS.find((item) => item.id === plant.defId);
+      if (!def) return prev;
+      playHarvest();
+      setConfetti(true);
+      setHarvest({ def, points: def.points });
+      activePlants[index] = null;
+      return {
+        ...prev,
+        activePlants,
+        points: prev.points + def.points,
+        totalHarvests: prev.totalHarvests + 1,
+      };
+    });
+  }, []);
+
+  const handleClaim = () => {
+    if (!canClaim) return;
+    setState((prev) => ({
+      ...prev,
+      water: Math.min(MAX_WATER, prev.water + DAILY_WATER_BONUS),
+      lastDailyClaim: today(),
+    }));
+    setCanClaim(false);
+  };
+
+  const fmt = (seconds: number) =>
+    `${Math.floor(seconds / 60).toString().padStart(2, "0")}:${(seconds % 60)
+      .toString()
+      .padStart(2, "0")}`;
+
+  const activeCnt = state.activePlants.filter(Boolean).length;
+  const hasReady = state.activePlants.some((plant) => plant && plant.progress >= 100);
+
+  return (
+    <>
+      <style>{`
+        .game-shell {
+          background: linear-gradient(160deg,#fff7ed 0%,#ffedd5 28%,#f8fafc 62%,#fffbeb 100%);
+          position: relative;
+        }
+        .game-shell::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          background:
+            radial-gradient(ellipse 80% 40% at 20% 20%,rgba(249,115,22,0.08) 0%,transparent 70%),
+            radial-gradient(ellipse 60% 50% at 80% 80%,rgba(251,191,36,0.08) 0%,transparent 70%);
+        }
+      `}</style>
+      {confetti && <ConfettiBlast onDone={() => setConfetti(false)} />}
+      {harvest && (
+        <HarvestPopup
+          plant={harvest.def}
+          points={harvest.points}
+          onClose={() => setHarvest(null)}
+        />
+      )}
+
+      {!started ? (
+        <section className="game-shell overflow-hidden rounded-3xl border border-[#f59e0b]/20 p-6 md:p-8">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)] lg:items-center">
+            <div>
+              <Badge className="mb-5 border border-[#f59e0b]/20 bg-[#ffedd5] text-[#c2410c] hover:bg-[#ffedd5]">
+                Harvest Bogor
+              </Badge>
+              <h1 className="mb-4 text-3xl font-bold text-foreground md:text-5xl">
+                Halaman game yang sekarang ikut layout dashboard user.
+              </h1>
+              <p className="mb-6 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
+                Sidebar tetap memakai shell yang sama seperti page lain. Konten
+                game dipindahkan ke area utama, jadi tampilannya lebih rapi dan konsisten.
+              </p>
+              <div className="mb-8 grid gap-3 sm:grid-cols-3">
+                {[
+                  { icon: <Leaf className="h-5 w-5 text-[#ea580c]" />, value: SLOTS, label: "Slot lahan" },
+                  { icon: <Coins className="h-5 w-5 text-[#f59e0b]" />, value: "120", label: "Poin maksimal" },
+                  { icon: <Droplets className="h-5 w-5 text-[#2563eb]" />, value: `${MAX_WATER_PER_DAY}x`, label: "Siram per hari" },
+                ].map((item) => (
+                  <Card key={item.label} className="border-white/60 bg-white/85 backdrop-blur">
+                    <CardContent className="flex items-center gap-3 p-4">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted/60">
+                        {item.icon}
+                      </div>
+                      <div>
+                        <div className="text-xl font-bold text-foreground">{item.value}</div>
+                        <div className="text-xs text-muted-foreground">{item.label}</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+                <Button
+                onClick={() => setStarted(true)}
+                className="rounded-xl bg-gradient-to-r from-[#fb923c] to-[#f59e0b] text-white"
+              >
+                <Sprout className="mr-2 h-4 w-4" />
+                Mulai Bertani
+              </Button>
+            </div>
+
+            <Card className="border-white/60 bg-white/90 shadow-[0_24px_64px_rgba(0,0,0,0.09)]">
+              <CardHeader>
+                <CardTitle>Preview Tanaman</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-3 gap-3">
+                {PLANT_DEFS.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-2xl p-3 text-center"
+                    style={{
+                      background: `linear-gradient(135deg,${item.color}12,${item.accent}08)`,
+                      border: `1.5px solid ${item.color}33`,
+                    }}
+                  >
+                    <div className="mb-2 text-4xl">{item.emoji}</div>
+                    <div className="text-xs font-bold text-foreground">{item.name}</div>
+                    <div className="text-[11px] text-muted-foreground">{item.days} hari</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      ) : (
+        <div className="space-y-6">
+          <section className="game-shell overflow-hidden rounded-3xl border border-[#f59e0b]/20 p-6 md:p-8">
+            <div className="mb-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+              <div>
+                <Badge className="mb-3 border border-[#f59e0b]/20 bg-[#ffedd5] text-[#c2410c] hover:bg-[#ffedd5]">
+                  Harvest Bogor
+                </Badge>
+                <h1 className="text-2xl font-bold text-foreground md:text-3xl">
+                  Kebun virtual untuk kumpulkan Daya Poin
+                </h1>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+                  Summary game sekarang menyatu dengan konten utama, bukan membuat shell sendiri.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  onClick={handleClaim}
+                  disabled={!canClaim}
+                  className="rounded-xl bg-gradient-to-r from-[#a78bfa] to-[#7c3aed] text-white disabled:bg-slate-200 disabled:text-slate-400"
+                >
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Klaim Harian
+                  {canClaim ? ` +${DAILY_WATER_BONUS} air` : ""}
+                </Button>
+                <Button variant="outline" onClick={() => setStarted(false)} className="rounded-xl">
+                  Kembali ke Intro
+                </Button>
+              </div>
+            </div>
+
+            <div className="mb-6 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+              {[
+                { icon: <Droplets className="h-5 w-5 text-[#2563eb]" />, label: "Air tersedia", value: `${state.water}/${MAX_WATER}`, detail: state.water < MAX_WATER ? `+1 dalam ${fmt(waterCD)}` : "Tangki penuh" },
+                { icon: <Coins className="h-5 w-5 text-[#f59e0b]" />, label: "Daya Poin", value: state.points.toLocaleString(), detail: "1 poin = Rp1 diskon" },
+                { icon: <Scissors className="h-5 w-5 text-[#a855f7]" />, label: "Total panen", value: `${state.totalHarvests}`, detail: "Akumulasi semua sesi" },
+                { icon: <Zap className="h-5 w-5 text-[#ea580c]" />, label: "Lahan aktif", value: `${activeCnt}/${SLOTS}`, detail: hasReady ? "Ada yang siap dipanen" : "Masih tumbuh" },
+              ].map((item) => (
+                <Card key={item.label} className="border-white/60 bg-white/85 backdrop-blur">
+                  <CardContent className="flex items-start gap-3 p-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-muted/60">
+                      {item.icon}
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase tracking-wide text-muted-foreground">{item.label}</div>
+                      <div className="text-2xl font-bold text-foreground">{item.value}</div>
+                      <div className="text-xs text-muted-foreground">{item.detail}</div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start">
+              <div className="space-y-4">
+                <Card className="border-white/60 bg-white/85">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Leaf className="h-5 w-5 text-[#ea580c]" />
+                      Kebun Virtual
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {[
+                      { icon: <Sprout className="h-4 w-4 text-[#ea580c]" />, label: "Lahan ditanam", val: `${activeCnt}/${SLOTS}` },
+                      { icon: <Coins className="h-4 w-4 text-[#f59e0b]" />, label: "Total poin", val: state.points.toLocaleString() },
+                      { icon: <Scissors className="h-4 w-4 text-[#a855f7]" />, label: "Total panen", val: `${state.totalHarvests}` },
+                      { icon: <Droplets className="h-4 w-4 text-[#2563eb]" />, label: "Air tersisa", val: `${state.water}/${MAX_WATER}` },
+                    ].map((item) => (
+                      <div key={item.label} className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          {item.icon}
+                          <span>{item.label}</span>
+                        </div>
+                        <span className="text-sm font-bold text-foreground">{item.val}</span>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                <Card className="border-white/60 bg-white/85">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">Tahap Pertumbuhan</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {[
+                      "🌱 Benih · 0–4%",
+                      "🌿 Sprout · 5–19%",
+                      "🌿 Tumbuh Awal · 20–49%",
+                      "🌿 Subur · 50–79%",
+                      "🌾 Menguning · 80–99%",
+                      "✨ Siap Panen · 100%",
+                    ].map((item) => (
+                      <div key={item} className="border-b border-slate-100 pb-3 text-sm text-muted-foreground last:border-b-0 last:pb-0">
+                        {item}
+                      </div>
+                    ))}
+                    <div className="rounded-xl border border-[#fdba74] bg-gradient-to-r from-[#fff7ed] to-[#ffedd5] p-3 text-xs leading-5 text-[#c2410c]">
+                      Siram menambah {WATER_BOOST}% progress. Air bertambah 1 setiap 1 menit.
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div>
+                <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground md:text-2xl">Lahan pertanianmu</h2>
+                    <p className="text-sm text-muted-foreground">{activeCnt}/{SLOTS} lahan aktif</p>
+                  </div>
+                  {hasReady && (
+                    <Badge className="w-fit border border-[#fbbf24] bg-[#fef3c7] px-3 py-1 text-[#92400e] hover:bg-[#fef3c7]">
+                      Ada yang siap dipanen
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="grid gap-[18px] md:grid-cols-2 xl:grid-cols-3" onClick={() => selecting !== null && setSelecting(null)}>
+                  {Array.from({ length: SLOTS }).map((_, i) => {
+                    const plant = state.activePlants[i];
+                    const def = plant ? PLANT_DEFS.find((item) => item.id === plant.defId) ?? null : null;
+                    return (
+                      <div key={i} onClick={(event) => event.stopPropagation()}>
+                        <PlotCard
+                          index={i}
+                          plant={plant}
+                          def={def}
+                          state={state}
+                          selecting={selecting}
+                          setSelecting={setSelecting}
+                          onPlant={handlePlant}
+                          onWater={handleWater}
+                          onHarvest={handleHarvest}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <Card className="mt-5 border-white/60 bg-white/80">
+                  <CardContent className="flex flex-col gap-2 p-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+                    <div>
+                      <span className="font-semibold text-foreground">Game loop:</span>{" "}
+                      Tanam - Siram ({MAX_WATER_PER_DAY}x/hari, +{WATER_BOOST}%) - Progress naik - Panen - Dapat poin - Ulangi
+                    </div>
+                    <div className="text-[#2563eb]">
+                      Regen air: <span className="font-semibold">{state.water < MAX_WATER ? fmt(waterCD) : "Penuh"}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </section>
+        </div>
+      )}
     </>
   );
 }

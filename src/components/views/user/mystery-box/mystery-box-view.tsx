@@ -93,6 +93,107 @@ const rewardHistory = [
   },
 ];
 
+function getBoxTheme(rarity: string) {
+  switch (rarity) {
+    case "Legendary":
+      return {
+        shell: "from-cyan-300 via-sky-400 to-blue-600",
+        lid: "from-cyan-200 to-sky-500",
+        side: "from-sky-700 to-blue-950",
+        ribbon: "from-white to-cyan-100",
+        badge: "bg-cyan-500",
+        glow: "shadow-[0_0_40px_rgba(34,211,238,0.22)]",
+      };
+    case "Epic":
+      return {
+        shell: "from-[#ffd27a] via-[#F99912] to-amber-700",
+        lid: "from-amber-200 to-[#F99912]",
+        side: "from-amber-800 to-amber-950",
+        ribbon: "from-amber-50 to-yellow-200",
+        badge: "bg-[#F99912]",
+        glow: "shadow-[0_0_40px_rgba(249,153,18,0.24)]",
+      };
+    case "Rare":
+      return {
+        shell: "from-slate-200 via-slate-400 to-slate-700",
+        lid: "from-slate-100 to-slate-500",
+        side: "from-slate-700 to-slate-950",
+        ribbon: "from-white to-slate-200",
+        badge: "bg-gray-500",
+        glow: "shadow-[0_0_36px_rgba(148,163,184,0.2)]",
+      };
+    default:
+      return {
+        shell: "from-amber-400 via-amber-700 to-amber-950",
+        lid: "from-amber-300 to-amber-700",
+        side: "from-amber-800 to-[#2d1607]",
+        ribbon: "from-amber-50 to-orange-200",
+        badge: "bg-amber-700",
+        glow: "shadow-[0_0_32px_rgba(180,83,9,0.18)]",
+      };
+  }
+}
+
+function MysteryBoxVisual({
+  rarity,
+  isOpening,
+  isAvailable,
+}: {
+  rarity: string;
+  isOpening: boolean;
+  isAvailable: boolean;
+}) {
+  const theme = getBoxTheme(rarity);
+
+  return (
+    <div className="relative mx-auto mb-6 h-40 w-40">
+      <div
+        className={`absolute inset-x-4 bottom-1 h-5 rounded-full bg-black/15 blur-md ${theme.glow}`}
+      />
+      <div
+        className={`absolute inset-x-6 top-5 h-8 rounded-[18px] bg-gradient-to-r ${theme.lid} border border-white/30 shadow-[0_10px_20px_rgba(0,0,0,0.18)] ${
+          isOpening ? "-rotate-6 -translate-y-2" : ""
+        } transition-all duration-500`}
+      />
+      <div
+        className={`absolute left-7 top-11 h-20 w-24 rounded-[22px] bg-gradient-to-b ${theme.shell} border border-white/20 shadow-[0_18px_30px_rgba(0,0,0,0.22)] ${
+          isOpening ? "translate-y-1 scale-[1.02]" : ""
+        } transition-all duration-500`}
+      >
+        <div className="absolute inset-y-0 left-1/2 w-3 -translate-x-1/2 bg-gradient-to-b from-white/90 to-white/40" />
+        <div className="absolute inset-x-0 top-1/2 h-3 -translate-y-1/2 bg-gradient-to-r from-white/90 via-white/65 to-white/90" />
+        <div className="absolute inset-x-3 top-3 h-4 rounded-full bg-white/15 blur-sm" />
+      </div>
+      <div
+        className={`absolute right-5 top-[52px] h-[74px] w-7 skew-y-[12deg] rounded-r-[18px] bg-gradient-to-b ${theme.side} border border-white/10`}
+      />
+      <div
+        className={`absolute left-1/2 top-3 z-10 h-[96px] w-3 -translate-x-1/2 rounded-full bg-gradient-to-b ${theme.ribbon} shadow-sm`}
+      />
+      <div
+        className={`absolute left-1/2 top-[52px] z-10 h-3 w-[96px] -translate-x-1/2 rounded-full bg-gradient-to-r ${theme.ribbon} shadow-sm`}
+      />
+      <div className="absolute left-1/2 top-9 z-20 h-6 w-6 -translate-x-1/2 rounded-full border border-white/50 bg-white/90 shadow-sm" />
+      <div className="absolute left-1/2 top-8 z-20 h-4 w-10 -translate-x-1/2 rounded-full border border-white/40 bg-white/70" />
+      <div className="absolute left-1/2 top-8 z-20 h-10 w-4 -translate-x-1/2 rounded-full border border-white/40 bg-white/70" />
+
+      {isOpening ? (
+        <>
+          <Sparkles className="absolute left-2 top-4 h-6 w-6 animate-pulse text-[#F99912]" />
+          <Sparkles className="absolute right-2 top-9 h-5 w-5 animate-pulse text-white" />
+          <Sparkles className="absolute right-7 bottom-8 h-4 w-4 animate-pulse text-[#F99912]" />
+        </>
+      ) : !isAvailable ? (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="rounded-2xl bg-background/75 p-4 backdrop-blur">
+            <Lock className="h-10 w-10 text-muted-foreground" />
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function MysteryBoxPage() {
   const [coins, setCoins] = useState(2450);
   const [isOpening, setIsOpening] = useState<number | null>(null);
@@ -191,6 +292,7 @@ export default function MysteryBoxPage() {
           const canAfford = coins >= box.cost;
           const isAvailable = box.available > 0;
           const isThisOpening = isOpening === box.id;
+          const theme = getBoxTheme(box.rarity);
 
           return (
             <Card
@@ -203,36 +305,17 @@ export default function MysteryBoxPage() {
             >
               {/* Rarity Badge */}
               <Badge
-                className={`absolute top-3 right-3 z-10 ${
-                  box.rarity === "Legendary"
-                    ? "bg-cyan-500"
-                    : box.rarity === "Epic"
-                      ? "bg-[#F99912]"
-                      : box.rarity === "Rare"
-                        ? "bg-gray-500"
-                        : "bg-amber-700"
-                } text-white`}
+                className={`absolute top-3 right-3 z-10 ${theme.badge} text-white`}
               >
                 {box.rarity}
               </Badge>
 
               <CardContent className="p-6">
-                {/* Box Visual */}
-                <div
-                  className={`relative w-32 h-32 mx-auto mb-4 rounded-2xl bg-gradient-to-br ${box.color} p-1 ${
-                    isThisOpening ? "animate-bounce" : ""
-                  }`}
-                >
-                  <div className="w-full h-full rounded-xl bg-card/80 backdrop-blur flex items-center justify-center">
-                    {isThisOpening ? (
-                      <Sparkles className="w-12 h-12 text-[#F99912] animate-spin" />
-                    ) : isAvailable ? (
-                      <Gift className="w-12 h-12 text-foreground" />
-                    ) : (
-                      <Lock className="w-12 h-12 text-muted-foreground" />
-                    )}
-                  </div>
-                </div>
+                <MysteryBoxVisual
+                  rarity={box.rarity}
+                  isOpening={isThisOpening}
+                  isAvailable={isAvailable}
+                />
 
                 <h3 className="text-lg font-bold text-center text-foreground mb-2">
                   {box.name}

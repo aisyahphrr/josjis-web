@@ -15,11 +15,14 @@ import {
   Gift,
   Gamepad2,
   Star,
+  Heart,
+  ShoppingCart,
   ArrowRight,
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { getFeaturedProducts } from "@/src/lib/constants/user/marketplace/products";
+import { useUserStore } from "@/src/store/user-store";
 
 // Mock data
 const stats = [
@@ -77,6 +80,8 @@ const recentOrders = [
 const featuredProducts = getFeaturedProducts();
 
 export default function UserDashboardPage() {
+  const { wishlist, toggleWishlist, addToCart, reviews } = useUserStore();
+
   return (
     <div className="space-y-8">
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#F99912]/20 via-[#64762C]/10 to-[#424F17]/20 p-6 border border-[#F99912]/20">
@@ -260,31 +265,103 @@ export default function UserDashboardPage() {
           </Link>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {featuredProducts.map((product) => (
-              <Link
+              <Card
                 key={product.id}
-                href={`/product/${product.id}`}
-                className="group p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all duration-300 hover:shadow-lg"
+                className="group bg-card/50 backdrop-blur border-[#F99912]/10 hover:border-[#F99912]/30 transition-all duration-300 hover:shadow-[0_0_30px_rgba(249,153,18,0.1)] overflow-hidden"
               >
-                <div className="aspect-square rounded-xl bg-gradient-to-br from-[#F99912]/20 to-[#64762C]/20 mb-3 flex items-center justify-center">
-                  <ShoppingBag className="w-12 h-12 text-[#F99912]/50" />
-                </div>
-                <h3 className="font-medium text-foreground group-hover:text-[#F99912] transition-colors">
-                  {product.name}
-                </h3>
-                <div className="flex items-center justify-between mt-2">
-                  <p className="text-[#F99912] font-semibold">
-                    Rp {product.price.toLocaleString()}
+                <Link
+                  href={`/product/${product.id}`}
+                  className="relative aspect-square block"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#F99912]/20 to-[#64762C]/20 flex items-center justify-center">
+                    <ShoppingCart className="w-12 h-12 text-[#F99912]/30" />
+                  </div>
+
+                  {product.badge && (
+                    <Badge
+                      className={`absolute top-3 left-3 ${
+                        product.badge === "Best Seller"
+                          ? "bg-[#F99912] text-[#181612]"
+                          : product.badge === "Promo"
+                            ? "bg-red-500 text-white"
+                            : product.badge === "New"
+                              ? "bg-green-500 text-white"
+                              : "bg-[#64762C] text-white"
+                      }`}
+                    >
+                      {product.badge}
+                    </Badge>
+                  )}
+
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toggleWishlist(product.id);
+                    }}
+                    className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-background transition-colors"
+                    aria-label="Toggle wishlist"
+                  >
+                    <Heart
+                      className={`w-4 h-4 ${
+                        wishlist.includes(product.id)
+                          ? "fill-red-500 text-red-500"
+                          : "text-muted-foreground"
+                      }`}
+                    />
+                  </button>
+                </Link>
+
+                <CardContent className="p-4">
+                  <p className="text-xs text-muted-foreground mb-1">
+                    {product.sellerName}
                   </p>
-                  <div className="flex items-center gap-1">
+                  <Link href={`/product/${product.id}`}>
+                    <h3 className="font-medium text-foreground group-hover:text-[#F99912] transition-colors line-clamp-2 mb-2">
+                      {product.name}
+                    </h3>
+                  </Link>
+
+                  <div className="flex items-center gap-1 mb-2">
                     <Star className="w-4 h-4 fill-[#F99912] text-[#F99912]" />
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm font-medium text-foreground">
                       {product.rating}
                     </span>
+                    <span className="text-xs text-muted-foreground">
+                      (
+                      {reviews.filter((r) => r.productId === product.id)
+                        .length || product.reviewsCount}
+                      )
+                    </span>
                   </div>
-                </div>
-              </Link>
+
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-lg font-bold text-[#F99912]">
+                      Rp {product.price.toLocaleString()}
+                    </span>
+                    {product.originalPrice && (
+                      <span className="text-sm text-muted-foreground line-through">
+                        Rp {product.originalPrice.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+
+                  <Button
+                    className="w-full bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612] hover:shadow-[0_0_20px_rgba(249,153,18,0.3)]"
+                    size="sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      addToCart(product.id, 1);
+                    }}
+                  >
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    Tambah Keranjang
+                  </Button>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </CardContent>

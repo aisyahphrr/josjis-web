@@ -246,14 +246,21 @@ export default function HistoryPage() {
                           </Button>
                         )}
                         {order.status === "processing" && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-[#F99912]/30 hover:bg-[#F99912]/10"
+                          <Link
+                            href={`/chat?seller=${encodeURIComponent(
+                              getProductById(order.items[0]?.productId ?? 0)
+                                ?.sellerName ?? "Seller",
+                            )}`}
                           >
-                            <MessageSquare className="w-4 h-4 mr-1" />
-                            Chat Seller
-                          </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-[#F99912]/30 hover:bg-[#F99912]/10"
+                            >
+                              <MessageSquare className="w-4 h-4 mr-1" />
+                              Chat Seller
+                            </Button>
+                          </Link>
                         )}
                       </div>
                     </div>
