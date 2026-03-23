@@ -14,7 +14,7 @@ import { Button } from "@/src/components/ui/button";
 const footerLinks = {
   Platform: [
     { name: "Marketplace", href: "/marketplace" },
-    { name: "Harvest Bogor", href: "/game/harvest" },
+    { name: "Harvest Bogor", href: "/game" },
     { name: "Bogor Quest", href: "/quest" },
     { name: "Academy", href: "/academy" },
     { name: "AI Assistant", href: "/ai" },
