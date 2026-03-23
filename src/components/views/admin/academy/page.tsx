@@ -14,12 +14,12 @@ import toast from "react-hot-toast"
 import {
   dummyAcademy,
   dummyAcademyVideos,
-  dummyArticles,
   type AcademyWebinar,
   type AcademyVideo,
   type ArticleRecord,
   type ArticleStatus,
 } from "@/src/lib/dummyData"
+import { loadArticles, saveArticles } from "@/src/lib/shared/articles-store"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import { PageHeader } from "@/src/components/views/admin/layouts/page-header"
 import { TableSkeleton } from "@/src/components/views/admin/layouts/loading-skeletons"
@@ -65,7 +65,8 @@ export default function AdminAcademyPage({ initialTab = "academy" }: { initialTa
   // Tab 1: EDUKASI (ARTIKEL)
   // ============================
   const [isLoadingArticles, setIsLoadingArticles] = useState(true)
-  const [articleItems, setArticleItems] = useState<ArticleRecord[]>(dummyArticles)
+  const [articleItems, setArticleItems] = useState<ArticleRecord[]>([])
+  const [articlesHydrated, setArticlesHydrated] = useState(false)
   const [articleQuery, setArticleQuery] = useState("")
 
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -78,6 +79,16 @@ export default function AdminAcademyPage({ initialTab = "academy" }: { initialTa
     const t = window.setTimeout(() => setIsLoadingArticles(false), 700)
     return () => window.clearTimeout(t)
   }, [])
+
+  useEffect(() => {
+    setArticleItems(loadArticles())
+    setArticlesHydrated(true)
+  }, [])
+
+  useEffect(() => {
+    if (!articlesHydrated) return
+    saveArticles(articleItems)
+  }, [articleItems, articlesHydrated])
 
   const filteredArticles = useMemo(() => {
     const q = articleQuery.trim().toLowerCase()

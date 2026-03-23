@@ -1,208 +1,274 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import {
+  ArrowLeft,
   BookOpen,
-  Search,
   Clock,
-  User,
-  Heart,
-  Share2,
   Eye,
+  Heart,
+  Search,
   TrendingUp,
+  User,
 } from "lucide-react";
+import { type ArticleRecord } from "@/src/lib/dummyData";
+import { loadArticles } from "@/src/lib/shared/articles-store";
 
-const articles = [
-  {
-    id: 1,
-    title: "Mengenal Talas Bogor: Komoditas Unggulan Kota Hujan",
-    excerpt:
-      "Talas Bogor merupakan salah satu komoditas unggulan yang menjadi identitas kuliner khas Bogor. Simak sejarah dan cara pengolahannya.",
-    category: "Kuliner",
-    author: "Tim SADAYA",
-    date: "10 Mar 2026",
-    readTime: "5 menit",
-    views: 1234,
-    likes: 89,
-    featured: true,
-  },
-  {
-    id: 2,
-    title: "Tips Sukses Memulai UMKM di Era Digital",
-    excerpt:
-      "Panduan lengkap untuk pelaku UMKM yang ingin go digital. Dari strategi pemasaran hingga pengelolaan toko online.",
-    category: "Bisnis",
+type UserArticle = ArticleRecord & {
+  excerpt: string;
+  dateLabel: string;
+  readTime: string;
+  views: number;
+  likes: number;
+  featured: boolean;
+  author: string;
+  category: string;
+};
+
+function formatDateLabel(isoDate: string) {
+  return new Date(isoDate).toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function estimateReadTime(content: string) {
+  const words = content.trim().split(/\s+/).filter(Boolean).length;
+  const minutes = Math.max(1, Math.ceil(words / 180));
+  return `${minutes} menit`;
+}
+
+function toUserArticle(article: ArticleRecord, index: number): UserArticle {
+  const excerpt =
+    article.content.length > 140
+      ? `${article.content.slice(0, 140).trim()}...`
+      : article.content;
+
+  return {
+    ...article,
+    excerpt,
+    dateLabel: formatDateLabel(article.updatedAt),
+    readTime: estimateReadTime(article.content),
+    views: 700 + index * 173,
+    likes: 40 + index * 19,
+    featured: index < 2,
     author: "Admin SADAYA",
-    date: "8 Mar 2026",
-    readTime: "8 menit",
-    views: 856,
-    likes: 67,
-    featured: true,
-  },
-  {
-    id: 3,
-    title: "Wisata Kuliner Bogor: 10 Tempat Wajib Dikunjungi",
-    excerpt:
-      "Jelajahi destinasi kuliner terbaik di Kota Bogor. Dari makanan tradisional hingga modern yang sayang untuk dilewatkan.",
-    category: "Wisata",
-    author: "Travel Writer",
-    date: "5 Mar 2026",
-    readTime: "6 menit",
-    views: 2341,
-    likes: 156,
-    featured: false,
-  },
-  {
-    id: 4,
-    title: "Cara Mendapatkan Daya Poin Asli Bogor dengan Cepat",
-    excerpt:
-      "Strategi dan tips untuk mengumpulkan Daya Poin Asli Bogor melalui game Harvest Bogor dan quest harian.",
-    category: "Tips",
-    author: "Tim SADAYA",
-    date: "3 Mar 2026",
-    readTime: "4 menit",
-    views: 3456,
-    likes: 234,
-    featured: false,
-  },
-  {
-    id: 5,
-    title: "Sejarah Roti Unyil Venus: Dari Toko Kecil Hingga Ikon Bogor",
-    excerpt:
-      "Kisah inspiratif perjalanan Roti Unyil Venus yang kini menjadi oleh-oleh wajib dari Kota Bogor.",
-    category: "Kuliner",
-    author: "Kontributor",
-    date: "1 Mar 2026",
-    readTime: "7 menit",
-    views: 1567,
-    likes: 98,
-    featured: false,
-  },
-  {
-    id: 6,
-    title: "Program UMKM Academy: Tingkatkan Skill Digital Anda",
-    excerpt:
-      "Ikuti program pelatihan gratis dari SADAYA untuk mengembangkan bisnis UMKM Anda ke level selanjutnya.",
     category: "Edukasi",
-    author: "Tim SADAYA",
-    date: "28 Feb 2026",
-    readTime: "5 menit",
-    views: 789,
-    likes: 45,
-    featured: false,
-  },
-];
-
-const categories = ["Semua", "Kuliner", "Bisnis", "Wisata", "Tips", "Edukasi"];
+  };
+}
 
 export default function ArticlesPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("Semua");
+  const [selectedArticleId, setSelectedArticleId] = useState<string | null>(
+    null
+  );
+  const [articles, setArticles] = useState<UserArticle[]>([]);
 
-  const filteredArticles = articles.filter((article) => {
-    const matchesSearch = article.title
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "Semua" || article.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
+  useEffect(() => {
+    const syncArticles = () => {
+      const published = loadArticles()
+        .filter((article) => article.status === "published")
+        .sort(
+          (a, b) =>
+            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        )
+        .map(toUserArticle);
 
-  const featuredArticles = filteredArticles.filter((a) => a.featured);
-  const regularArticles = filteredArticles.filter((a) => !a.featured);
+      setArticles(published);
+
+      if (
+        selectedArticleId &&
+        !published.some((article) => article.id === selectedArticleId)
+      ) {
+        setSelectedArticleId(null);
+      }
+    };
+
+    syncArticles();
+    window.addEventListener("focus", syncArticles);
+    window.addEventListener("storage", syncArticles);
+
+    return () => {
+      window.removeEventListener("focus", syncArticles);
+      window.removeEventListener("storage", syncArticles);
+    };
+  }, [selectedArticleId]);
+
+  const filteredArticles = useMemo(
+    () =>
+      articles.filter((article) =>
+        `${article.title} ${article.content}`
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
+      ),
+    [articles, searchQuery]
+  );
+
+  const selectedArticle =
+    filteredArticles.find((article) => article.id === selectedArticleId) ??
+    articles.find((article) => article.id === selectedArticleId) ??
+    null;
+
+  const featuredArticles = filteredArticles.filter((article) => article.featured);
+  const regularArticles = filteredArticles.filter((article) => !article.featured);
+
+  if (selectedArticle) {
+    return (
+      <div className="space-y-6">
+        <Button
+          variant="outline"
+          onClick={() => setSelectedArticleId(null)}
+          className="w-fit border-[#F99912]/30 hover:bg-[#F99912]/10"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Kembali ke daftar artikel
+        </Button>
+
+        <article className="space-y-6">
+          <div className="relative overflow-hidden rounded-3xl border border-[#F99912]/20 bg-gradient-to-r from-[#F99912]/20 via-[#64762C]/10 to-[#F99912]/10 p-6 md:p-8">
+            <div className="absolute right-0 top-0 h-56 w-56 translate-x-1/3 -translate-y-1/3 rounded-full bg-[#F99912]/15 blur-3xl" />
+            <div className="relative z-10 max-w-4xl">
+              <Badge className="mb-4 bg-[#F99912] text-[#181612] hover:bg-[#F99912]">
+                {selectedArticle.category}
+              </Badge>
+              <h1 className="mb-4 text-3xl font-bold text-foreground md:text-5xl">
+                {selectedArticle.title}
+              </h1>
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                <span className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  {selectedArticle.author}
+                </span>
+                <span className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  {selectedArticle.readTime}
+                </span>
+                <span className="flex items-center gap-2">
+                  <Eye className="h-4 w-4" />
+                  {selectedArticle.views}
+                </span>
+                <span className="flex items-center gap-2">
+                  <Heart className="h-4 w-4" />
+                  {selectedArticle.likes}
+                </span>
+                <span>{selectedArticle.dateLabel}</span>
+              </div>
+            </div>
+          </div>
+
+          <Card className="overflow-hidden border-[#F99912]/10 bg-card/50 backdrop-blur">
+            <div className="flex aspect-[16/7] items-center justify-center bg-gradient-to-br from-[#F99912]/20 via-[#64762C]/10 to-[#F99912]/10">
+              {selectedArticle.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={selectedArticle.imageUrl}
+                  alt={selectedArticle.title}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <BookOpen className="h-16 w-16 text-[#F99912]/30" />
+              )}
+            </div>
+            <CardContent className="p-6 md:p-8">
+              <div className="mx-auto max-w-4xl whitespace-pre-line text-base leading-8 text-foreground/90">
+                {selectedArticle.content}
+              </div>
+            </CardContent>
+          </Card>
+        </article>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Artikel</h1>
         <p className="text-muted-foreground">
-          Baca artikel menarik seputar UMKM dan kuliner Bogor
+          Konten artikel yang tampil di sini mengikuti artikel published dari
+          halaman admin.
         </p>
       </div>
 
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+        <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
         <Input
           placeholder="Cari artikel..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-12 h-12 bg-muted/50 border-[#F99912]/10 focus:border-[#F99912]/50 rounded-xl"
+          className="h-12 rounded-xl border-[#F99912]/10 bg-muted/50 pl-12 focus:border-[#F99912]/50"
         />
       </div>
 
-      {}
-      <div className="flex flex-wrap gap-2">
-        {categories.map((category) => (
-          <Button
-            key={category}
-            variant={selectedCategory === category ? "default" : "outline"}
-            size="sm"
-            onClick={() => setSelectedCategory(category)}
-            className={
-              selectedCategory === category
-                ? "bg-[#F99912] text-[#181612] hover:bg-[#F99912]/90"
-                : "border-[#F99912]/30 hover:bg-[#F99912]/10"
-            }
-          >
-            {category}
-          </Button>
-        ))}
-      </div>
-
       {featuredArticles.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {featuredArticles.map((article) => (
             <Card
               key={article.id}
-              className="group bg-card/50 backdrop-blur border-[#F99912]/10 hover:border-[#F99912]/30 transition-all duration-300 hover:shadow-[0_0_30px_rgba(249,153,18,0.1)] overflow-hidden"
+              className="group overflow-hidden border-[#F99912]/10 bg-card/50 backdrop-blur transition-all duration-300 hover:border-[#F99912]/30 hover:shadow-[0_0_30px_rgba(249,153,18,0.1)]"
             >
-              <div className="aspect-video bg-gradient-to-br from-[#F99912]/20 to-[#64762C]/20 flex items-center justify-center relative">
-                <BookOpen className="w-16 h-16 text-[#F99912]/30" />
-                <Badge className="absolute top-4 left-4 bg-[#F99912] text-[#181612]">
-                  <TrendingUp className="w-3 h-3 mr-1" />
-                  Featured
-                </Badge>
-              </div>
-              <CardContent className="p-6">
-                <Badge
-                  variant="secondary"
-                  className="mb-3 bg-[#64762C]/20 text-[#64762C]"
-                >
-                  {article.category}
-                </Badge>
-                <h2 className="text-xl font-bold text-foreground mb-2 group-hover:text-[#F99912] transition-colors line-clamp-2">
-                  {article.title}
-                </h2>
-                <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                  {article.excerpt}
-                </p>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <div className="flex items-center gap-4">
-                    <span className="flex items-center gap-1">
-                      <User className="w-3 h-3" />
-                      {article.author}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {article.readTime}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="flex items-center gap-1">
-                      <Eye className="w-3 h-3" />
-                      {article.views}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Heart className="w-3 h-3" />
-                      {article.likes}
-                    </span>
-                  </div>
+              <div
+                className="cursor-pointer"
+                onClick={() => setSelectedArticleId(article.id)}
+              >
+                <div className="relative flex aspect-video items-center justify-center bg-gradient-to-br from-[#F99912]/20 to-[#64762C]/20">
+                  {article.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={article.imageUrl}
+                      alt={article.title}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <BookOpen className="h-16 w-16 text-[#F99912]/30" />
+                  )}
+                  <Badge className="absolute left-4 top-4 bg-[#F99912] text-[#181612]">
+                    <TrendingUp className="mr-1 h-3 w-3" />
+                    Featured
+                  </Badge>
                 </div>
-              </CardContent>
+                <CardContent className="p-6">
+                  <Badge
+                    variant="secondary"
+                    className="mb-3 bg-[#64762C]/20 text-[#64762C]"
+                  >
+                    {article.category}
+                  </Badge>
+                  <h2 className="mb-2 text-xl font-bold text-foreground transition-colors group-hover:text-[#F99912] line-clamp-2">
+                    {article.title}
+                  </h2>
+                  <p className="mb-4 text-sm text-muted-foreground line-clamp-2">
+                    {article.excerpt}
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <div className="flex items-center gap-4">
+                      <span className="flex items-center gap-1">
+                        <User className="h-3 w-3" />
+                        {article.author}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {article.readTime}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1">
+                        <Eye className="h-3 w-3" />
+                        {article.views}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Heart className="h-3 w-3" />
+                        {article.likes}
+                      </span>
+                    </div>
+                  </div>
+                </CardContent>
+              </div>
             </Card>
           ))}
         </div>
@@ -212,14 +278,26 @@ export default function ArticlesPage() {
         {regularArticles.map((article) => (
           <Card
             key={article.id}
-            className="group bg-card/50 backdrop-blur border-[#F99912]/10 hover:border-[#F99912]/30 transition-all duration-300"
+            className="group border-[#F99912]/10 bg-card/50 backdrop-blur transition-all duration-300 hover:border-[#F99912]/30"
           >
-            <CardContent className="p-6 flex gap-6">
-              <div className="w-32 h-24 rounded-xl bg-gradient-to-br from-[#F99912]/20 to-[#64762C]/20 flex items-center justify-center flex-shrink-0">
-                <BookOpen className="w-8 h-8 text-[#F99912]/30" />
+            <CardContent className="flex gap-6 p-6">
+              <div
+                className="flex h-24 w-32 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-[#F99912]/20 to-[#64762C]/20"
+                onClick={() => setSelectedArticleId(article.id)}
+              >
+                {article.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={article.imageUrl}
+                    alt={article.title}
+                    className="h-full w-full cursor-pointer object-cover"
+                  />
+                ) : (
+                  <BookOpen className="h-8 w-8 text-[#F99912]/30" />
+                )}
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-2">
+              <div className="min-w-0 flex-1">
+                <div className="mb-2 flex items-center gap-2">
                   <Badge
                     variant="secondary"
                     className="bg-[#64762C]/20 text-[#64762C] text-xs"
@@ -227,45 +305,33 @@ export default function ArticlesPage() {
                     {article.category}
                   </Badge>
                   <span className="text-xs text-muted-foreground">
-                    {article.date}
+                    {article.dateLabel}
                   </span>
                 </div>
-                <h3 className="font-bold text-foreground mb-1 group-hover:text-[#F99912] transition-colors line-clamp-1">
+                <button
+                  type="button"
+                  onClick={() => setSelectedArticleId(article.id)}
+                  className="mb-1 line-clamp-1 text-left font-bold text-foreground transition-colors hover:text-[#F99912]"
+                >
                   {article.title}
-                </h3>
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                </button>
+                <p className="mb-2 line-clamp-2 text-sm text-muted-foreground">
                   {article.excerpt}
                 </p>
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
+                    <Clock className="h-3 w-3" />
                     {article.readTime}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Eye className="w-3 h-3" />
+                    <Eye className="h-3 w-3" />
                     {article.views}
                   </span>
                   <span className="flex items-center gap-1">
-                    <Heart className="w-3 h-3" />
+                    <Heart className="h-3 w-3" />
                     {article.likes}
                   </span>
                 </div>
-              </div>
-              <div className="flex flex-col justify-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hover:bg-[#F99912]/10 hover:text-[#F99912]"
-                >
-                  <Heart className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hover:bg-[#F99912]/10 hover:text-[#F99912]"
-                >
-                  <Share2 className="w-4 h-4" />
-                </Button>
               </div>
             </CardContent>
           </Card>
@@ -273,14 +339,15 @@ export default function ArticlesPage() {
       </div>
 
       {filteredArticles.length === 0 && (
-        <Card className="bg-card/50 backdrop-blur border-[#F99912]/10">
+        <Card className="border-[#F99912]/10 bg-card/50 backdrop-blur">
           <CardContent className="p-12 text-center">
-            <BookOpen className="w-16 h-16 mx-auto text-muted-foreground/30 mb-4" />
-            <h3 className="text-lg font-medium text-foreground mb-2">
+            <BookOpen className="mx-auto mb-4 h-16 w-16 text-muted-foreground/30" />
+            <h3 className="mb-2 text-lg font-medium text-foreground">
               Artikel tidak ditemukan
             </h3>
             <p className="text-muted-foreground">
-              Coba ubah kata kunci pencarian atau kategori
+              Belum ada artikel published dari admin, atau kata kunci pencarian
+              belum cocok.
             </p>
           </CardContent>
         </Card>
