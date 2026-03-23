@@ -14,6 +14,9 @@ import {
   MapPin,
   Phone,
 } from "lucide-react";
+import { DASHBOARD_HOME_BY_ROLE } from "@/src/server/auth/roles";
+import { UserRole } from "@prisma/client";
+import { useToast } from "@/src/hooks/use-toast";
 
 type UmkmFormData = {
   name: string;
@@ -38,8 +41,8 @@ interface UmkmRegistrationProps {
 
 const UmkmRegistration = ({ initialData, onBack }: UmkmRegistrationProps) => {
   const router = useRouter();
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [formData, setFormData] = useState<UmkmFormData>({
     name: initialData?.name || "",
     email: initialData?.email || "",
@@ -89,22 +92,29 @@ const UmkmRegistration = ({ initialData, onBack }: UmkmRegistrationProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (!formData.name || !formData.email || !formData.password) {
-      setError("Nama, email, dan password wajib diisi");
+      toast({
+        title: "Data Tidak Lengkap",
+        description: "Nama, email, dan password wajib diisi",
+        variant: "destructive",
+      });
       return;
     }
 
     if (!formData.umkmName) {
-      setError("Nama UMKM wajib diisi");
+      toast({
+        title: "Nama UMKM Diperlukan",
+        description: "Nama UMKM wajib diisi",
+        variant: "destructive",
+      });
       return;
     }
 
     setIsLoading(true);
     try {
       const payload: any = {
-        role: "UMKM",
+        role: UserRole.UMKM,
         name: formData.name,
         email: formData.email,
         password: formData.password,
@@ -127,27 +137,63 @@ const UmkmRegistration = ({ initialData, onBack }: UmkmRegistrationProps) => {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || "Gagal mendaftar UMKM");
+        let errorDescription = data.message || "Gagal mendaftar UMKM";
+
+        // Parse detailed validation errors if available
+        if (data.errors?.fieldErrors) {
+          const fieldErrors = data.errors.fieldErrors as Record<
+            string,
+            string[]
+          >;
+          const errorMessages = Object.entries(fieldErrors)
+            .map(([field, messages]) => {
+              const fieldLabel =
+                field === "name"
+                  ? "Nama"
+                  : field === "email"
+                    ? "Email"
+                    : field === "password"
+                      ? "Password"
+                      : field === "businessName"
+                        ? "Nama Usaha"
+                        : field;
+              return `${fieldLabel}: ${messages.join(", ")}`;
+            })
+            .join("\n");
+          if (errorMessages) {
+            errorDescription = errorMessages;
+          }
+        }
+
+        toast({
+          title: "Registrasi Gagal",
+          description: errorDescription,
+          variant: "destructive",
+        });
         setIsLoading(false);
         return;
       }
 
-      // Berhasil, redirect ke login
-      router.push("/login?registered=true");
+      toast({
+        title: "Registrasi Berhasil",
+        description: "Selamat datang di SADAYA!",
+        variant: "default",
+      });
+
+      // Berhasil, redirect ke dashboard UMKM
+      router.push(DASHBOARD_HOME_BY_ROLE[UserRole.UMKM]);
     } catch (err) {
-      setError("Terjadi kesalahan saat mendaftar");
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan saat mendaftar",
+        variant: "destructive",
+      });
       setIsLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm text-center">
-          {error}
-        </div>
-      )}
-
       {/* Personal Info Section */}
       <div className="p-4 rounded-xl bg-muted/30 border border-[#F99912]/10 space-y-4">
         <p className="text-sm font-medium text-foreground">Informasi Pribadi</p>

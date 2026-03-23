@@ -18,12 +18,13 @@ import { Button } from "@/src/components/ui/button";
 import { signIn } from "next-auth/react";
 import { UserRole } from "@prisma/client";
 import { DASHBOARD_HOME_BY_ROLE } from "@/src/server/auth/roles";
+import { useToast } from "@/src/hooks/use-toast";
 
 export function LeftSide() {
   const router = useRouter();
+  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -32,7 +33,6 @@ export function LeftSide() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
 
     try {
       const result = await signIn("credentials", {
@@ -42,7 +42,11 @@ export function LeftSide() {
       });
 
       if (result?.error) {
-        setError("Email atau password salah");
+        toast({
+          title: "Login Gagal",
+          description: "Email atau password salah",
+          variant: "destructive",
+        });
         setIsLoading(false);
         return;
       }
@@ -54,6 +58,11 @@ export function LeftSide() {
         );
 
         if (newSession?.user?.role) {
+          toast({
+            title: "Login Berhasil",
+            description: "Selamat datang kembali!",
+            variant: "default",
+          });
           const dashboardUrl =
             DASHBOARD_HOME_BY_ROLE[newSession.user.role as UserRole];
           router.push(dashboardUrl);
@@ -63,7 +72,11 @@ export function LeftSide() {
         }
       }
     } catch (err) {
-      setError("Terjadi kesalahan saat login");
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan saat login",
+        variant: "destructive",
+      });
       setIsLoading(false);
     }
   };
@@ -103,12 +116,6 @@ export function LeftSide() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
-            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm text-center">
-              {error}
-            </div>
-          )}
-
           <div className="space-y-2">
             <label
               htmlFor="email"

@@ -16,9 +16,10 @@ import {
   Sparkles,
   ArrowRight,
   Loader2,
-  Upload,
-  FileText,
 } from "lucide-react";
+import { DASHBOARD_HOME_BY_ROLE } from "@/src/server/auth/roles";
+import { UserRole } from "@prisma/client";
+import { useToast } from "@/src/hooks/use-toast";
 
 type Role = "user" | "umkm" | "driver";
 
@@ -49,11 +50,11 @@ const roles = [
 const LeftSide = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { toast } = useToast();
   const [selectedRole, setSelectedRole] = useState<Role>("user");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -74,11 +75,14 @@ const LeftSide = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     // Validasi password match
     if (formData.password !== formData.confirmPassword) {
-      setError("Password tidak cocok");
+      toast({
+        title: "Password Tidak Cocok",
+        description: "Password dan konfirmasi password harus sama",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -102,7 +106,7 @@ const LeftSide = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          role: "USER",
+          role: UserRole.USER,
           name: formData.name,
           email: formData.email,
           password: formData.password,
@@ -112,15 +116,55 @@ const LeftSide = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || "Gagal mendaftar");
+        let errorDescription = data.message || "Gagal mendaftar";
+
+        // Parse detailed validation errors if available
+        if (data.errors?.fieldErrors) {
+          const fieldErrors = data.errors.fieldErrors as Record<
+            string,
+            string[]
+          >;
+          const errorMessages = Object.entries(fieldErrors)
+            .map(([field, messages]) => {
+              const fieldLabel =
+                field === "name"
+                  ? "Nama"
+                  : field === "email"
+                    ? "Email"
+                    : field === "password"
+                      ? "Password"
+                      : field;
+              return `${fieldLabel}: ${messages.join(", ")}`;
+            })
+            .join("\n");
+          if (errorMessages) {
+            errorDescription = errorMessages;
+          }
+        }
+
+        toast({
+          title: "Registrasi Gagal",
+          description: errorDescription,
+          variant: "destructive",
+        });
         setIsLoading(false);
         return;
       }
 
-      // Berhasil, redirect ke login
-      router.push("/login?registered=true");
+      toast({
+        title: "Registrasi Berhasil",
+        description: "Selamat datang di SADAYA!",
+        variant: "default",
+      });
+
+      // Berhasil, redirect ke dashboard USER
+      router.push(DASHBOARD_HOME_BY_ROLE[UserRole.USER]);
     } catch (err) {
-      setError("Terjadi kesalahan saat mendaftar");
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan saat mendaftar",
+        variant: "destructive",
+      });
       setIsLoading(false);
     }
   };
@@ -153,11 +197,7 @@ const LeftSide = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <>
-              {error && (
-                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm text-center">
-                  {error}
-                </div>
-              )}
+              {/* Error handling removed - using toast instead */}
 
               <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground">

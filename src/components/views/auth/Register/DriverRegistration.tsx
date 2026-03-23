@@ -13,6 +13,9 @@ import {
   ArrowRight,
   Loader2,
 } from "lucide-react";
+import { DASHBOARD_HOME_BY_ROLE } from "@/src/server/auth/roles";
+import { UserRole } from "@prisma/client";
+import { useToast } from "@/src/hooks/use-toast";
 
 type DriverFormData = {
   name: string;
@@ -42,8 +45,8 @@ const DriverRegistration = ({
   onBack,
 }: DriverRegistrationProps) => {
   const router = useRouter();
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [formData, setFormData] = useState<DriverFormData>({
     name: initialData?.name || "",
     email: initialData?.email || "",
@@ -84,22 +87,29 @@ const DriverRegistration = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (!formData.name || !formData.email || !formData.password) {
-      setError("Nama, email, dan password wajib diisi");
+      toast({
+        title: "Data Tidak Lengkap",
+        description: "Nama, email, dan password wajib diisi",
+        variant: "destructive",
+      });
       return;
     }
 
     if (!formData.vehicleType) {
-      setError("Tipe kendaraan wajib dipilih");
+      toast({
+        title: "Tipe Kendaraan Diperlukan",
+        description: "Tipe kendaraan wajib dipilih",
+        variant: "destructive",
+      });
       return;
     }
 
     setIsLoading(true);
     try {
       const payload: any = {
-        role: "DRIVER",
+        role: UserRole.DRIVER,
         name: formData.name,
         email: formData.email,
         password: formData.password,
@@ -122,27 +132,63 @@ const DriverRegistration = ({
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || "Gagal mendaftar driver");
+        let errorDescription = data.message || "Gagal mendaftar driver";
+
+        // Parse detailed validation errors if available
+        if (data.errors?.fieldErrors) {
+          const fieldErrors = data.errors.fieldErrors as Record<
+            string,
+            string[]
+          >;
+          const errorMessages = Object.entries(fieldErrors)
+            .map(([field, messages]) => {
+              const fieldLabel =
+                field === "name"
+                  ? "Nama"
+                  : field === "email"
+                    ? "Email"
+                    : field === "password"
+                      ? "Password"
+                      : field === "vehicleType"
+                        ? "Tipe Kendaraan"
+                        : field;
+              return `${fieldLabel}: ${messages.join(", ")}`;
+            })
+            .join("\n");
+          if (errorMessages) {
+            errorDescription = errorMessages;
+          }
+        }
+
+        toast({
+          title: "Registrasi Gagal",
+          description: errorDescription,
+          variant: "destructive",
+        });
         setIsLoading(false);
         return;
       }
 
-      // Berhasil, redirect ke login
-      router.push("/login?registered=true");
+      toast({
+        title: "Registrasi Berhasil",
+        description: "Selamat datang di SADAYA!",
+        variant: "default",
+      });
+
+      // Berhasil, redirect ke dashboard driver
+      router.push(DASHBOARD_HOME_BY_ROLE[UserRole.DRIVER]);
     } catch (err) {
-      setError("Terjadi kesalahan saat mendaftar");
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan saat mendaftar",
+        variant: "destructive",
+      });
       setIsLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm text-center">
-          {error}
-        </div>
-      )}
-
       {/* Personal Info Section */}
       <div className="p-4 rounded-xl bg-muted/30 border border-[#F99912]/10 space-y-4">
         <p className="text-sm font-medium text-foreground">Informasi Pribadi</p>
