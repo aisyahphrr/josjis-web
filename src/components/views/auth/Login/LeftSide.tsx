@@ -1,3 +1,5 @@
+"use client";
+
 import { Input } from "@/src/components/ui/input";
 import {
   ArrowRight,
@@ -7,40 +9,22 @@ import {
   Mail,
   Sparkles,
   Lock,
+  ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { Button } from "@/src/components/ui/button";
 import { useRouter } from "next/navigation";
-
-const DEMO_USERS = {
-  "user@sadaya.com": {
-    password: "user123",
-    role: "user",
-    redirect: "/dashboard-user",
-  },
-  "umkm@sadaya.com": {
-    password: "umkm123",
-    role: "umkm",
-    redirect: "/dashboard-umkm",
-  },
-  "admin@sadaya.com": {
-    password: "admin123",
-    role: "admin",
-    redirect: "/dashboard-admin",
-  },
-  "driver@sadaya.com": {
-    password: "driver123",
-    role: "driver",
-    redirect: "/dashboard-driver",
-  },
-};
+import { Button } from "@/src/components/ui/button";
+import { signIn } from "next-auth/react";
+import { UserRole } from "@prisma/client";
+import { DASHBOARD_HOME_BY_ROLE } from "@/src/server/auth/roles";
+import { useToast } from "@/src/hooks/use-toast";
 
 export function LeftSide() {
   const router = useRouter();
+  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -49,24 +33,50 @@ export function LeftSide() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const result = await signIn("credentials", {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      });
 
-    const user =
-      DEMO_USERS[formData.email.toLowerCase() as keyof typeof DEMO_USERS];
+      if (result?.error) {
+        toast({
+          title: "Login Gagal",
+          description: "Email atau password salah",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
 
-    if (user && user.password === formData.password) {
-      localStorage.setItem(
-        "josjis_user",
-        JSON.stringify({
-          email: formData.email,
-          role: user.role,
-        }),
-      );
-      router.push(user.redirect);
-    } else {
-      setError("Email atau password salah");
+      if (result?.ok) {
+        // Get the updated session to get the user's role
+        const newSession = await fetch("/api/auth/session").then((res) =>
+          res.json(),
+        );
+
+        if (newSession?.user?.role) {
+          toast({
+            title: "Login Berhasil",
+            description: "Selamat datang kembali!",
+            variant: "default",
+          });
+          const dashboardUrl =
+            DASHBOARD_HOME_BY_ROLE[newSession.user.role as UserRole];
+          router.push(dashboardUrl);
+        } else {
+          // Fallback to user dashboard if role not found
+          router.push("/dashboard-user");
+        }
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan saat login",
+        variant: "destructive",
+      });
       setIsLoading(false);
     }
   };
@@ -75,6 +85,14 @@ export function LeftSide() {
     /* Left Side - Form */
     <div className="flex-1 flex items-center justify-center p-8">
       <div className="w-full max-w-md">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 mb-6 text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span className="text-sm">Kembali</span>
+        </Link>
+
         <Link href="/" className="flex items-center gap-2 mb-8 group">
           <div className="relative w-12 h-12 rounded-xl bg-linear-to-br from-[#F99912] to-[#9ACD32] p-0.5 transition-shadow duration-300 group-hover:shadow-[0_12px_30px_rgba(40,50,56,0.10)]">
             <div className="w-full h-full rounded-xl bg-background flex items-center justify-center">
@@ -97,29 +115,7 @@ export function LeftSide() {
           </p>
         </div>
 
-        <div className="mb-6 p-4 rounded-xl bg-[#F99912]/10 border border-[#F99912]/20">
-          <p className="text-sm font-medium text-[#F99912] mb-2">
-            Demo Credentials:
-          </p>
-          <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-            <div>User: user@sadaya.com</div>
-            <div>Pass: user123</div>
-            <div>UMKM: umkm@sadaya.com</div>
-            <div>Pass: umkm123</div>
-            <div>Admin: admin@sadaya.com</div>
-            <div>Pass: admin123</div>
-            <div>Driver: driver@sadaya.com</div>
-            <div>Pass: driver123</div>
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
-            <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm text-center">
-              {error}
-            </div>
-          )}
-
           <div className="space-y-2">
             <label
               htmlFor="email"
@@ -139,6 +135,7 @@ export function LeftSide() {
                 }
                 className="pl-12 h-12 bg-muted/50 border-[#F99912]/10 focus:border-[#F99912]/50 rounded-xl"
                 required
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -170,11 +167,13 @@ export function LeftSide() {
                 }
                 className="pl-12 pr-12 h-12 bg-muted/50 border-[#F99912]/10 focus:border-[#F99912]/50 rounded-xl"
                 required
+                disabled={isLoading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                disabled={isLoading}
               >
                 {showPassword ? (
                   <EyeOff className="w-5 h-5" />
@@ -188,7 +187,7 @@ export function LeftSide() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full h-12 bg-linear-to-r from-[#F99912] to-[#9ACD32] hover:from-[#F99912]/90 hover:to-[#9ACD32]/90 text-[#283238] font-semibold rounded-xl shadow-none transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+            className="w-full h-12 bg-linear-to-r from-[#F99912] to-[#9ACD32] hover:from-[#F99912]/90 hover:to-[#9ACD32]/90 text-[#283238] font-semibold rounded-xl shadow-none transition-all duration-300 hover:scale-[1.02] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -215,6 +214,7 @@ export function LeftSide() {
             type="button"
             variant="outline"
             className="w-full h-12 border-[#F99912]/20 hover:bg-[#F99912]/5 hover:border-[#F99912]/40 rounded-xl cursor-pointer"
+            disabled={isLoading}
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
               <path

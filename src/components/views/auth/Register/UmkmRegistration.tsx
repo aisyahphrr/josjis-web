@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import {
@@ -13,6 +14,9 @@ import {
   MapPin,
   Phone,
 } from "lucide-react";
+import { DASHBOARD_HOME_BY_ROLE } from "@/src/server/auth/roles";
+import { UserRole } from "@prisma/client";
+import { useToast } from "@/src/hooks/use-toast";
 
 type UmkmFormData = {
   name: string;
@@ -25,6 +29,9 @@ type UmkmFormData = {
   ownerPhone: string;
   ownerAddress: string;
   businessDocument: File | null;
+  city?: string;
+  district?: string;
+  address?: string;
 };
 
 interface UmkmRegistrationProps {
@@ -33,6 +40,8 @@ interface UmkmRegistrationProps {
 }
 
 const UmkmRegistration = ({ initialData, onBack }: UmkmRegistrationProps) => {
+  const router = useRouter();
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<UmkmFormData>({
     name: initialData?.name || "",
@@ -45,7 +54,30 @@ const UmkmRegistration = ({ initialData, onBack }: UmkmRegistrationProps) => {
     ownerPhone: "",
     ownerAddress: "",
     businessDocument: null,
+    city: "",
+    district: "",
+    address: "",
   });
+
+  // Load data dari sessionStorage jika ada
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedData = sessionStorage.getItem("registrationData");
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          setFormData((prev) => ({
+            ...prev,
+            name: parsedData.name || prev.name,
+            email: parsedData.email || prev.email,
+            password: parsedData.password || prev.password,
+          }));
+        } catch (err) {
+          console.error("Failed to parse registration data", err);
+        }
+      }
+    }
+  }, []);
 
   const categories = [
     "makanan",
@@ -60,13 +92,182 @@ const UmkmRegistration = ({ initialData, onBack }: UmkmRegistrationProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.name || !formData.email || !formData.password) {
+      toast({
+        title: "Data Tidak Lengkap",
+        description: "Nama, email, dan password wajib diisi",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.umkmName) {
+      toast({
+        title: "Nama UMKM Diperlukan",
+        description: "Nama UMKM wajib diisi",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsLoading(false);
+    try {
+      const payload: any = {
+        role: UserRole.UMKM,
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        businessName: formData.umkmName,
+      };
+
+      // Hanya tambahkan field opsional jika ada value
+      if (formData.ownerPhone?.trim()) payload.phone = formData.ownerPhone;
+      if (formData.ownerAddress?.trim())
+        payload.address = formData.ownerAddress;
+      if (formData.city?.trim()) payload.city = formData.city;
+      if (formData.district?.trim()) payload.district = formData.district;
+
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        let errorDescription = data.message || "Gagal mendaftar UMKM";
+
+        // Parse detailed validation errors if available
+        if (data.errors?.fieldErrors) {
+          const fieldErrors = data.errors.fieldErrors as Record<
+            string,
+            string[]
+          >;
+          const errorMessages = Object.entries(fieldErrors)
+            .map(([field, messages]) => {
+              const fieldLabel =
+                field === "name"
+                  ? "Nama"
+                  : field === "email"
+                    ? "Email"
+                    : field === "password"
+                      ? "Password"
+                      : field === "businessName"
+                        ? "Nama Usaha"
+                        : field;
+              return `${fieldLabel}: ${messages.join(", ")}`;
+            })
+            .join("\n");
+          if (errorMessages) {
+            errorDescription = errorMessages;
+          }
+        }
+
+        toast({
+          title: "Registrasi Gagal",
+          description: errorDescription,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      toast({
+        title: "Registrasi Berhasil",
+        description: "Selamat datang di SADAYA!",
+        variant: "default",
+      });
+
+      // Berhasil, redirect ke dashboard UMKM
+      router.push(DASHBOARD_HOME_BY_ROLE[UserRole.UMKM]);
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan saat mendaftar",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Personal Info Section */}
+      <div className="p-4 rounded-xl bg-muted/30 border border-[#F99912]/10 space-y-4">
+        <p className="text-sm font-medium text-foreground">Informasi Pribadi</p>
+
+        {/* Name */}
+        <div className="space-y-2">
+          <label htmlFor="name" className="text-sm font-medium text-foreground">
+            Nama Lengkap
+          </label>
+          <Input
+            id="name"
+            type="text"
+            placeholder="Nama Anda"
+            value={formData.name}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                name: e.target.value,
+              })
+            }
+            className="h-12 bg-white border-[#F99912]/10 focus:border-[#F99912]/50 rounded-xl"
+            required
+          />
+        </div>
+
+        {/* Email */}
+        <div className="space-y-2">
+          <label
+            htmlFor="email"
+            className="text-sm font-medium text-foreground"
+          >
+            Email
+          </label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="email@example.com"
+            value={formData.email}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                email: e.target.value,
+              })
+            }
+            className="h-12 bg-white border-[#F99912]/10 focus:border-[#F99912]/50 rounded-xl"
+            required
+          />
+        </div>
+
+        {/* Password */}
+        <div className="space-y-2">
+          <label
+            htmlFor="password"
+            className="text-sm font-medium text-foreground"
+          >
+            Password
+          </label>
+          <Input
+            id="password"
+            type="password"
+            placeholder="Minimal 8 karakter"
+            value={formData.password}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                password: e.target.value,
+              })
+            }
+            className="h-12 bg-white border-[#F99912]/10 focus:border-[#F99912]/50 rounded-xl"
+            required
+          />
+        </div>
+      </div>
+
       {/* Store Name */}
       <div className="space-y-2">
         <label
