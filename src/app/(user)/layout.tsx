@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, Bell, Search, ChevronDown } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { Sidebar } from "@/src/components/layouts/sidebar";
 import { roleConfigs } from "@/src/lib/constants/layouts/menu-items";
 
@@ -22,9 +23,13 @@ export default function UserLayout({
     initial: "U",
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("josjis_user");
-    router.push("/login");
+  const handleLogout = async () => {
+    try {
+      localStorage.removeItem("josjis_user");
+      await signOut({ redirect: false });
+    } finally {
+      router.push("/login");
+    }
   };
 
   return (
