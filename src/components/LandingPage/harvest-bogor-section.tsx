@@ -91,7 +91,7 @@ export function HarvestBogorSection() {
               </div>
             </div>
 
-            <Link href="/game/harvest">
+            <Link href="/game">
               <Button
                 size="lg"
                 suppressHydrationWarning
