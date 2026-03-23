@@ -53,6 +53,7 @@ const LeftSide = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -73,6 +74,14 @@ const LeftSide = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
+    // Validasi password match
+    if (formData.password !== formData.confirmPassword) {
+      setError("Password tidak cocok");
+      return;
+    }
+
     if (selectedRole === "umkm") {
       // Store basic form data and redirect to umkm registration page
       sessionStorage.setItem("registrationData", JSON.stringify(formData));
@@ -85,9 +94,35 @@ const LeftSide = () => {
       router.push("/register-driver");
       return;
     }
+
+    // Register sebagai USER
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsLoading(false);
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          role: "USER",
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Gagal mendaftar");
+        setIsLoading(false);
+        return;
+      }
+
+      // Berhasil, redirect ke login
+      router.push("/login?registered=true");
+    } catch (err) {
+      setError("Terjadi kesalahan saat mendaftar");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -118,6 +153,12 @@ const LeftSide = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <>
+              {error && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm text-center">
+                  {error}
+                </div>
+              )}
+
               <div className="space-y-3">
                 <label className="text-sm font-medium text-foreground">
                   Pilih Role

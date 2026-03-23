@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import {
@@ -25,6 +26,9 @@ type UmkmFormData = {
   ownerPhone: string;
   ownerAddress: string;
   businessDocument: File | null;
+  city?: string;
+  district?: string;
+  address?: string;
 };
 
 interface UmkmRegistrationProps {
@@ -33,7 +37,9 @@ interface UmkmRegistrationProps {
 }
 
 const UmkmRegistration = ({ initialData, onBack }: UmkmRegistrationProps) => {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState<UmkmFormData>({
     name: initialData?.name || "",
     email: initialData?.email || "",
@@ -45,7 +51,30 @@ const UmkmRegistration = ({ initialData, onBack }: UmkmRegistrationProps) => {
     ownerPhone: "",
     ownerAddress: "",
     businessDocument: null,
+    city: "",
+    district: "",
+    address: "",
   });
+
+  // Load data dari sessionStorage jika ada
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedData = sessionStorage.getItem("registrationData");
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          setFormData((prev) => ({
+            ...prev,
+            name: parsedData.name || prev.name,
+            email: parsedData.email || prev.email,
+            password: parsedData.password || prev.password,
+          }));
+        } catch (err) {
+          console.error("Failed to parse registration data", err);
+        }
+      }
+    }
+  }, []);
 
   const categories = [
     "makanan",
@@ -60,13 +89,139 @@ const UmkmRegistration = ({ initialData, onBack }: UmkmRegistrationProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
+    if (!formData.name || !formData.email || !formData.password) {
+      setError("Nama, email, dan password wajib diisi");
+      return;
+    }
+
+    if (!formData.umkmName) {
+      setError("Nama UMKM wajib diisi");
+      return;
+    }
+
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsLoading(false);
+    try {
+      const payload: any = {
+        role: "UMKM",
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        businessName: formData.umkmName,
+      };
+
+      // Hanya tambahkan field opsional jika ada value
+      if (formData.ownerPhone?.trim()) payload.phone = formData.ownerPhone;
+      if (formData.ownerAddress?.trim())
+        payload.address = formData.ownerAddress;
+      if (formData.city?.trim()) payload.city = formData.city;
+      if (formData.district?.trim()) payload.district = formData.district;
+
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Gagal mendaftar UMKM");
+        setIsLoading(false);
+        return;
+      }
+
+      // Berhasil, redirect ke login
+      router.push("/login?registered=true");
+    } catch (err) {
+      setError("Terjadi kesalahan saat mendaftar");
+      setIsLoading(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-sm text-center">
+          {error}
+        </div>
+      )}
+
+      {/* Personal Info Section */}
+      <div className="p-4 rounded-xl bg-muted/30 border border-[#F99912]/10 space-y-4">
+        <p className="text-sm font-medium text-foreground">Informasi Pribadi</p>
+
+        {/* Name */}
+        <div className="space-y-2">
+          <label htmlFor="name" className="text-sm font-medium text-foreground">
+            Nama Lengkap
+          </label>
+          <Input
+            id="name"
+            type="text"
+            placeholder="Nama Anda"
+            value={formData.name}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                name: e.target.value,
+              })
+            }
+            className="h-12 bg-white border-[#F99912]/10 focus:border-[#F99912]/50 rounded-xl"
+            required
+          />
+        </div>
+
+        {/* Email */}
+        <div className="space-y-2">
+          <label
+            htmlFor="email"
+            className="text-sm font-medium text-foreground"
+          >
+            Email
+          </label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="email@example.com"
+            value={formData.email}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                email: e.target.value,
+              })
+            }
+            className="h-12 bg-white border-[#F99912]/10 focus:border-[#F99912]/50 rounded-xl"
+            required
+          />
+        </div>
+
+        {/* Password */}
+        <div className="space-y-2">
+          <label
+            htmlFor="password"
+            className="text-sm font-medium text-foreground"
+          >
+            Password
+          </label>
+          <Input
+            id="password"
+            type="password"
+            placeholder="Minimal 8 karakter"
+            value={formData.password}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                password: e.target.value,
+              })
+            }
+            className="h-12 bg-white border-[#F99912]/10 focus:border-[#F99912]/50 rounded-xl"
+            required
+          />
+        </div>
+      </div>
+
       {/* Store Name */}
       <div className="space-y-2">
         <label
