@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { ThemeProvider } from "@/src/components/theme-provider";
-import { Toaster } from "@/src/components/ui/toaster";
 import { UserStoreProvider } from "@/src/store/user-store";
+import { ToastProvider } from "@/src/components/toast-provider";
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -42,10 +41,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <UserStoreProvider>{children}</UserStoreProvider>
-          <Toaster />
+          <UserStoreProvider>
+            {children}
+            <ToastProvider />
+          </UserStoreProvider>
         </ThemeProvider>
-        <Analytics />
       </body>
     </html>
   );
