@@ -55,7 +55,7 @@ export function AcademySection() {
   return (
     <section id="academy" className="relative py-24 overflow-hidden">
       {/* Soft Creative Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#Fdf8fc] to-background" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#F9F7F1] via-[#F7F0FB] to-background" />
       
       {/* Dynamic Colored Blobs */}
       <div className="absolute -top-40 -left-20 w-[34rem] h-[34rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(147,112,219,0.12)_0%,transparent_62%)] pointer-events-none" />
@@ -72,34 +72,34 @@ export function AcademySection() {
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#9370DB]/10 border border-[#9370DB]/20 mb-6">
-            <GraduationCap className="w-4 h-4 text-[#9370DB]" />
-            <span className="text-sm text-[#9370DB] font-medium">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#9370DB]/16 border border-[#9370DB]/35 mb-6 shadow-[0_10px_24px_rgba(147,112,219,0.10)]">
+            <GraduationCap className="w-4 h-4 text-[#6D4DB3]" />
+            <span className="text-sm text-[#6D4DB3] font-semibold">
               Edukasi Digital
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6 text-balance">
-            <span className="bg-linear-to-r from-[#9370DB] to-[#F99912] bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-[#6D4DB3] via-[#A35C08] to-[#64762C] bg-clip-text text-transparent">
               SADAYA Academy
             </span>
             <br />
             <span className="text-foreground">Tingkatkan Skill UMKM Anda</span>
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
+          <p className="text-lg text-[#4C565D] max-w-2xl mx-auto text-pretty">
             Program edukasi lengkap untuk memajukan bisnis UMKM Anda. Dapatkan
             XP, naik level, dan raih sertifikasi resmi!
           </p>
         </div>
 
         {/* Level Progress */}
-        <div className="mb-12 p-6 backdrop-blur bg-white/80 border border-border rounded-2xl">
+        <div className="mb-12 p-6 backdrop-blur bg-white/92 border border-border rounded-2xl shadow-[0_18px_45px_rgba(40,50,56,0.08)]">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-foreground">Level Progress</h3>
-            <span className="text-sm text-muted-foreground">350 / 500 XP</span>
+            <span className="text-sm font-medium text-[#4C565D]">350 / 500 XP</span>
           </div>
-          <div className="relative h-3 bg-muted rounded-full overflow-hidden mb-4">
+          <div className="relative h-3 bg-[#DCE4D5] rounded-full overflow-hidden mb-4">
             <div
-              className="h-full bg-linear-to-r from-[#F99912] to-[#9ACD32] rounded-full transition-all duration-500"
+              className="h-full bg-linear-to-r from-[#D77B00] via-[#F99912] to-[#64762C] rounded-full transition-all duration-500"
               style={{ width: "70%" }}
             />
             {/* Level Markers */}
@@ -113,11 +113,11 @@ export function AcademySection() {
             {levels.map((level, index) => (
               <div key={index} className="text-center">
                 <div
-                  className={`inline-flex items-center gap-1 px-3 py-1 rounded-full bg-linear-to-r ${level.color} text-xs font-semibold ${index === 0 ? "text-[#2B3236]" : "text-foreground"}`}
+                  className={`inline-flex items-center gap-1 px-3 py-1 rounded-full bg-linear-to-r ${level.color} text-xs font-semibold shadow-sm ${index === 0 ? "text-white" : "text-[#1F2528]"}`}
                 >
                   {level.name}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-[#4C565D] mt-1 font-medium">
                   {level.xp} XP
                 </p>
               </div>
@@ -130,7 +130,7 @@ export function AcademySection() {
           {courses.map((course, index) => (
             <div
               key={index}
-              className="group backdrop-blur bg-white/80 border border-border rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(40,50,56,0.10)] hover:border-[#F99912]/25"
+              className="group backdrop-blur bg-white/92 border border-border rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(40,50,56,0.12)] hover:border-[#F99912]/35"
             >
               {/* Thumbnail */}
               <div className="relative aspect-video overflow-hidden">
@@ -139,37 +139,37 @@ export function AcademySection() {
                   alt={course.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-background/80 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-[#1F2528]/88 via-[#1F2528]/20 to-transparent" />
 
                 {/* Play Button */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="w-14 h-14 rounded-full bg-[#F99912] flex items-center justify-center shadow-none hover:shadow-[0_12px_30px_rgba(249,153,18,0.12)] transition-all duration-300">
-                    <Play className="w-6 h-6 text-[#2B3236] ml-1" />
+                  <div className="w-14 h-14 rounded-full bg-[#F99912] flex items-center justify-center shadow-[0_12px_30px_rgba(249,153,18,0.22)] hover:shadow-[0_16px_34px_rgba(249,153,18,0.28)] transition-all duration-300">
+                    <Play className="w-6 h-6 text-[#1F2528] ml-1" />
                   </div>
                 </div>
 
                 {/* Level Badge */}
-                <div className="absolute top-3 left-3 px-2 py-1 rounded-full bg-linear-to-r from-[#F99912] to-[#9ACD32] text-[#2B3236] text-xs font-semibold">
+                <div className="absolute top-3 left-3 px-2 py-1 rounded-full bg-linear-to-r from-[#D77B00] to-[#64762C] text-white text-xs font-semibold shadow-sm">
                   {course.level}
                 </div>
 
                 {/* XP Badge */}
-                <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-background/80 backdrop-blur text-foreground text-xs font-semibold">
+                <div className="absolute top-3 right-3 px-2 py-1 rounded-full bg-white/90 backdrop-blur text-[#1F2528] text-xs font-semibold shadow-sm">
                   +{course.xp} XP
                 </div>
               </div>
 
               {/* Content */}
               <div className="p-4">
-                <h3 className="font-semibold text-foreground mb-2 group-hover:text-[#F99912] transition-colors">
+                <h3 className="font-semibold text-foreground mb-2 group-hover:text-[#C96C00] transition-colors">
                   {course.title}
                 </h3>
-                <p className="text-sm text-muted-foreground mb-3">
+                <p className="text-sm text-[#4C565D] mb-3">
                   {course.instructor}
                 </p>
 
                 <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-3 text-muted-foreground">
+                  <div className="flex items-center gap-3 text-[#4C565D]">
                     <span className="flex items-center gap-1">
                       <BookOpen className="w-4 h-4" />
                       {course.duration}
@@ -190,7 +190,7 @@ export function AcademySection() {
           <Link href="/academy">
             <Button
               size="lg"
-              className="bg-linear-to-r from-[#9370DB] to-[#9ACD32] hover:from-[#9370DB]/90 hover:to-[#9ACD32]/90 text-foreground font-semibold shadow-none transition-all duration-300 group"
+              className="bg-linear-to-r from-[#6D4DB3] via-[#F99912] to-[#64762C] hover:from-[#5C3E9D] hover:via-[#E48C12] hover:to-[#556523] text-white font-semibold shadow-[0_16px_32px_rgba(109,77,179,0.18)] transition-all duration-300 group"
             >
               <GraduationCap className="mr-2 w-5 h-5" />
               Jelajahi Semua Kursus
@@ -209,15 +209,15 @@ export function AcademySection() {
           ].map((stat, index) => (
             <div
               key={index}
-              className="text-center p-6 rounded-2xl bg-muted/30 backdrop-blur border border-[#F99912]/10"
+              className="text-center p-6 rounded-2xl bg-white/88 backdrop-blur border border-[#F99912]/18 shadow-[0_12px_30px_rgba(40,50,56,0.06)]"
             >
-              <div className="w-12 h-12 mx-auto rounded-xl bg-linear-to-br from-[#F99912]/20 to-[#9ACD32]/20 flex items-center justify-center mb-3">
-                <stat.icon className="w-6 h-6 text-[#F99912]" />
+              <div className="w-12 h-12 mx-auto rounded-xl bg-linear-to-br from-[#F99912]/28 to-[#9ACD32]/26 flex items-center justify-center mb-3">
+                <stat.icon className="w-6 h-6 text-[#C96C00]" />
               </div>
               <p className="text-2xl font-bold text-foreground mb-1">
                 {stat.value}
               </p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
+              <p className="text-sm text-[#4C565D] font-medium">{stat.label}</p>
             </div>
           ))}
         </div>

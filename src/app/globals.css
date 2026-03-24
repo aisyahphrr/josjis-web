@@ -12,7 +12,7 @@
   --josjis-olive: #9ACD32; /* Fresh Mint / Customer green */
   --josjis-green: #9ACD32;
 
-  --background: #F6F6F6;
+  --background: #F4F4F1;
   --foreground: #2B3236;
   --card: #FFFFFF;
   --card-foreground: #2B3236;
@@ -25,8 +25,8 @@
   --secondary: #9ACD32;
   --secondary-foreground: #2B3236;
 
-  --muted: #F5F7FA;
-  --muted-foreground: #717171;
+  --muted: #E8ECE6;
+  --muted-foreground: #4C565D;
 
   --accent: #9370DB;
   --accent-foreground: #2B3236;
@@ -35,8 +35,8 @@
   --destructive-foreground: #ffffff;
 
   /* Subtle borders/rings (no neon) */
-  --border: rgba(43, 50, 54, 0.12);
-  --input: rgba(43, 50, 54, 0.08);
+  --border: rgba(43, 50, 54, 0.18);
+  --input: rgba(43, 50, 54, 0.12);
   --ring: #F99912;
 
   --chart-1: #F99912;
@@ -57,7 +57,7 @@
 
 .dark {
   /* Keep the app consistently light */
-  --background: #F6F6F6;
+  --background: #F4F4F1;
   --foreground: #2B3236;
   --card: #FFFFFF;
   --card-foreground: #2B3236;
@@ -67,14 +67,14 @@
   --primary-foreground: #2B3236;
   --secondary: #9ACD32;
   --secondary-foreground: #2B3236;
-  --muted: #F5F7FA;
-  --muted-foreground: #717171;
+  --muted: #E8ECE6;
+  --muted-foreground: #4C565D;
   --accent: #9370DB;
   --accent-foreground: #2B3236;
   --destructive: #E74C3C;
   --destructive-foreground: #ffffff;
-  --border: rgba(43, 50, 54, 0.12);
-  --input: rgba(43, 50, 54, 0.08);
+  --border: rgba(43, 50, 54, 0.18);
+  --input: rgba(43, 50, 54, 0.12);
   --ring: #F99912;
   --chart-1: #F99912;
   --chart-2: #9ACD32;
