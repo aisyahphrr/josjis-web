@@ -1,5 +1,5 @@
-import CartView from "@/src/components/views/user/cart/cart-view";
+import CartPage from "@/src/components/views/user/cart/cart-page";
 
-export default function CartPage() {
-  return <CartView />;
+export default function CartPageRoute() {
+  return <CartPage />;
 }

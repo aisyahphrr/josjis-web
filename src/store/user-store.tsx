@@ -7,8 +7,14 @@ import { getProductById } from "@/src/lib/constants/user/marketplace/products";
 export type PaymentMethod = "bank" | "ewallet" | "va";
 
 export type CartItem = {
-  productId: number;
+  productId: string | number;
   quantity: number;
+  product?: {
+    id: string | number;
+    name: string;
+    price: number;
+    sellerName: string;
+  };
 };
 
 export type OrderStatus = "processing" | "shipping" | "delivered";
@@ -71,9 +77,13 @@ type State = {
 };
 
 type Actions = {
-  addToCart: (productId: number, quantity?: number) => void;
-  removeFromCart: (productId: number) => void;
-  setCartQuantity: (productId: number, quantity: number) => void;
+  addToCart: (
+    productId: string | number,
+    quantity?: number,
+    productData?: { name: string; price: number; sellerName: string },
+  ) => void;
+  removeFromCart: (productId: string | number) => void;
+  setCartQuantity: (productId: string | number, quantity: number) => void;
   clearCart: () => void;
 
   toggleWishlist: (productId: number) => void;
@@ -182,9 +192,12 @@ export function UserStoreProvider({ children }: { children: React.ReactNode }) {
         coins: typeof next.coins === "number" ? next.coins : prev.coins,
         energy: typeof next.energy === "number" ? next.energy : prev.energy,
         seeds:
-          next.seeds && typeof next.seeds === "object" ? (next.seeds as State["seeds"]) : prev.seeds,
+          next.seeds && typeof next.seeds === "object"
+            ? (next.seeds as State["seeds"])
+            : prev.seeds,
         lastDailyClaimISODate:
-          typeof next.lastDailyClaimISODate === "string" || next.lastDailyClaimISODate === null
+          typeof next.lastDailyClaimISODate === "string" ||
+          next.lastDailyClaimISODate === null
             ? (next.lastDailyClaimISODate as State["lastDailyClaimISODate"])
             : prev.lastDailyClaimISODate,
       }));
@@ -199,25 +212,60 @@ export function UserStoreProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state]);
 
-  const addToCart: Actions["addToCart"] = (productId, quantity = 1) => {
-    const product = getProductById(productId);
-    if (!product) return;
+  const addToCart: Actions["addToCart"] = (
+    productId,
+    quantity = 1,
+    productData,
+  ) => {
+    // Try to get product from local database first
+    let product = getProductById(productId as number);
+
+    // If not found locally and productData provided, use that
+    if (!product && productData) {
+      product = {
+        id: productId,
+        name: productData.name,
+        price: productData.price,
+        sellerName: productData.sellerName,
+        rating: 4.5,
+        reviewsCount: 0,
+        description: "",
+        sellerDescription: "",
+        category: "",
+        badge: undefined,
+        originalPrice: undefined,
+        images: [],
+      } as any;
+    }
+
+    if (!product && !productData) return;
 
     setState((prev) => {
       const existing = prev.cart.find((c) => c.productId === productId);
+      const cartItem: CartItem = {
+        productId,
+        quantity: existing ? existing.quantity + quantity : quantity,
+        product:
+          productData || product
+            ? {
+                id: productId,
+                name: productData?.name || product?.name || "",
+                price: productData?.price || product?.price || 0,
+                sellerName:
+                  productData?.sellerName || product?.sellerName || "",
+              }
+            : undefined,
+      };
+
       const nextCart = existing
-        ? prev.cart.map((c) =>
-            c.productId === productId
-              ? { ...c, quantity: c.quantity + quantity }
-              : c,
-          )
-        : [...prev.cart, { productId, quantity }];
+        ? prev.cart.map((c) => (c.productId === productId ? cartItem : c))
+        : [...prev.cart, cartItem];
       return { ...prev, cart: nextCart };
     });
 
     toast({
       title: "Berhasil ditambahkan",
-      description: `"${product.name}" masuk ke keranjang.`,
+      description: `"${productData?.name || product?.name}" masuk ke keranjang.`,
     });
   };
 
@@ -278,9 +326,7 @@ export function UserStoreProvider({ children }: { children: React.ReactNode }) {
       wishlist: prev.wishlist.filter((id) => id !== productId),
       cart: prev.cart.some((c) => c.productId === productId)
         ? prev.cart.map((c) =>
-            c.productId === productId
-              ? { ...c, quantity: c.quantity + 1 }
-              : c,
+            c.productId === productId ? { ...c, quantity: c.quantity + 1 } : c,
           )
         : [...prev.cart, { productId, quantity: 1 }],
     }));
@@ -296,9 +342,23 @@ export function UserStoreProvider({ children }: { children: React.ReactNode }) {
     setState((prev) => {
       const items = prev.cart
         .map((c) => {
-          const p = getProductById(c.productId);
+          // Try to get price from stored product data first
+          if (c.product) {
+            return {
+              productId: c.productId,
+              quantity: c.quantity,
+              price: c.product.price,
+            };
+          }
+
+          // Fallback to local database lookup
+          const p = getProductById(c.productId as number);
           if (!p) return null;
-          return { productId: c.productId, quantity: c.quantity, price: p.price };
+          return {
+            productId: c.productId,
+            quantity: c.quantity,
+            price: p.price,
+          };
         })
         .filter(Boolean) as OrderItem[];
 
@@ -389,7 +449,8 @@ export function UserStoreProvider({ children }: { children: React.ReactNode }) {
     if (!ok) {
       toast({
         title: "Energi tidak cukup",
-        description: "Tunggu bonus harian atau kembali besok untuk energi tambahan.",
+        description:
+          "Tunggu bonus harian atau kembali besok untuk energi tambahan.",
       });
     }
     return ok;
@@ -482,7 +543,7 @@ export function UserStoreProvider({ children }: { children: React.ReactNode }) {
 
 export function useUserStore() {
   const ctx = React.useContext(UserStoreContext);
-  if (!ctx) throw new Error("useUserStore must be used within UserStoreProvider");
+  if (!ctx)
+    throw new Error("useUserStore must be used within UserStoreProvider");
   return ctx;
 }
-
