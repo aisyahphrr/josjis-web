@@ -86,6 +86,7 @@ export async function POST(request: Request) {
         name: input.name,
         phone: input.phone,
         role: input.role,
+        emailVerified: new Date(),
         customerProfile:
           input.role === UserRole.USER
             ? {
@@ -123,18 +124,38 @@ export async function POST(request: Request) {
         name: true,
         email: true,
         role: true,
+        umkmProfile:
+          input.role === UserRole.UMKM
+            ? { select: { businessName: true } }
+            : false,
       },
     });
 
     return NextResponse.json(
       {
-        message: "Registrasi berhasil.",
-        user: createdUser,
+        message: "Registrasi berhasil. Silakan login dengan akun Anda.",
+        user: {
+          ...createdUser,
+          emailVerified: true,
+        },
       },
       { status: 201 },
     );
   } catch (error) {
     console.error("REGISTER_ERROR", error);
+
+    // Handle unique constraint violation for email
+    if (
+      error instanceof Error &&
+      error.message.includes("Unique constraint failed")
+    ) {
+      return NextResponse.json(
+        {
+          message: "Email sudah terdaftar.",
+        },
+        { status: 409 },
+      );
+    }
 
     return NextResponse.json(
       {

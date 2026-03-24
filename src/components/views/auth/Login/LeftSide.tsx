@@ -10,6 +10,7 @@ import {
   Sparkles,
   Lock,
   ArrowLeft,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -25,6 +26,8 @@ export function LeftSide() {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showResendVerification, setShowResendVerification] = useState(false);
+  const [isResendingVerification, setIsResendingVerification] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -33,6 +36,7 @@ export function LeftSide() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setShowResendVerification(false);
 
     try {
       const result = await signIn("credentials", {
@@ -42,6 +46,54 @@ export function LeftSide() {
       });
 
       if (result?.error) {
+        // Check user status for better error messages
+        try {
+          const userResponse = await fetch("/api/auth/check-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: formData.email }),
+          });
+
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+
+            if (userData.exists) {
+              const { role, approvalStatus } = userData;
+
+              // Check if UMKM/DRIVER is waiting for approval
+              if (
+                (role === UserRole.UMKM || role === UserRole.DRIVER) &&
+                approvalStatus === "PENDING"
+              ) {
+                toast({
+                  title: "Akun Menunggu Persetujuan",
+                  description: `Akun ${role === UserRole.UMKM ? "UMKM" : "Driver"} Anda sedang menunggu persetujuan dari admin. Silakan coba lagi nanti.`,
+                  variant: "destructive",
+                });
+                setIsLoading(false);
+                return;
+              }
+
+              // Check if UMKM/DRIVER was rejected
+              if (
+                (role === UserRole.UMKM || role === UserRole.DRIVER) &&
+                approvalStatus === "REJECTED"
+              ) {
+                toast({
+                  title: "Permohonan Ditolak",
+                  description: `Permohonan ${role === UserRole.UMKM ? "UMKM" : "Driver"} Anda telah ditolak. Silakan hubungi admin untuk informasi lebih lanjut.`,
+                  variant: "destructive",
+                });
+                setIsLoading(false);
+                return;
+              }
+            }
+          }
+        } catch (err) {
+          // If check fails, continue with generic error
+          console.error("Error checking email:", err);
+        }
+
         toast({
           title: "Login Gagal",
           description: "Email atau password salah",
@@ -58,13 +110,19 @@ export function LeftSide() {
         );
 
         if (newSession?.user?.role) {
+          const userRole = newSession.user.role as UserRole;
+
+          // Check if UMKM or DRIVER is waiting for approval
+          if (userRole === UserRole.UMKM || userRole === UserRole.DRIVER) {
+            // We'll check approval status and show message on dashboard
+          }
+
           toast({
             title: "Login Berhasil",
             description: "Selamat datang kembali!",
             variant: "default",
           });
-          const dashboardUrl =
-            DASHBOARD_HOME_BY_ROLE[newSession.user.role as UserRole];
+          const dashboardUrl = DASHBOARD_HOME_BY_ROLE[userRole];
           router.push(dashboardUrl);
         } else {
           // Fallback to user dashboard if role not found
@@ -78,6 +136,52 @@ export function LeftSide() {
         variant: "destructive",
       });
       setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!formData.email) {
+      toast({
+        title: "Error",
+        description: "Silakan masukkan email Anda",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsResendingVerification(true);
+      const response = await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast({
+          title: "Gagal",
+          description: data.message || "Gagal mengirim email verifikasi",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Berhasil",
+          description: "Email verifikasi telah dikirim. Silakan cek inbox Anda",
+          variant: "default",
+        });
+        setShowResendVerification(false);
+      }
+    } catch (err) {
+      toast({
+        title: "Error",
+        description:
+          "Terjadi kesalahan. Email verification endpoint tidak tersedia.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResendingVerification(false);
     }
   };
 
@@ -198,6 +302,35 @@ export function LeftSide() {
               </>
             )}
           </Button>
+
+          {showResendVerification && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-yellow-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-yellow-900">
+                    Email Belum Diverifikasi
+                  </p>
+                  <p className="text-sm text-yellow-800 mt-1">
+                    Silakan verifikasi email Anda terlebih dahulu untuk
+                    melanjutkan login.
+                  </p>
+                </div>
+              </div>
+              <Button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={isResendingVerification}
+                className="w-full h-10 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg text-sm font-medium"
+              >
+                {isResendingVerification ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  "Kirim Ulang Email Verifikasi"
+                )}
+              </Button>
+            </div>
+          )}
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">

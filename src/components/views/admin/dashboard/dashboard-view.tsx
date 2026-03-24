@@ -32,7 +32,14 @@ import {
   YAxis,
 } from "recharts"
 
-export default function AdminDashboardPage() {
+interface AdminDashboardPageProps {
+  totalUsers: number
+  totalDrivers: number
+  totalUmkm: number
+  monthlyGrowthData: { label: string; users: number; umkm: number; drivers: number }[]
+}
+
+export default function AdminDashboardPage({ totalUsers, totalDrivers, totalUmkm, monthlyGrowthData }: AdminDashboardPageProps) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -41,12 +48,9 @@ export default function AdminDashboardPage() {
   }, [])
 
   const stats = useMemo(() => {
-    const totalUsers = dummyUsers.filter((u) => u.role === "user").length
-    const totalDrivers = dummyUsers.filter((u) => u.role === "driver").length
-    const totalUmkm = dummyUmkm.filter((u) => u.approvalStatus === "approved").length
     const totalTrx = dummyTransactions.length
     return { totalUsers, totalDrivers, totalUmkm, totalTrx }
-  }, [])
+  }, [totalUsers, totalDrivers, totalUmkm])
 
   const pendingUmkmCount = dummyUmkm.filter((u) => u.approvalStatus === "pending").length
   const pendingReportsCount = 5
@@ -110,7 +114,7 @@ export default function AdminDashboardPage() {
           <CardContent className="pt-2">
             <div className="h-[320px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={dummyMonthlyGrowth}>
+                <BarChart data={monthlyGrowthData}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
                   <XAxis dataKey="label" tickLine={false} axisLine={false} />
                   <YAxis tickLine={false} axisLine={false} />

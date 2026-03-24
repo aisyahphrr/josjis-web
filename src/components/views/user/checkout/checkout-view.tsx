@@ -26,7 +26,14 @@ import {
 import Link from "next/link";
 import { useUserStore } from "@/src/store/user-store";
 import { getProductById } from "@/src/lib/constants/user/marketplace/products";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import toast from "react-hot-toast";
+
+declare global {
+  interface Window {
+    snap: any;
+  }
+}
 
 const paymentMethods = [
   {
@@ -57,11 +64,42 @@ export default function CheckoutPage() {
   const [selectedProvider, setSelectedProvider] = useState<string>("GoPay");
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastOrderId, setLastOrderId] = useState<string | null>(null);
+  const [shippingAddress, setShippingAddress] = useState<string>("");
+  const [notes, setNotes] = useState<string>("");
+
+  useEffect(() => {
+    // Load script Snap Midtrans
+    const snapScript = "https://app.sandbox.midtrans.com/snap/snap.js";
+    const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || "";
+
+    const script = document.createElement("script");
+    script.src = snapScript;
+    script.setAttribute("data-client-key", clientKey);
+    script.async = true;
+
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   const orderItems = useMemo(() => {
     return cart
       .map((c) => {
-        const p = getProductById(c.productId);
+        // Try to get from stored product data first
+        if (c.product) {
+          return {
+            id: c.productId,
+            name: c.product.name,
+            price: c.product.price,
+            quantity: c.quantity,
+            seller: c.product.sellerName,
+          };
+        }
+
+        // Fallback to local database lookup
+        const p = getProductById(c.productId as number);
         if (!p) return null;
         return {
           id: p.id,
@@ -72,7 +110,7 @@ export default function CheckoutPage() {
         };
       })
       .filter(Boolean) as Array<{
-      id: number;
+      id: string | number;
       name: string;
       price: number;
       quantity: number;
@@ -92,10 +130,85 @@ export default function CheckoutPage() {
 
   const handlePayment = async () => {
     setIsProcessing(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    const order = checkout(selectedPayment, { provider: selectedProvider });
-    setLastOrderId(order.id);
-    setIsProcessing(false);
+
+    if (!shippingAddress || shippingAddress.trim() === "") {
+      toast.error("Alamat pengiriman diperlukan");
+      setIsProcessing(false);
+      return;
+    }
+
+    try {
+      // For MVP: prepare order items with available data
+      // In production, fetch sellerId from product database
+      const apiOrderItems = cart.map((c) => ({
+        productId: String(c.productId),
+        productName: c.product?.name || "Produk Marketplace",
+        sellerId: c.product?.sellerName || "unknown", // Temp: use sellerName as fallback
+        quantity: c.quantity,
+        unitPriceInIdr: c.product?.price || 0,
+        subtotalInIdr: (c.product?.price || 0) * c.quantity,
+      }));
+
+      // Call API to create order in database and get snap token
+      const orderResponse = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: apiOrderItems,
+          totalAmountInIdr: total,
+          shippingAddress,
+          notes,
+          paymentMethod: selectedPayment,
+          paymentProvider: selectedProvider,
+        }),
+      });
+
+      if (!orderResponse.ok) {
+        const errorData = await orderResponse.json();
+        throw new Error(errorData.message || "Failed to create order");
+      }
+
+      const orderData = await orderResponse.json();
+
+      // Trigger Midtrans Snap
+      if (window.snap && orderData.token) {
+        window.snap.pay(orderData.token, {
+          onSuccess: function () {
+            toast.success("Pembayaran Berhasil!");
+            // Also save to local store just in case
+            const order = checkout(selectedPayment, {
+              provider: selectedProvider,
+            });
+            setLastOrderId(order.id);
+            setIsProcessing(false);
+          },
+          onPending: function () {
+            toast.success("Menunggu pembayaran Anda!");
+            const order = checkout(selectedPayment, {
+              provider: selectedProvider,
+            });
+            setLastOrderId(order.id);
+            setIsProcessing(false);
+          },
+          onError: function () {
+            toast.error("Pembayaran Gagal.");
+            setIsProcessing(false);
+          },
+          onClose: function () {
+            toast.error("Anda belum menyelesaikan pembayaran");
+            setIsProcessing(false);
+          },
+        });
+      } else {
+        throw new Error("Gagal memuat sistem pembayaran");
+      }
+    } catch (error) {
+      console.error("Error processing payment:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Gagal membuat order",
+      );
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -133,8 +246,8 @@ export default function CheckoutPage() {
                     {lastOrder.payment.method === "va"
                       ? "Virtual Account"
                       : lastOrder.payment.method === "bank"
-                        ? `Transfer Bank (${lastOrder.payment.bankName})`
-                        : `E-Wallet (${lastOrder.payment.provider})`}
+                        ? `Transfer Bank (${(lastOrder.payment as any).bankName})`
+                        : `E-Wallet (${(lastOrder.payment as any).provider})`}
                   </p>
 
                   {lastOrder.payment.method === "ewallet" ? (
@@ -144,7 +257,7 @@ export default function CheckoutPage() {
                           Payment link
                         </p>
                         <p className="text-sm font-mono truncate">
-                          {lastOrder.payment.paymentLink}
+                          {(lastOrder.payment as any).paymentLink}
                         </p>
                       </div>
                       <Button
@@ -152,7 +265,7 @@ export default function CheckoutPage() {
                         className="border-[#F99912]/30 hover:bg-[#F99912]/10"
                         onClick={async () => {
                           await navigator.clipboard.writeText(
-                            lastOrder.payment.paymentLink,
+                            (lastOrder.payment as any).paymentLink,
                           );
                         }}
                       >
@@ -167,7 +280,7 @@ export default function CheckoutPage() {
                           Nomor Virtual Account
                         </p>
                         <p className="text-lg font-mono font-semibold">
-                          {lastOrder.payment.virtualAccountNumber}
+                          {(lastOrder.payment as any).virtualAccountNumber}
                         </p>
                       </div>
                       <Button
@@ -175,7 +288,7 @@ export default function CheckoutPage() {
                         className="border-[#F99912]/30 hover:bg-[#F99912]/10"
                         onClick={async () => {
                           await navigator.clipboard.writeText(
-                            lastOrder.payment.virtualAccountNumber,
+                            (lastOrder.payment as any).virtualAccountNumber,
                           );
                         }}
                       >
@@ -188,7 +301,7 @@ export default function CheckoutPage() {
 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link href="/orders" className="flex-1">
-                    <Button className="w-full bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612]">
+                    <Button className="w-full bg-linear-to-r from-[#F99912] to-[#64762C] text-[#181612]">
                       Lihat Riwayat
                     </Button>
                   </Link>
@@ -239,8 +352,9 @@ export default function CheckoutPage() {
                     <Textarea
                       id="address"
                       placeholder="Jl. contoh No. 123, RT/RW, Kelurahan, Kecamatan"
-                      defaultValue="Jl. Pajajaran No. 123, RT 01/RW 02, Tegallega, Bogor Tengah"
-                      className="bg-muted/50 border-[#F99912]/10 focus:border-[#F99912]/50 min-h-[100px]"
+                      value={shippingAddress}
+                      onChange={(e) => setShippingAddress(e.target.value)}
+                      className="bg-muted/50 border-[#F99912]/10 focus:border-[#F99912]/50 min-h-25"
                     />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -299,7 +413,11 @@ export default function CheckoutPage() {
                             ? "border-[#F99912] bg-[#F99912]/5"
                             : "border-[#F99912]/10 hover:border-[#F99912]/30"
                         }`}
-                        onClick={() => setSelectedPayment(method.id)}
+                        onClick={() =>
+                          setSelectedPayment(
+                            method.id as "ewallet" | "bank" | "va",
+                          )
+                        }
                       >
                         <RadioGroupItem
                           value={method.id}
@@ -374,7 +492,7 @@ export default function CheckoutPage() {
                       key={item.id}
                       className="flex items-center gap-4 p-3 rounded-xl bg-muted/30"
                     >
-                      <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#F99912]/20 to-[#64762C]/20 flex items-center justify-center flex-shrink-0">
+                      <div className="w-16 h-16 rounded-xl bg-linear-to-br from-[#F99912]/20 to-[#64762C]/20 flex items-center justify-center shrink-0">
                         <ShoppingBag className="w-6 h-6 text-[#F99912]/50" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -431,7 +549,7 @@ export default function CheckoutPage() {
               </div>
 
               <Button
-                className="w-full bg-gradient-to-r from-[#F99912] to-[#64762C] text-[#181612] hover:shadow-[0_0_20px_rgba(249,153,18,0.3)]"
+                className="w-full bg-linear-to-r from-[#F99912] to-[#64762C] text-[#181612] hover:shadow-[0_0_20px_rgba(249,153,18,0.3)]"
                 onClick={handlePayment}
                 disabled={
                   isProcessing || orderItems.length === 0 || !!lastOrder

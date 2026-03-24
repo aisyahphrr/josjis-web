@@ -36,11 +36,22 @@ export const authOptions: NextAuthOptions = {
           where: {
             email: credentials.email,
           },
+          include: {
+            umkmProfile: true,
+            driverProfile: true,
+          },
         });
 
         if (!user || !user.isActive) {
           return null;
         }
+
+        // TODO: Implement email verification system
+        // For now, allow login with unverified emails
+        // const userWithVerified = user as any;
+        // if (!userWithVerified.emailVerified) {
+        //   return null;
+        // }
 
         const isPasswordValid = await compare(
           credentials.password,
@@ -49,6 +60,19 @@ export const authOptions: NextAuthOptions = {
 
         if (!isPasswordValid) {
           return null;
+        }
+
+        // For UMKM and DRIVER, check if approved before allowing login
+        if (user.role === "UMKM") {
+          if (user.umkmProfile?.approvalStatus !== "APPROVED") {
+            return null; // Block login if not approved
+          }
+        }
+
+        if (user.role === "DRIVER") {
+          if (user.driverProfile?.approvalStatus !== "APPROVED") {
+            return null; // Block login if not approved
+          }
         }
 
         return {

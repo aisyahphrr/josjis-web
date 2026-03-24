@@ -1,5 +1,5 @@
-import { MarketplacePreview } from "@/src/components/LandingPage/marketplace-preview";
+import MarketplacePage from "@/src/components/views/user/marketplace/marketplace-view";
 
 export default function DashboardUserMarketplacePage() {
-  return <MarketplacePreview />;
+  return <MarketplacePage />;
 }

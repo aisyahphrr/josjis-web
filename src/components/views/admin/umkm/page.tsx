@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { Eye, Pencil, Search, Store, Trash2, Mail, Phone, MapPin, Tag, Package, Activity, FileText, User, Star } from "lucide-react"
 import toast from "react-hot-toast"
 
-import { dummyUmkm, type UmkmRecord } from "@/src/lib/dummyData"
+import type { UmkmRecord } from "@/src/lib/dummyData"
 import { PageHeader } from "@/src/components/views/admin/layouts/page-header"
 import { TableSkeleton } from "@/src/components/views/admin/layouts/loading-skeletons"
 import { ConfirmDialog } from "@/src/components/views/admin/layouts/confirm-dialog"
@@ -27,12 +27,12 @@ import {
   DialogTitle,
 } from "@/src/components/ui/dialog"
 
-export default function AdminUmkmPage() {
+export default function AdminUmkmPage({ initialUmkm }: { initialUmkm: UmkmRecord[] }) {
   const [isLoading, setIsLoading] = useState(true)
   const [query, setQuery] = useState("")
   const [category, setCategory] = useState("Semua")
   const [items, setItems] = useState<UmkmRecord[]>(
-    dummyUmkm.filter((u) => u.approvalStatus === "approved"),
+    initialUmkm.filter((u) => u.approvalStatus === "approved"),
   )
 
   const [detailOpen, setDetailOpen] = useState(false)
