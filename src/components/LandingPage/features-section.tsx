@@ -113,12 +113,22 @@ const roleCards: RoleCard[] = [
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="relative py-24 overflow-hidden">
-      {/* Soft background (no neon/glow) */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-[#FDF5E7] to-background" />
-      <div className="absolute -top-40 -right-20 w-[34rem] h-[34rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(249,153,18,0.20)_0%,transparent_62%)] pointer-events-none" />
-      <div className="absolute -bottom-44 -left-24 w-[36rem] h-[36rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(147,112,219,0.18)_0%,transparent_62%)] pointer-events-none" />
-      <div className="absolute top-24 left-1/3 w-[30rem] h-[18rem] bg-[linear-gradient(to_right,rgba(249,153,18,0.10),rgba(154,205,50,0.09),rgba(147,112,219,0.09))] opacity-80 blur-2xl pointer-events-none" />
+    <section id="features" className="relative py-28 overflow-hidden z-10 -mt-10">
+      {/* Background with soft creative vibe */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#FFFcf8] to-background" />
+      
+      {/* Dynamic Colored Blobs */}
+      <div className="absolute -top-40 -right-20 w-[34rem] h-[34rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(249,153,18,0.15)_0%,transparent_62%)] pointer-events-none" />
+      <div className="absolute top-1/2 -left-24 w-[36rem] h-[36rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(147,112,219,0.12)_0%,transparent_62%)] pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[28rem] h-[28rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(154,205,50,0.12)_0%,transparent_62%)] pointer-events-none" />
+      
+      {/* Decorative Geometric Shapes */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden perspective-1000 z-0">
+        <div className="absolute top-[10%] left-[8%] w-12 h-12 bg-gradient-to-br from-[#9ACD32] to-[#AED581] rounded-xl opacity-60 animate-float rotate-45 shadow-lg" />
+        <div className="absolute bottom-[20%] right-[10%] w-16 h-16 bg-gradient-to-tr from-[#F99912] to-[#FFB75E] rounded-full opacity-50 animate-float-alt shadow-xl" />
+        <div className="absolute top-[40%] right-[5%] w-8 h-8 border-4 border-[#9370DB] rounded-full opacity-40 animate-spin-slow" />
+        <div className="absolute bottom-[10%] left-[15%] w-10 h-10 border-4 border-[#F99912]/50 rounded-lg opacity-40 animate-float rotate-12" />
+      </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
@@ -162,6 +172,25 @@ export function FeaturesSection() {
           ))}
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(45deg); }
+          50% { transform: translateY(-20px) rotate(50deg); }
+        }
+        @keyframes float-alt {
+          0%, 100% { transform: translateY(0px) scale(1); }
+          50% { transform: translateY(-15px) scale(1.05); }
+        }
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-float { animation: float 7s ease-in-out infinite; }
+        .animate-float-alt { animation: float-alt 6s ease-in-out infinite reverse; }
+        .animate-spin-slow { animation: spin-slow 15s linear infinite; }
+        .perspective-1000 { perspective: 1000px; }
+      `}</style>
     </section>
   );
 }
