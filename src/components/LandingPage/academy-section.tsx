@@ -54,9 +54,20 @@ const levels = [
 export function AcademySection() {
   return (
     <section id="academy" className="relative py-24 overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-linear-to-b from-background via-muted/20 to-background" />
-      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[radial-gradient(circle_at_center,rgba(154,205,50,0.20)_0%,transparent_62%)] rounded-full blur-3xl" />
+      {/* Soft Creative Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#Fdf8fc] to-background" />
+      
+      {/* Dynamic Colored Blobs */}
+      <div className="absolute -top-40 -left-20 w-[34rem] h-[34rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(147,112,219,0.12)_0%,transparent_62%)] pointer-events-none" />
+      <div className="absolute top-1/2 -right-24 w-[36rem] h-[36rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(249,153,18,0.1)_0%,transparent_62%)] pointer-events-none" />
+      <div className="absolute bottom-0 left-1/4 w-[28rem] h-[28rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(154,205,50,0.15)_0%,transparent_62%)] pointer-events-none" />
+      
+      {/* Decorative Geometric Shapes */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden perspective-1000 z-0">
+        <div className="absolute top-[10%] right-[8%] w-14 h-14 bg-gradient-to-br from-[#9370DB] to-[#B39DDB] rounded-2xl opacity-50 animate-float rotate-12 shadow-lg" />
+        <div className="absolute bottom-[25%] left-[5%] w-10 h-10 bg-gradient-to-tr from-[#9ACD32] to-[#AED581] rounded-full opacity-60 animate-float-alt shadow-md" />
+        <div className="absolute top-[50%] left-[80%] w-12 h-12 border-4 border-[#F99912]/50 rounded-full opacity-40 animate-spin-slow rotate-45" />
+      </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -211,6 +222,25 @@ export function AcademySection() {
           ))}
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(12deg); }
+          50% { transform: translateY(-20px) rotate(15deg); }
+        }
+        @keyframes float-alt {
+          0%, 100% { transform: translateY(0px) scale(1); }
+          50% { transform: translateY(-15px) scale(1.1); }
+        }
+        @keyframes spin-slow {
+          from { transform: rotate(45deg); }
+          to { transform: rotate(405deg); }
+        }
+        .animate-float { animation: float 8s ease-in-out infinite; }
+        .animate-float-alt { animation: float-alt 7s ease-in-out infinite reverse; }
+        .animate-spin-slow { animation: spin-slow 20s linear infinite; }
+        .perspective-1000 { perspective: 1000px; }
+      `}</style>
     </section>
   );
 }
